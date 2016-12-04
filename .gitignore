@@ -1,0 +1,8 @@
+# Latex
+*.aux
+*.bbl
+*.blg
+*.dvi
+*.log
+report/*.pdf
+*.ps
