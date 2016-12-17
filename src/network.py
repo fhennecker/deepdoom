@@ -50,3 +50,5 @@ if __name__ == '__main__':
 
             if i % 100 == 0:
                 print('Step %d : %d' % (i, loss_value))
+    return game_features
+
