@@ -32,7 +32,7 @@ def build_graph(h, w, k, batch_size):
     return x, y, game_features
 
 def loss(targets, predictions):
-    return tf.reduce_mean(tf.square(targets-predictions))
+    return tf.reduce_mean(tf.reduce_mean(tf.square(targets-predictions), 1))
 
 if __name__ == '__main__':
     Xtr = np.ones((100, 125, 200, 3))
