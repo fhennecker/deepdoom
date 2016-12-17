@@ -1,4 +1,5 @@
 import tensorflow as tf
+import numpy as np
 
 def conv(x, shape, strides):
     W = tf.Variable(tf.truncated_normal(shape, stddev=0.1))
@@ -15,7 +16,7 @@ def linear(x, n_output_cells):
     return tf.matmul(x, W) + b
 
 def build_graph(h, w, k):
-    x = tf.placeholder(tf.float32, shape=[h, h, 3])
+    x = tf.placeholder(tf.float32, shape=[h, w, 3])
     y = tf.placeholder(tf.float32, shape=[k])
     
     # shape is [kernel_h, kernel_w, n_input_channels, n_output_channels]
@@ -24,8 +25,28 @@ def build_graph(h, w, k):
     layer4 = tf.tanh(linear(conv2, 512))
     game_features = linear(layer4, k)
 
-    return game_features
+    return x, y, game_features
+
+def loss(targets, predictions):
+    return tf.reduce_mean(tf.square(targets-predictions))
 
 if __name__ == '__main__':
-    build_graph(125, 200, 3)
+    Xtr = np.ones((100, 125, 200, 3))
+    ytr = np.ones((100, 1))
 
+    x, y, output = build_graph(125, 200, 1)
+    l = loss(y, output)
+    train_step = tf.train.RMSPropOptimizer(0.001).minimize(l)
+
+    with tf.Session() as sess:
+        init = tf.global_variables_initializer()
+        sess.run(init)
+
+        for i in range(100000):
+            x_batch = Xtr[0]
+            y_batch = ytr[0]
+            loss_value, _ = sess.run([l, train_step], 
+                    feed_dict={x: x_batch, y: y_batch})
+
+            if i % 100 == 0:
+                print('Step %d : %d' % (i, loss_value))
