@@ -18,13 +18,25 @@ game.init()
 
 actions = [[1, 0, 0], [0, 1, 0], [0, 0, 1]]
 
-for i in tqdm(range(20)):
+
+dump = []
+
+for i in tqdm(range(200)):
     game.new_episode()
 
     while not game.is_episode_finished():
-        print(where_is_the_ennemy_x(game.get_state()))
+        state = game.get_state()
+        dump.append((state.screen_buffer, where_is_the_ennemy_x(state)))
         reward = game.make_action(random.choice(actions))
-        sleep(0.01)
-    sleep(1)
 game.close()
+
+
+print(len(dump))
+
+X, Y = map(np.array, zip(*dump))
+np.array(X).tofile("screens.dump")
+print("screens:", X.shape)
+
+np.array(Y).tofile("ennemies.dump")
+print("ennemies:", Y.shape)
 
