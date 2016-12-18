@@ -41,18 +41,23 @@ if __name__ == '__main__':
 
     x, y, output = build_graph(125, 200, 1, batch_size)
     l = loss(y, output)
+    loss_summary = tf.summary.scalar('loss', l)
+
     train_step = tf.train.RMSPropOptimizer(0.001).minimize(l)
 
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
 
+        train_writer = tf.summary.FileWriter('/tmp/train', sess.graph)
+
         for i in range(100000):
             x_batch = Xtr[0:batch_size]
             y_batch = ytr[0:batch_size]
-            loss_value, _ = sess.run([l, train_step], 
+            loss_value, _, summary = sess.run([l, train_step, loss_summary], 
                     feed_dict={x: x_batch, y: y_batch})
 
             if i % 100 == 0:
                 print('Step %d : %d' % (i, loss_value))
+                train_writer.add_summary(summary, i)
 
