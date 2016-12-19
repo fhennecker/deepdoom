@@ -10,5 +10,7 @@ RUN apt-get install -y python3 python3-dev python3-pip build-essential \
 	libwildmidi-dev libboost-all-dev wget zip
 RUN pip3 install numpy
 RUN pip3 install git+https://github.com/Marqt/ViZDoom
+RUN pip3 install --upgrade pip
+RUN pip3 install tensorflow
 
-CMD cd /src && python3 basic.py
+CMD cd /src && python3 network.py
