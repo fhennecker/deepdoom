@@ -2,23 +2,6 @@ import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
 
-def conv(x, shape, strides):
-    W = tf.Variable(tf.truncated_normal(shape, stddev=0.1))
-    b = tf.Variable(tf.constant(0.1, shape=[shape[-1]]))
-    return tf.nn.conv2d(x, W, strides=strides, padding='SAME')
-
-def linear(x, n_output_cells, batch_size):
-    unstacked = tf.unstack(x, num=batch_size)
-    batch = []
-    W = tf.Variable(tf.truncated_normal(
-        [int(tf.reshape(unstacked[0], [1,-1]).get_shape()[1]), n_output_cells], 
-        stddev=0.1
-    ))
-    b = tf.Variable(tf.constant(0.1, shape=[n_output_cells]))
-    for individual_x in tf.unstack(x, num=batch_size):
-        individual_x = tf.reshape(individual_x, [1, -1])  # flatten
-        batch.append(tf.matmul(individual_x, W) + b)
-    return tf.pack(batch)
 
 class DRQN():
     def __init__(self, im_h, im_w, k, batch_size, sequence_length, n_actions, scope):
