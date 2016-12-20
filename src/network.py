@@ -29,6 +29,8 @@ class DRQN():
 
         self.images = tf.placeholder(tf.float32, 
                 shape=[batch_size, sequence_length, im_h, im_w, 3])
+        # we'll merge all sequences in one single batch for treatment
+        # but all outputs will be reshaped to [batch_size, length, ...]
         self.all_images = tf.reshape(self.images, 
                 [batch_size*sequence_length, im_h, im_w, 3])
 
@@ -59,11 +61,11 @@ class DRQN():
         self.h_size = int(self.layer3.get_shape()[2])
 
         self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
-        initial_state = self.cell.zero_state(batch_size, tf.float32)
-        self.rnn_output, self.rnn_state = tf.nn.dynamic_rnn(
+        self.state_in = self.cell.zero_state(batch_size, tf.float32)
+        self.rnn_output, self.state_out = tf.nn.dynamic_rnn(
                 self.cell,
                 self.layer3,
-                initial_state=initial_state,
+                initial_state=self.state_in,
                 dtype=tf.float32)
 
         self.rnn_output = tf.reshape(self.rnn_output, [-1, self.h_size])
@@ -85,13 +87,26 @@ if __name__ == '__main__':
     k = 1
     n_actions = 3
     drqn = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'drqn')
+
+    # fake dataset
     Xtr = np.ones((fake_dataset_size, sequence_length, im_h, im_w, 3))
+    
+    # initial LSTM state
+    state = (np.zeros([batch_size, drqn.h_size]), 
+             np.zeros([batch_size, drqn.h_size]))
 
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        print(tf.trainable_variables())
-        action = sess.run([drqn.actions], feed_dict={drqn.images:Xtr[0:batch_size]})
+        print(list(map(lambda v:v.name, tf.trainable_variables())))
+        for iteration in range(2):
+            actions, state = sess.run(
+                    [drqn.actions, drqn.state_out], 
+                    feed_dict={
+                        drqn.images : Xtr[0:batch_size],
+                        drqn.state_in : state,
+                    }
+            )
 
     #  x, y, output = build_graph(125, 200, 1, batch_size)
     #  l = loss(y, output)
