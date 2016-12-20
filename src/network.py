@@ -31,7 +31,12 @@ class DRQN():
                 shape=[batch_size, sequence_length, im_h, im_w, 3])
         self.all_images = tf.reshape(self.images, 
                 [batch_size*sequence_length, im_h, im_w, 3])
+
+        self._init_conv_layers()
+        self._init_game_features_output()
+        self._init_recurrent_part()
         
+    def _init_conv_layers(self):
         self.conv1 = slim.conv2d(
                 self.all_images, 32, [8, 8], [4, 4], 'VALID',
                 biases_initializer=None, scope=self.scope+'_conv1')
@@ -39,10 +44,7 @@ class DRQN():
                 self.conv1, 64, [4, 4], [2, 2], 'VALID',
                 biases_initializer=None, scope=self.scope+'_conv2')
 
-        self.layer3 = tf.reshape(slim.flatten(self.conv2),
-                                 [self.batch_size, self.sequence_length, -1])
-        self.h_size = int(self.layer3.get_shape()[2])
-
+    def _init_game_features_output(self):
         self.layer4 = slim.fully_connected(
                 slim.flatten(self.conv2), 512, scope=self.scope+'_l4')
         self.flat_game_features = slim.fully_connected(
@@ -50,7 +52,11 @@ class DRQN():
         self.game_features = tf.reshape(
                 self.flat_game_features,
                 [self.batch_size, self.sequence_length, k])
-        # game_features and layer3 are of dimension [batch_size, seq_length, ..]
+
+    def _init_recurrent_part(self):
+        self.layer3 = tf.reshape(slim.flatten(self.conv2),
+                                 [self.batch_size, self.sequence_length, -1])
+        self.h_size = int(self.layer3.get_shape()[2])
 
         self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
         initial_state = self.cell.zero_state(batch_size, tf.float32)
