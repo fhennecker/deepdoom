@@ -27,27 +27,32 @@ class DRQN():
         self.sequence_length = sequence_length
         self.scope = scope
 
-        self.images = tf.placeholder(tf.float32, shape=[None, im_h, im_w, 3])
+        self.images = tf.placeholder(tf.float32, 
+                shape=[batch_size, sequence_length, im_h, im_w, 3])
+        self.all_images = tf.reshape(self.images, 
+                [batch_size*sequence_length, im_h, im_w, 3])
         
         self.conv1 = slim.conv2d(
-                self.images, 32, [8, 8], [4, 4], 'VALID',
+                self.all_images, 32, [8, 8], [4, 4], 'VALID',
                 biases_initializer=None, scope=self.scope+'_conv1')
         self.conv2 = slim.conv2d(
                 self.conv1, 64, [4, 4], [2, 2], 'VALID',
                 biases_initializer=None, scope=self.scope+'_conv2')
 
         self.layer3 = tf.reshape(slim.flatten(self.conv2),
-                                 [self.batch_size, self.sequence_length, 4608])
+                                 [self.batch_size, self.sequence_length, -1])
+        self.h_size = int(self.layer3.get_shape()[2])
 
         self.layer4 = slim.fully_connected(
-                self.conv2, 512, scope=self.scope+'_l4')
-        self.game_features = slim.fully_connected(
-                self.conv2, k, scope=self.scope+'_l4.5')
+                slim.flatten(self.conv2), 512, scope=self.scope+'_l4')
+        self.flat_game_features = slim.fully_connected(
+                self.layer4, k, scope=self.scope+'_l4.5')
         self.game_features = tf.reshape(
-                slim.flatten(self.game_features),
+                self.flat_game_features,
                 [self.batch_size, self.sequence_length, k])
+        # game_features and layer3 are of dimension [batch_size, seq_length, ..]
 
-        self.cell = tf.nn.rnn_cell.LSTMCell(4608)
+        self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
         initial_state = self.cell.zero_state(batch_size, tf.float32)
         self.rnn_output, self.rnn_state = tf.nn.dynamic_rnn(
                 self.cell,
@@ -55,20 +60,32 @@ class DRQN():
                 initial_state=initial_state,
                 dtype=tf.float32)
 
-        self.rnn_output = tf.reshape(self.rnn_output, 
-                                     [-1, 4608])
+        self.rnn_output = tf.reshape(self.rnn_output, [-1, self.h_size])
         self.actions = slim.fully_connected(
             self.rnn_output, self.n_actions, scope=self.scope+'_actions',
             activation_fn=None)
+        self.actions = tf.reshape(self.actions,
+                [self.batch_size, self.sequence_length, self.n_actions])
 
     #  def loss(targets, predictions):
         #  return tf.reduce_mean(tf.reduce_mean(tf.square(targets-predictions), 1))
 
 if __name__ == '__main__':
-    drqn = DRQN(125, 200, 1, 10, 8, 3, 'drqn')
-    #  Xtr = np.ones((100, 125, 200, 3))
-    #  ytr = np.ones((100, 1))
-    #  batch_size = 3
+    fake_dataset_size = 100
+    batch_size = 10
+    sequence_length = 8
+    im_w = 108
+    im_h = 60
+    k = 1
+    n_actions = 3
+    drqn = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'drqn')
+    Xtr = np.ones((fake_dataset_size, sequence_length, im_h, im_w, 3))
+
+    with tf.Session() as sess:
+        init = tf.global_variables_initializer()
+        sess.run(init)
+        print(tf.trainable_variables())
+        action = sess.run([drqn.actions], feed_dict={drqn.images:Xtr[0:batch_size]})
 
     #  x, y, output = build_graph(125, 200, 1, batch_size)
     #  l = loss(y, output)
