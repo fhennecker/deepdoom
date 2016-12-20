@@ -87,47 +87,75 @@ if __name__ == '__main__':
     im_h = 60
     k = 1
     n_actions = 3
-    drqn = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'drqn')
 
-    # fake dataset
+    main = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'main')
+    target = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'target')
+
+    # fake replay memory
     Xtr = np.ones((fake_dataset_size, sequence_length, im_h, im_w, 3))
     
     # initial LSTM state
-    state = (np.zeros([batch_size, drqn.h_size]), 
-             np.zeros([batch_size, drqn.h_size]))
+    state = (np.zeros([batch_size, main.h_size]), 
+             np.zeros([batch_size, main.h_size]))
 
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         print(list(map(lambda v:v.name, tf.trainable_variables())))
-        for iteration in range(2):
+
+        for episode in range(2):
+            # TODO reset env
+            max_episode_length = 2
+            t = 0
+
+            while t < max_episode_length: # TODO or other reasons to stop episode
+                t += 1
+
+                # # PLAYING BLOCK : 
+                # if epsilon-greedy:
+                #     run main network and save hidden state
+                #     select action at random 
+                # else:
+                #     run main net, save hidden state and chosen action
+                # state, reward = env(action)
+
+                # # TRAINING BLOCK : 
+                # if finished_pretraining (only random actions)
+                #     reduce epsilon
+                #     
+                #     if time to update main network (every 5t or so):
+                #         reset hidden state
+                #         sample batch from replay memory
+                #         predict Qm from main and Qt from target for this batch
+                #         run backprop minimizing Qm-Qt
+                # 
+                #     if time to update target network (every 5000t or so):
+                #         update_target_network() (save weights from main to target)
+                #
+
+            # get actions and hidden_state from network (no backprop):
             actions, state = sess.run(
-                    [drqn.actions, drqn.state_out], 
+                    [main.actions, main.state_out], 
                     feed_dict={
-                        drqn.images : Xtr[0:batch_size],
-                        drqn.state_in : state,
+                        main.images : Xtr[0:batch_size],
+                        main.state_in : state,
                     }
             )
 
-    #  x, y, output = build_graph(125, 200, 1, batch_size)
-    #  l = loss(y, output)
-    #  loss_summary = tf.summary.scalar('loss', l)
-
-    #  train_step = tf.train.RMSPropOptimizer(0.001).minimize(l)
-
-    #  with tf.Session() as sess:
-        #  init = tf.global_variables_initializer()
-        #  sess.run(init)
-
-        #  train_writer = tf.summary.FileWriter('/tmp/train', sess.graph)
-
-        #  for i in range(100000):
-            #  x_batch = Xtr[0:batch_size]
-            #  y_batch = ytr[0:batch_size]
-            #  loss_value, _, summary = sess.run([l, train_step, loss_summary], 
-                    #  feed_dict={x: x_batch, y: y_batch})
-
-            #  if i % 100 == 0:
-                #  print('Step %d : %d' % (i, loss_value))
-                #  train_writer.add_summary(summary, i)
+            # only get hidden state from network (stil no backprop):
+            state = sess.run(
+                    [main.state_out], 
+                    feed_dict={
+                        main.images : Xtr[0:batch_size],
+                        main.state_in : state,
+                    }
+            )
+            # basic structure of a sess.run : 
+            # output1, output2, ... = sess.run(
+            #     [outputnode1, outputnode2, ...],
+            #     feed_dict={
+            #         inputnodeA : somevalue,
+            #         inputnodeB : othervalue,
+            #     }
+            # )
 
