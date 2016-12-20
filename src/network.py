@@ -66,7 +66,8 @@ class DRQN():
                 self.cell,
                 self.layer3,
                 initial_state=self.state_in,
-                dtype=tf.float32)
+                dtype=tf.float32,
+                scope=self.scope+'_RNN/')
 
         self.rnn_output = tf.reshape(self.rnn_output, [-1, self.h_size])
         self.actions = slim.fully_connected(
