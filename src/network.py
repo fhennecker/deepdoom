@@ -1,4 +1,5 @@
 import tensorflow as tf
+import tensorflow.contrib.slim as slim
 import numpy as np
 
 def conv(x, shape, strides):
@@ -19,45 +20,75 @@ def linear(x, n_output_cells, batch_size):
         batch.append(tf.matmul(individual_x, W) + b)
     return tf.pack(batch)
 
-def build_graph(h, w, k, batch_size):
-    x = tf.placeholder(tf.float32, shape=[None, h, w, 3])
-    y = tf.placeholder(tf.float32, shape=[None, k])
-    
-    # shape is [kernel_h, kernel_w, n_input_channels, n_output_channels]
-    conv1 = conv(x, [8, 8, 3, 32], [1, 4, 4, 1])
-    conv2 = conv(conv1, [4, 4, 32, 64], [1, 2, 2, 1])
-    layer4 = tf.tanh(linear(conv2, 512, batch_size))
-    game_features = linear(layer4, k, batch_size)
+class DRQN():
+    def __init__(self, im_h, im_w, k, batch_size, sequence_length, n_actions, scope):
+        self.im_h, self.im_w, self.k = im_h, im_w, k
+        self.batch_size, self.n_actions = batch_size, n_actions
+        self.sequence_length = sequence_length
+        self.scope = scope
 
-    return x, y, game_features
+        self.images = tf.placeholder(tf.float32, shape=[None, im_h, im_w, 3])
+        
+        self.conv1 = slim.conv2d(
+                self.images, 32, [8, 8], [4, 4], 'VALID',
+                biases_initializer=None, scope=self.scope+'_conv1')
+        self.conv2 = slim.conv2d(
+                self.conv1, 64, [4, 4], [2, 2], 'VALID',
+                biases_initializer=None, scope=self.scope+'_conv2')
 
-def loss(targets, predictions):
-    return tf.reduce_mean(tf.reduce_mean(tf.square(targets-predictions), 1))
+        self.layer3 = tf.reshape(slim.flatten(self.conv2),
+                                 [self.batch_size, self.sequence_length, 4608])
+
+        self.layer4 = slim.fully_connected(
+                self.conv2, 512, scope=self.scope+'_l4')
+        self.game_features = slim.fully_connected(
+                self.conv2, k, scope=self.scope+'_l4.5')
+        self.game_features = tf.reshape(
+                slim.flatten(self.game_features),
+                [self.batch_size, self.sequence_length, k])
+
+        self.cell = tf.nn.rnn_cell.LSTMCell(4608)
+        initial_state = self.cell.zero_state(batch_size, tf.float32)
+        self.rnn_output, self.rnn_state = tf.nn.dynamic_rnn(
+                self.cell,
+                self.layer3,
+                initial_state=initial_state,
+                dtype=tf.float32)
+
+        self.rnn_output = tf.reshape(self.rnn_output, 
+                                     [-1, 4608])
+        self.actions = slim.fully_connected(
+            self.rnn_output, self.n_actions, scope=self.scope+'_actions',
+            activation_fn=None)
+
+    #  def loss(targets, predictions):
+        #  return tf.reduce_mean(tf.reduce_mean(tf.square(targets-predictions), 1))
 
 if __name__ == '__main__':
-    Xtr = np.ones((100, 125, 200, 3))
-    ytr = np.ones((100, 1))
-    batch_size = 3
+    drqn = DRQN(125, 200, 1, 10, 8, 3, 'drqn')
+    #  Xtr = np.ones((100, 125, 200, 3))
+    #  ytr = np.ones((100, 1))
+    #  batch_size = 3
 
-    x, y, output = build_graph(125, 200, 1, batch_size)
-    l = loss(y, output)
-    loss_summary = tf.summary.scalar('loss', l)
+    #  x, y, output = build_graph(125, 200, 1, batch_size)
+    #  l = loss(y, output)
+    #  loss_summary = tf.summary.scalar('loss', l)
 
-    train_step = tf.train.RMSPropOptimizer(0.001).minimize(l)
+    #  train_step = tf.train.RMSPropOptimizer(0.001).minimize(l)
 
-    with tf.Session() as sess:
-        init = tf.global_variables_initializer()
-        sess.run(init)
+    #  with tf.Session() as sess:
+        #  init = tf.global_variables_initializer()
+        #  sess.run(init)
 
-        train_writer = tf.summary.FileWriter('/tmp/train', sess.graph)
+        #  train_writer = tf.summary.FileWriter('/tmp/train', sess.graph)
 
-        for i in range(100000):
-            x_batch = Xtr[0:batch_size]
-            y_batch = ytr[0:batch_size]
-            loss_value, _, summary = sess.run([l, train_step, loss_summary], 
-                    feed_dict={x: x_batch, y: y_batch})
+        #  for i in range(100000):
+            #  x_batch = Xtr[0:batch_size]
+            #  y_batch = ytr[0:batch_size]
+            #  loss_value, _, summary = sess.run([l, train_step, loss_summary], 
+                    #  feed_dict={x: x_batch, y: y_batch})
 
-            if i % 100 == 0:
-                print('Step %d : %d' % (i, loss_value))
-                train_writer.add_summary(summary, i)
+            #  if i % 100 == 0:
+                #  print('Step %d : %d' % (i, loss_value))
+                #  train_writer.add_summary(summary, i)
 
