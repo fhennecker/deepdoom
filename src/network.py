@@ -10,17 +10,18 @@ class DRQN():
         self.sequence_length = sequence_length
         self.scope = scope
 
-        self.images = tf.placeholder(tf.float32, 
+        self.images = tf.placeholder(tf.float32, name='images',
                 shape=[batch_size, sequence_length, im_h, im_w, 3])
         # we'll merge all sequences in one single batch for treatment
         # but all outputs will be reshaped to [batch_size, length, ...]
-        self.all_images = tf.reshape(self.images, 
+        self.all_images = tf.reshape(self.images,
                 [batch_size*sequence_length, im_h, im_w, 3])
 
         self._init_conv_layers()
         self._init_game_features_output()
         self._init_recurrent_part()
-        
+        self._define_loss()
+
     def _init_conv_layers(self):
         self.conv1 = slim.conv2d(
                 self.all_images, 32, [8, 8], [4, 4], 'VALID',
@@ -53,14 +54,24 @@ class DRQN():
                 scope=self.scope+'_RNN/')
 
         self.rnn_output = tf.reshape(self.rnn_output, [-1, self.h_size])
-        self.actions = slim.fully_connected(
+        self.Q = slim.fully_connected(
             self.rnn_output, self.n_actions, scope=self.scope+'_actions',
             activation_fn=None)
-        self.actions = tf.reshape(self.actions,
+        self.Q = tf.reshape(self.Q,
                 [self.batch_size, self.sequence_length, self.n_actions])
+        self.choice = tf.argmax(self.Q, 2)
 
-    #  def loss(targets, predictions):
-        #  return tf.reduce_mean(tf.reduce_mean(tf.square(targets-predictions), 1))
+    def _define_loss(self):
+        self.gamma = tf.placeholder(tf.float32, name='gamma')
+        self.target_q = tf.placeholder(tf.float32, name='target_q',
+                shape=[self.batch_size, self.sequence_length, self.n_actions])
+        self.rewards = tf.placeholder(tf.float32, name='rewards',
+                shape=[self.batch_size, self.sequence_length])
+        y = self.rewards + self.gamma * tf.reduce_sum(
+                tf.one_hot(self.choice, self.n_actions) * self.target_q, 2)
+        Qas = tf.reduce_sum(tf.one_hot(self.choice, self.n_actions) * self.Q, 2)
+        self.loss = tf.reduce_mean(tf.square(y-Qas))
+        self.train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.loss)
 
 if __name__ == '__main__':
     fake_dataset_size = 100
@@ -71,14 +82,17 @@ if __name__ == '__main__':
     k = 1
     n_actions = 3
 
+    print('Building main DRQN')
     main = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'main')
+    print('Building target DRQN')
     target = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'target')
+    # TODO target = main
 
-    # fake replay memory
+    # fake states
     Xtr = np.ones((fake_dataset_size, sequence_length, im_h, im_w, 3))
-    
+
     # initial LSTM state
-    state = (np.zeros([batch_size, main.h_size]), 
+    state = (np.zeros([batch_size, main.h_size]),
              np.zeros([batch_size, main.h_size]))
 
     with tf.Session() as sess:
@@ -86,7 +100,8 @@ if __name__ == '__main__':
         sess.run(init)
         print(list(map(lambda v:v.name, tf.trainable_variables())))
 
-        for episode in range(2):
+
+        for episode in range(1):
             # TODO reset env
             max_episode_length = 2
             t = 0
@@ -94,31 +109,31 @@ if __name__ == '__main__':
             while t < max_episode_length: # TODO or other reasons to stop episode
                 t += 1
 
-                # # PLAYING BLOCK : 
+                # # PLAYING BLOCK :
                 # if epsilon-greedy:
                 #     run main network and save hidden state
-                #     select action at random 
+                #     select action at random
                 # else:
                 #     run main net, save hidden state and chosen action
                 # state, reward = env(action)
 
-                # # TRAINING BLOCK : 
+                # # TRAINING BLOCK :
                 # if finished_pretraining (only random actions)
                 #     reduce epsilon
-                #     
+                #
                 #     if time to update main network (every 5t or so):
                 #         reset hidden state
                 #         sample batch from replay memory
                 #         predict Qm from main and Qt from target for this batch
                 #         run backprop minimizing Qm-Qt
-                # 
+                #
                 #     if time to update target network (every 5000t or so):
                 #         update_target_network() (save weights from main to target)
                 #
 
             # get actions and hidden_state from network (no backprop):
-            actions, state = sess.run(
-                    [main.actions, main.state_out], 
+            Q, state = sess.run(
+                    [main.Q, main.state_out],
                     feed_dict={
                         main.images : Xtr[0:batch_size],
                         main.state_in : state,
@@ -127,13 +142,13 @@ if __name__ == '__main__':
 
             # only get hidden state from network (stil no backprop):
             state = sess.run(
-                    [main.state_out], 
+                    main.state_out,
                     feed_dict={
                         main.images : Xtr[0:batch_size],
                         main.state_in : state,
                     }
             )
-            # basic structure of a sess.run : 
+            # basic structure of a sess.run :
             # output1, output2, ... = sess.run(
             #     [outputnode1, outputnode2, ...],
             #     feed_dict={
@@ -141,4 +156,29 @@ if __name__ == '__main__':
             #         inputnodeB : othervalue,
             #     }
             # )
+            # or : 
+            # sess.run(...)
+            # then all values are accessible via the network object
+
+            # example for training
+            target_Q = sess.run(
+                    target.Q,
+                    feed_dict={
+                        target.images : Xtr[0:batch_size],
+                        target.state_in : state,
+                    }
+            )
+            rewards = np.ones((batch_size, sequence_length))
+            state, _ = sess.run(
+                    [main.state_out, main.train_step],
+                    feed_dict={
+                        main.images : Xtr[0:batch_size],
+                        main.state_in : state,
+                        main.target_q : target_Q,
+                        main.rewards : rewards,
+                        main.gamma : 0.99,
+                    }
+            )
+
+
 
