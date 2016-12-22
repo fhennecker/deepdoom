@@ -12,8 +12,12 @@ class ReplayMemory():
         self.episodes = []
         self.min_size, self.max_size = min_size, max_size
 
+    @property
+    def full(self):
+        return len(self.episodes) >= self.max_size
+
     def add(self, episode):
-        if len(self.episodes) <= max_size:
+        if self.full:
             self.episodes.pop(0)
         self.episodes.append(episode)
 
@@ -150,7 +154,8 @@ if __name__ == '__main__':
             return dump
 
         # 1 / Bootstrap memory
-        mem = ReplayMemory(min_size=10000, max_size=100000)
-        for i in tqdm(range(10000)):
+        mem = ReplayMemory(min_size=100, max_size=1000)
+        while not mem.full:
             mem.add(play_episode(epsilon=1))
+            print(len(mem.episodes))
 
