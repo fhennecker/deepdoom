@@ -1,6 +1,25 @@
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
+import random
+
+class ReplayMemory():
+    def __init__(self, min_size, max_size):
+        self.episodes = []
+        self.min_size, self.max_size = min_size, max_size
+
+    def add(self, episode):
+        if len(self.episodes) <= max_size:
+            self.episodes.pop(0)
+        self.episodes.append(episode)
+
+    def sample(self, batch_size, sequence_length):
+        batch = []
+        for b in range(batch_size):
+            episode = random.choice(self.episodes)
+            start = random.randint(0, len(episode)-sequence_length)
+            batch.append(episode[start:start+sequence_length])
+        return batch
 
 
 class DRQN():
