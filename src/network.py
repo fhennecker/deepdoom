@@ -1,6 +1,11 @@
 import tensorflow as tf
 import tensorflow.contrib.slim as slim
 import numpy as np
+import vizdoom as vd
+import random
+import scipy.ndimage as Simg
+from tqdm import tqdm
+from time import sleep
 
 
 class DRQN():
@@ -75,8 +80,8 @@ class DRQN():
 
 if __name__ == '__main__':
     fake_dataset_size = 100
-    batch_size = 10
-    sequence_length = 8
+    batch_size = 1
+    sequence_length = 1
     im_w = 108
     im_h = 60
     k = 1
@@ -98,87 +103,31 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
-        print(list(map(lambda v:v.name, tf.trainable_variables())))
+        print("Training vars:", [v.name for v in tf.trainable_variables()])
 
+        game = vd.DoomGame()
+        game.load_config("basic.cfg")
+        game.init()
 
-        for episode in range(1):
-            # TODO reset env
-            max_episode_length = 2
-            t = 0
+        actions = np.eye(3, dtype=np.uint32).tolist()
 
-            while t < max_episode_length: # TODO or other reasons to stop episode
-                t += 1
-
-                # # PLAYING BLOCK :
-                # if epsilon-greedy:
-                #     run main network and save hidden state
-                #     select action at random
-                # else:
-                #     run main net, save hidden state and chosen action
-                # state, reward = env(action)
-
-                # # TRAINING BLOCK :
-                # if finished_pretraining (only random actions)
-                #     reduce epsilon
-                #
-                #     if time to update main network (every 5t or so):
-                #         reset hidden state
-                #         sample batch from replay memory
-                #         predict Qm from main and Qt from target for this batch
-                #         run backprop minimizing Qm-Qt
-                #
-                #     if time to update target network (every 5000t or so):
-                #         update_target_network() (save weights from main to target)
-                #
-
-            # get actions and hidden_state from network (no backprop):
-            Q, state = sess.run(
-                    [main.Q, main.state_out],
-                    feed_dict={
-                        main.images : Xtr[0:batch_size],
-                        main.state_in : state,
-                    }
-            )
-
-            # only get hidden state from network (stil no backprop):
-            state = sess.run(
-                    main.state_out,
-                    feed_dict={
-                        main.images : Xtr[0:batch_size],
-                        main.state_in : state,
-                    }
-            )
-            # basic structure of a sess.run :
-            # output1, output2, ... = sess.run(
-            #     [outputnode1, outputnode2, ...],
-            #     feed_dict={
-            #         inputnodeA : somevalue,
-            #         inputnodeB : othervalue,
-            #     }
-            # )
-            # or : 
-            # sess.run(...)
-            # then all values are accessible via the network object
-
-            # example for training
-            target_Q = sess.run(
-                    target.Q,
-                    feed_dict={
-                        target.images : Xtr[0:batch_size],
-                        target.state_in : state,
-                    }
-            )
-            rewards = np.ones((batch_size, sequence_length))
-            state, _ = sess.run(
-                    [main.state_out, main.train_step],
-                    feed_dict={
-                        main.images : Xtr[0:batch_size],
-                        main.state_in : state,
-                        main.target_q : target_Q,
-                        main.rewards : rewards,
-                        main.gamma : 0.99,
-                    }
-            )
-
-
+        def play_episode(epsilon):
+            game.new_episode()
+            dump = []
+            while not game.is_episode_finished():
+                state = game.get_state()
+                S = state.screen_buffer
+                h, w = S.shape[:2]
+                S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1])
+                if np.random.rand() < epsilon:
+                    action = random.choice(actions)
+                else:
+                    action_no = sess.run(main.choice, feed_dict={
+                        main.images: [[S]],
+                    })
+                    action = actions[action_no[0][0]]
+                reward = game.make_action(action)
+                dump.append((S, action, reward))
+            return dump
+        episodes = [play_episode(epsilon=1) for episode in tqdm(range(100))]
 
