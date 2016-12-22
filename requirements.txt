@@ -1,0 +1,5 @@
+scipy
+vizdoom
+tensorflow-gpu
+tqdm
+
