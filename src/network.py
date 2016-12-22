@@ -4,18 +4,19 @@ import numpy as np
 
 
 class DRQN():
-    def __init__(self, im_h, im_w, k, batch_size, sequence_length, n_actions, scope):
+    def __init__(self, im_h, im_w, k, n_actions, scope):
         self.im_h, self.im_w, self.k = im_h, im_w, k
-        self.batch_size, self.n_actions = batch_size, n_actions
-        self.sequence_length = sequence_length
-        self.scope = scope
+        self.scope, self.n_actions = scope, n_actions
+        
+        self.batch_size = tf.placeholder(tf.int32, name='batch_size')
+        self.sequence_length = tf.placeholder(tf.int32, name='sequence_length')
 
         self.images = tf.placeholder(tf.float32, name='images',
-                shape=[batch_size, sequence_length, im_h, im_w, 3])
+                shape=[None, None, im_h, im_w, 3])
         # we'll merge all sequences in one single batch for treatment
         # but all outputs will be reshaped to [batch_size, length, ...]
         self.all_images = tf.reshape(self.images,
-                [batch_size*sequence_length, im_h, im_w, 3])
+                [self.batch_size*self.sequence_length, im_h, im_w, 3])
 
         self._init_conv_layers()
         self._init_game_features_output()
@@ -41,11 +42,11 @@ class DRQN():
 
     def _init_recurrent_part(self):
         self.layer3 = tf.reshape(slim.flatten(self.conv2),
-                                 [self.batch_size, self.sequence_length, -1])
-        self.h_size = int(self.layer3.get_shape()[2])
+                                 [self.batch_size, self.sequence_length, 4608])
+        self.h_size = 4608
 
         self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
-        self.state_in = self.cell.zero_state(batch_size, tf.float32)
+        self.state_in = self.cell.zero_state(self.batch_size, tf.float32)
         self.rnn_output, self.state_out = tf.nn.dynamic_rnn(
                 self.cell,
                 self.layer3,
@@ -64,9 +65,9 @@ class DRQN():
     def _define_loss(self):
         self.gamma = tf.placeholder(tf.float32, name='gamma')
         self.target_q = tf.placeholder(tf.float32, name='target_q',
-                shape=[self.batch_size, self.sequence_length, self.n_actions])
+                shape=[None, None, self.n_actions])
         self.rewards = tf.placeholder(tf.float32, name='rewards',
-                shape=[self.batch_size, self.sequence_length])
+                shape=[None, None])
         y = self.rewards + self.gamma * tf.reduce_sum(
                 tf.one_hot(self.choice, self.n_actions) * self.target_q, 2)
         Qas = tf.reduce_sum(tf.one_hot(self.choice, self.n_actions) * self.Q, 2)
@@ -83,9 +84,9 @@ if __name__ == '__main__':
     n_actions = 3
 
     print('Building main DRQN')
-    main = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'main')
+    main = DRQN(im_h, im_w, k, n_actions, 'main')
     print('Building target DRQN')
-    target = DRQN(im_h, im_w, k, batch_size, sequence_length, n_actions, 'target')
+    target = DRQN(im_h, im_w, k, n_actions, 'target')
     # TODO target = main
 
     # fake states
