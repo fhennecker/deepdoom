@@ -1,0 +1,119 @@
+namespace = "zdoom";
+thing // 0
+{
+id = 1;
+x = 608.000;
+y = 608.000;
+angle = 0;
+type = 1;
+skill1 = true;
+skill2 = true;
+skill3 = true;
+skill4 = true;
+skill5 = true;
+single = true;
+dm = true;
+coop = true;
+skill6 = true;
+skill7 = true;
+skill8 = true;
+class1 = true;
+class2 = true;
+class3 = true;
+class4 = true;
+class5 = true;
+class6 = true;
+class7 = true;
+class8 = true;
+}
+
+vertex // 0
+{
+x = 0.000;
+y = 1216.000;
+}
+
+vertex // 1
+{
+x = 1216.000;
+y = 1216.000;
+}
+
+vertex // 2
+{
+x = 1216.000;
+y = 0.000;
+}
+
+vertex // 3
+{
+x = 0.000;
+y = 0.000;
+}
+
+linedef // 0
+{
+v1 = 0;
+v2 = 1;
+sidefront = 0;
+blocking = true;
+}
+
+linedef // 1
+{
+v1 = 1;
+v2 = 2;
+sidefront = 1;
+blocking = true;
+}
+
+linedef // 2
+{
+v1 = 2;
+v2 = 3;
+sidefront = 2;
+blocking = true;
+}
+
+linedef // 3
+{
+v1 = 3;
+v2 = 0;
+sidefront = 3;
+blocking = true;
+}
+
+sidedef // 0
+{
+sector = 0;
+texturemiddle = "GSTONE1";
+}
+
+sidedef // 1
+{
+sector = 0;
+texturemiddle = "GSTONE1";
+}
+
+sidedef // 2
+{
+sector = 0;
+texturemiddle = "GSTONE1";
+}
+
+sidedef // 3
+{
+sector = 0;
+texturemiddle = "GSTONE1";
+}
+
+sector // 0
+{
+heightfloor = 0;
+heightceiling = 104;
+texturefloor = "NUKAGE1";
+textureceiling = "CEIL4_1";
+lightlevel = 210;
+special = 83;
+}
+

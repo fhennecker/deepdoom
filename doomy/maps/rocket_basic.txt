@@ -1,0 +1,116 @@
+namespace = "zdoom";
+thing
+{
+x = -320.000;
+y = 32.000;
+type = 1;
+id = 1;
+skill1 = true;
+skill2 = true;
+skill3 = true;
+skill4 = true;
+skill5 = true;
+single = true;
+dm = true;
+coop = true;
+skill6 = true;
+skill7 = true;
+skill8 = true;
+class1 = true;
+class2 = true;
+class3 = true;
+class4 = true;
+class5 = true;
+class6 = true;
+class7 = true;
+class8 = true;
+}
+
+vertex
+{
+x = -384.000;
+y = 256.000;
+}
+
+vertex
+{
+x = 64.000;
+y = 256.000;
+}
+
+vertex
+{
+x = 64.000;
+y = -192.000;
+}
+
+vertex
+{
+x = -384.000;
+y = -192.000;
+}
+
+linedef
+{
+v1 = 0;
+v2 = 1;
+sidefront = 0;
+blocking = true;
+}
+
+linedef
+{
+v1 = 1;
+v2 = 2;
+sidefront = 1;
+blocking = true;
+}
+
+linedef
+{
+v1 = 2;
+v2 = 3;
+sidefront = 2;
+blocking = true;
+}
+
+linedef
+{
+v1 = 3;
+v2 = 0;
+sidefront = 3;
+blocking = true;
+}
+
+sidedef
+{
+sector = 0;
+texturemiddle = "CEMPOIS";
+}
+
+sidedef
+{
+sector = 0;
+texturemiddle = "CEMENT3";
+}
+
+sidedef
+{
+sector = 0;
+texturemiddle = "CEMPOIS";
+}
+
+sidedef
+{
+sector = 0;
+texturemiddle = "CEMENT3";
+}
+
+sector
+{
+texturefloor = "CARLRT2";
+textureceiling = "A-BROWN1";
+heightceiling = 104;
+lightlevel = 210;
+}
+

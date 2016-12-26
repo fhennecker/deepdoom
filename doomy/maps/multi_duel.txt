@@ -1,0 +1,892 @@
+namespace = "zdoom";
+thing // 0
+{
+x = -192.000;
+y = 384.000;
+angle = 270;
+type = 11;
+skill1 = true;
+skill2 = true;
+skill3 = true;
+skill4 = true;
+skill5 = true;
+single = true;
+dm = true;
+coop = true;
+skill6 = true;
+skill7 = true;
+skill8 = true;
+class1 = true;
+class2 = true;
+class3 = true;
+class4 = true;
+class5 = true;
+class6 = true;
+class7 = true;
+class8 = true;
+}
+
+thing // 1
+{
+x = -64.000;
+y = -512.000;
+angle = 90;
+type = 11;
+skill1 = true;
+skill2 = true;
+skill3 = true;
+skill4 = true;
+skill5 = true;
+single = true;
+dm = true;
+coop = true;
+skill6 = true;
+skill7 = true;
+skill8 = true;
+class1 = true;
+class2 = true;
+class3 = true;
+class4 = true;
+class5 = true;
+class6 = true;
+class7 = true;
+class8 = true;
+}
+
+vertex // 0
+{
+x = 96.000;
+y = -544.000;
+}
+
+vertex // 1
+{
+x = -96.000;
+y = -544.000;
+}
+
+vertex // 2
+{
+x = -384.000;
+y = 384.000;
+}
+
+vertex // 3
+{
+x = -384.000;
+y = 448.000;
+}
+
+vertex // 4
+{
+x = -352.000;
+y = -544.000;
+}
+
+vertex // 5
+{
+x = -384.000;
+y = -576.000;
+}
+
+vertex // 6
+{
+x = 128.000;
+y = -512.000;
+}
+
+vertex // 7
+{
+x = 128.000;
+y = -576.000;
+}
+
+vertex // 8
+{
+x = 128.000;
+y = 448.000;
+}
+
+vertex // 9
+{
+x = 128.000;
+y = 384.000;
+}
+
+vertex // 10
+{
+x = -384.000;
+y = -512.000;
+}
+
+vertex // 11
+{
+x = -384.000;
+y = -320.000;
+}
+
+vertex // 12
+{
+x = 128.000;
+y = 192.000;
+}
+
+vertex // 13
+{
+x = -320.000;
+y = 320.000;
+}
+
+vertex // 14
+{
+x = -320.000;
+y = -448.000;
+}
+
+vertex // 15
+{
+x = -384.000;
+y = -256.000;
+}
+
+vertex // 16
+{
+x = -384.000;
+y = 128.000;
+}
+
+vertex // 17
+{
+x = 128.000;
+y = -320.000;
+}
+
+vertex // 18
+{
+x = 128.000;
+y = -256.000;
+}
+
+vertex // 19
+{
+x = 128.000;
+y = 128.000;
+}
+
+vertex // 20
+{
+x = -384.000;
+y = 192.000;
+}
+
+vertex // 21
+{
+x = -352.000;
+y = 416.000;
+}
+
+vertex // 22
+{
+x = -288.000;
+y = 416.000;
+}
+
+vertex // 23
+{
+x = -256.000;
+y = 448.000;
+}
+
+vertex // 24
+{
+x = -224.000;
+y = 416.000;
+}
+
+vertex // 25
+{
+x = -160.000;
+y = 416.000;
+}
+
+vertex // 26
+{
+x = -128.000;
+y = 448.000;
+}
+
+vertex // 27
+{
+x = -96.000;
+y = 416.000;
+}
+
+vertex // 28
+{
+x = -32.000;
+y = 416.000;
+}
+
+vertex // 29
+{
+x = 0.000;
+y = 448.000;
+}
+
+vertex // 30
+{
+x = 32.000;
+y = 416.000;
+}
+
+vertex // 31
+{
+x = 96.000;
+y = 416.000;
+}
+
+vertex // 32
+{
+x = -128.000;
+y = -576.000;
+}
+
+vertex // 33
+{
+x = -160.000;
+y = -544.000;
+}
+
+vertex // 34
+{
+x = 64.000;
+y = 320.000;
+}
+
+vertex // 35
+{
+x = 64.000;
+y = -448.000;
+}
+
+linedef // 0
+{
+v1 = 0;
+v2 = 1;
+sidefront = 0;
+blocking = true;
+}
+
+linedef // 1
+{
+v1 = 2;
+v2 = 3;
+sidefront = 1;
+blocking = true;
+}
+
+linedef // 2
+{
+v1 = 4;
+v2 = 5;
+sidefront = 2;
+blocking = true;
+}
+
+linedef // 3
+{
+v1 = 6;
+v2 = 7;
+sidefront = 3;
+blocking = true;
+}
+
+linedef // 4
+{
+v1 = 8;
+v2 = 9;
+sidefront = 4;
+blocking = true;
+}
+
+linedef // 5
+{
+v1 = 10;
+v2 = 11;
+sidefront = 5;
+blocking = true;
+}
+
+linedef // 6
+{
+v1 = 5;
+v2 = 10;
+sidefront = 6;
+blocking = true;
+}
+
+linedef // 7
+{
+v1 = 9;
+v2 = 12;
+sidefront = 7;
+blocking = true;
+}
+
+linedef // 8
+{
+v1 = 2;
+v2 = 13;
+sidefront = 8;
+sideback = 9;
+twosided = true;
+}
+
+linedef // 9
+{
+v1 = 10;
+v2 = 14;
+sidefront = 10;
+sideback = 11;
+twosided = true;
+}
+
+linedef // 10
+{
+v1 = 11;
+v2 = 15;
+sidefront = 12;
+blocking = true;
+}
+
+linedef // 11
+{
+v1 = 15;
+v2 = 16;
+sidefront = 13;
+blocking = true;
+}
+
+linedef // 12
+{
+v1 = 17;
+v2 = 6;
+sidefront = 14;
+blocking = true;
+}
+
+linedef // 13
+{
+v1 = 18;
+v2 = 17;
+sidefront = 15;
+blocking = true;
+}
+
+linedef // 14
+{
+v1 = 12;
+v2 = 19;
+sidefront = 16;
+blocking = true;
+}
+
+linedef // 15
+{
+v1 = 19;
+v2 = 18;
+sidefront = 17;
+blocking = true;
+}
+
+linedef // 16
+{
+v1 = 20;
+v2 = 2;
+sidefront = 18;
+blocking = true;
+}
+
+linedef // 17
+{
+v1 = 16;
+v2 = 20;
+sidefront = 19;
+blocking = true;
+}
+
+linedef // 18
+{
+v1 = 21;
+v2 = 22;
+sidefront = 20;
+blocking = true;
+}
+
+linedef // 19
+{
+v1 = 22;
+v2 = 23;
+sidefront = 21;
+blocking = true;
+}
+
+linedef // 20
+{
+v1 = 23;
+v2 = 24;
+sidefront = 22;
+blocking = true;
+}
+
+linedef // 21
+{
+v1 = 24;
+v2 = 25;
+sidefront = 23;
+blocking = true;
+}
+
+linedef // 22
+{
+v1 = 25;
+v2 = 26;
+sidefront = 24;
+blocking = true;
+}
+
+linedef // 23
+{
+v1 = 26;
+v2 = 27;
+sidefront = 25;
+blocking = true;
+}
+
+linedef // 24
+{
+v1 = 27;
+v2 = 28;
+sidefront = 26;
+blocking = true;
+}
+
+linedef // 25
+{
+v1 = 28;
+v2 = 29;
+sidefront = 27;
+blocking = true;
+}
+
+linedef // 26
+{
+v1 = 29;
+v2 = 30;
+sidefront = 28;
+blocking = true;
+}
+
+linedef // 27
+{
+v1 = 30;
+v2 = 31;
+sidefront = 29;
+blocking = true;
+}
+
+linedef // 28
+{
+v1 = 31;
+v2 = 8;
+sidefront = 30;
+blocking = true;
+}
+
+linedef // 29
+{
+v1 = 7;
+v2 = 0;
+sidefront = 31;
+blocking = true;
+}
+
+linedef // 30
+{
+v1 = 3;
+v2 = 21;
+sidefront = 32;
+blocking = true;
+}
+
+linedef // 31
+{
+v1 = 32;
+v2 = 33;
+sidefront = 33;
+blocking = true;
+}
+
+linedef // 32
+{
+v1 = 1;
+v2 = 32;
+sidefront = 34;
+blocking = true;
+}
+
+linedef // 33
+{
+v1 = 33;
+v2 = 4;
+sidefront = 35;
+blocking = true;
+}
+
+linedef // 34
+{
+v1 = 13;
+v2 = 34;
+sidefront = 36;
+sideback = 37;
+twosided = true;
+}
+
+linedef // 35
+{
+v1 = 34;
+v2 = 9;
+sidefront = 38;
+sideback = 39;
+twosided = true;
+}
+
+linedef // 36
+{
+v1 = 14;
+v2 = 35;
+sidefront = 40;
+sideback = 41;
+twosided = true;
+}
+
+linedef // 37
+{
+v1 = 35;
+v2 = 6;
+sidefront = 42;
+sideback = 43;
+twosided = true;
+}
+
+sidedef // 0
+{
+sector = 2;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 1
+{
+sector = 1;
+offsetx = 864;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 2
+{
+sector = 2;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 3
+{
+sector = 2;
+offsetx = 864;
+texturebottom = "BRONZE4";
+texturemiddle = "BROWN1";
+}
+
+sidedef // 4
+{
+sector = 1;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 5
+{
+sector = 0;
+offsetx = 160;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 6
+{
+sector = 2;
+texturebottom = "BRONZE4";
+texturemiddle = "BROWN1";
+}
+
+sidedef // 7
+{
+sector = 0;
+offsetx = 160;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 8
+{
+sector = 0;
+texturebottom = "BROWN1";
+}
+
+sidedef // 9
+{
+sector = 1;
+offsetx = 480;
+}
+
+sidedef // 10
+{
+sector = 2;
+texturebottom = "BROWN1";
+}
+
+sidedef // 11
+{
+sector = 0;
+offsetx = 480;
+texturebottom = "BROWN1";
+}
+
+sidedef // 12
+{
+sector = 0;
+offsetx = 224;
+texturemiddle = "SFALL1";
+}
+
+sidedef // 13
+{
+sector = 0;
+offsetx = 288;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 14
+{
+sector = 0;
+offsetx = 736;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 15
+{
+sector = 0;
+offsetx = 672;
+texturemiddle = "SFALL1";
+}
+
+sidedef // 16
+{
+sector = 0;
+offsetx = 224;
+texturemiddle = "SFALL1";
+}
+
+sidedef // 17
+{
+sector = 0;
+offsetx = 288;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 18
+{
+sector = 0;
+offsetx = 736;
+texturemiddle = "BROWN1";
+}
+
+sidedef // 19
+{
+sector = 0;
+offsetx = 672;
+texturemiddle = "SFALL1";
+}
+
+sidedef // 20
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 21
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 22
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 23
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 24
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 25
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 26
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 27
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 28
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 29
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 30
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 31
+{
+sector = 2;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 32
+{
+sector = 1;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 33
+{
+sector = 2;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 34
+{
+sector = 2;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 35
+{
+sector = 2;
+texturemiddle = "STARTAN2";
+}
+
+sidedef // 36
+{
+sector = 0;
+offsetx = 288;
+texturebottom = "BROWN1";
+}
+
+sidedef // 37
+{
+sector = 1;
+offsetx = 32;
+}
+
+sidedef // 38
+{
+sector = 0;
+offsetx = 480;
+texturebottom = "BROWN1";
+}
+
+sidedef // 39
+{
+sector = 1;
+}
+
+sidedef // 40
+{
+sector = 2;
+offsetx = 32;
+texturebottom = "BROWN1";
+}
+
+sidedef // 41
+{
+sector = 0;
+offsetx = 288;
+texturebottom = "BROWN1";
+}
+
+sidedef // 42
+{
+sector = 2;
+offsetx = 480;
+texturebottom = "BROWN1";
+}
+
+sidedef // 43
+{
+sector = 0;
+texturebottom = "BROWN1";
+}
+
+sector // 0
+{
+heightfloor = -16;
+heightceiling = 128;
+texturefloor = "NUKAGE1";
+textureceiling = "CEIL1_1";
+lightlevel = 192;
+special = 115;
+}
+
+sector // 1
+{
+heightfloor = 0;
+heightceiling = 128;
+texturefloor = "FLOOR0_1";
+textureceiling = "CEIL1_1";
+lightlevel = 192;
+}
+
+sector // 2
+{
+heightfloor = 0;
+heightceiling = 128;
+texturefloor = "FLOOR0_1";
+textureceiling = "CEIL1_1";
+lightlevel = 192;
+}
+
