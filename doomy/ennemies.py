@@ -16,21 +16,21 @@ def get_cone_ennemies(state):
 
 def get_visible_ennemies(state, walls):
     cone = get_cone_ennemies(state)
-    x, y = state.game_variables[0], state.game_variables[1]
+    player = (state.game_variables[0], state.game_variables[1])
 
     visible = []
     for entity in cone:
-        if all([is_visible(x, y, wall, entity) for wall in walls]):
+        if all([is_visible(player, wall, entity) for wall in walls]):
             visible.append(entity)
 
     return visible
 
 
-def is_visible(x, y, wall, entity):
-    a = (x, y)
+def is_visible(player, wall, entity):
+    a = player
     b = (entity.object_position_x, entity.object_position_y)
 
-    return does_intersect((a, b), wall)
+    return not does_intersect((a, b), wall)
 
 
 def does_intersect(line1, line2):
