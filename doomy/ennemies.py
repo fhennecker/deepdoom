@@ -6,7 +6,20 @@ ENNEMIES = [
     "MarineRocket", "MarineSSG", "MarineShotgun", "ScriptedMarine", "StealthArachnotron",
     "StealthArchvile", "StealthBaron", "StealthHellKnight", "StealthCacodemon", "StealthDemon",
     "StealthChaingunGuy", "StealthDoomImp", "StealthFatso", "StealthRevenant", "StealthShotgunGuy",
-    "StealthZombieMan"
+    "StealthZombieMan", "Zombieman",
+]
+
+PICKUPS = [
+    "Allmap", "ArmorBonus", "Backpack", "Berserk", "BFG9000", "BlueArmor", "BlueCard",
+    "BlueSkull", "BlurSphere", "Cell", "CellPack", "Chaingun", "Chainsaw", "Clip", "ClipBox",
+    "Fist", "GreenArmor", "HealthBonus", "Infrared", "InvulnerabilitySphere", "Medikit",
+    "Megasphere", "Pistol", "PlasmaRifle", "RadSuit", "RedCard", "RedSkull", "RocketAmmo",
+    "RocketBox", "RocketLauncher", "Shell", "ShellBox", "Shotgun", "Soulsphere", "Stimpack",
+    "SuperShotgun", "YellowCard", "YellowSkull"
+]
+
+IGNORABLE = [
+    "TeleportFog", "DoomPlayer", "BulletPuff", "Blood", "BaronBall"
 ]
 
 
@@ -29,19 +42,15 @@ def get_visible_ennemies(state, walls):
 def is_visible(player, wall, entity):
     a = player
     b = (entity.object_position_x, entity.object_position_y)
+    c, d = wall
 
-    return not does_intersect((a, b), wall)
+    return not does_intersect(a, b, c, d)
 
 
-def does_intersect(line1, line2):
-    xdiff = (line1[0][0] - line1[1][0], line2[0][0] - line2[1][0])
-    ydiff = (line1[0][1] - line1[1][1], line2[0][1] - line2[1][1])
+def ccw(a, b, c):
+    return (c[1] - a[1]) * (b[0] - a[0]) > (b[1] - a[1]) * (c[0] - a[0])
 
-    def det(a, b):
-        return a[0] * b[1] - a[1] * b[0]
 
-    div = det(xdiff, ydiff)
-    if div == 0:
-        return False
-
-    return True
+def does_intersect(a, b, c, d):
+    "return true if line segments ab and cd intersect"
+    return ccw(a, c, d) != ccw(b, c, d) and ccw(a, b, c) != ccw(a, b, d)

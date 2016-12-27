@@ -75,4 +75,6 @@ def plot_map(map, ennemies=None, player_pos=None):
     if player_pos:
         plt.plot([player_pos[0]], [player_pos[1]], 'bo')
 
-    plt.show()
+    # plt.show()
+    plt.savefig("fig.png")
+    plt.close()

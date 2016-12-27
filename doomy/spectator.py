@@ -41,16 +41,8 @@ for i in range(episodes):
         if j % 15 == 0:
             print([x.object_name for x in ennemies.get_visible_ennemies(state, walls)])
 
-            if len(ennemies.get_cone_ennemies(state)) > 2:
-                map_parser.plot_map("deathmatch", ennemies.get_cone_ennemies(state), (state.game_variables[0], state.game_variables[1]))
-
         game.advance_action()
-        last_action = game.get_last_action()
-        reward = game.get_last_reward()
 
-    print("Episode finished!")
-    print("Total reward:", game.get_total_reward())
-    print("************************")
-    sleep(2.0)
+    sleep(0.5)
 
 game.close()
