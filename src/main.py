@@ -4,7 +4,7 @@ import vizdoom as vd
 import scipy.ndimage as Simg
 import ennemies
 import map_parser
-from tqdm import tqdm
+from tqdm import tqdm # NOQA
 
 from network import tf, DRQN
 from memory import ReplayMemory
@@ -21,6 +21,20 @@ n_actions = 6
 actions = np.eye(n_actions, dtype=np.uint32).tolist()
 
 
+def create_game():
+    game = vd.DoomGame()
+    game.load_config("basic.cfg")
+    # Ennemy detection
+    walls = map_parser.parse("maps/basic.txt")
+    game.clear_available_game_variables()
+    game.add_available_game_variable(vd.GameVariable.POSITION_X)
+    game.add_available_game_variable(vd.GameVariable.POSITION_Y)
+    game.add_available_game_variable(vd.GameVariable.POSITION_Z)
+    game.set_labels_buffer_enabled(True)
+    game.init()
+    return game, walls
+
+
 if __name__ == '__main__':
     print('Building main DRQN')
     main = DRQN(im_h, im_w, k, n_actions, 'main')
@@ -35,33 +49,26 @@ if __name__ == '__main__':
     state = (np.zeros([batch_size, main.h_size]),
              np.zeros([batch_size, main.h_size]))
 
-    game = vd.DoomGame()
-    game.load_config("basic.cfg")
-    # Ennemy detection
-    walls = map_parser.parse("maps/basic.txt")
-    game.clear_available_game_variables()
-    game.add_available_game_variable(vd.GameVariable.POSITION_X)
-    game.add_available_game_variable(vd.GameVariable.POSITION_Y)
-    game.add_available_game_variable(vd.GameVariable.POSITION_Z)
-    game.set_labels_buffer_enabled(True)
-    game.init()
+    game, walls = create_game()
 
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
         print("Training vars:", [v.name for v in tf.trainable_variables()])
 
-        def play_episode(epsilon):
+        def play_episode(epsilon=1):
+            game, walls = create_game()
+
             game.new_episode()
             dump = []
             while not game.is_episode_finished():
                 # Get screen buf
                 state = game.get_state()
-                S = state.screen_buffer
+                S = state.screen_buffer # NOQA
 
                 # Resample to our network size
                 h, w = S.shape[:2]
-                S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1])
+                S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1]) # NOQA
 
                 enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
                 game_features = [enn]
@@ -80,9 +87,14 @@ if __name__ == '__main__':
 
         # 1 / Bootstrap memory
         mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
+
+        from multiprocessing import Pool, cpu_count
+        p = Pool(cpu_count())
+
         while not mem.initialized:
-            mem.add(play_episode(epsilon=1))
-            print(sum(map(len, mem.episodes)))
+            for dump in p.map(play_episode, [1] * cpu_count()):
+                mem.add(dump)
+                print(sum(map(len, mem.episodes)))
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
