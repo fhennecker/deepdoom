@@ -102,11 +102,11 @@ if __name__ == '__main__':
         for i in range(TRAINING_STEPS):
             samples = mem.sample(batch_size, sequence_length)
             screens, actions, rewards, game_features = map(np.array, zip(*samples))
-            loss, lol = sess.run([main.features_loss, game_features], feed_dict={
+            loss, lol = sess.run([main.features_loss, main.game_features], feed_dict={
                 main.batch_size: batch_size,
                 main.sequence_length: sequence_length,
                 main.images: screens,
                 main.game_features_in: game_features
             })
             if i % 10 == 0:
-                print(lol, loss)
+                print(loss)
