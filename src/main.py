@@ -109,12 +109,13 @@ if __name__ == '__main__':
         while not mem.initialized:
             for episode in Pool(cpu_count()).map(wrap_play_episode, range(cpu_count())):
                 mem.add(episode)
-            print(sum(map(len, mem.episodes)))
+            print("\rHave", sum(map(len, mem.episodes)), "frames", end="")
+        print()
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
         game, walls = create_game()
-        for i in tqdm(range(TRAINING_STEPS)):
+        for i in range(TRAINING_STEPS):
             mem.add(play_episode(game, walls))
             for j in range(100):
                 samples = mem.sample(batch_size, sequence_length)
@@ -123,7 +124,6 @@ if __name__ == '__main__':
                     main.batch_size: batch_size,
                     main.sequence_length: sequence_length,
                     main.images: screens,
-                    main.game_features_in: game_features
+                    main.game_features_in: game_features,
                 })
-
-            print(loss)
+            print("\rTraining step", i, "/ Loss =", loss, end="")
