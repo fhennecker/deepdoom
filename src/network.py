@@ -7,6 +7,7 @@ import scipy.ndimage as Simg
 from tqdm import tqdm
 from time import sleep
 
+
 class ReplayMemory():
     def __init__(self, min_size, max_size):
         self.episodes = []
@@ -34,16 +35,16 @@ class DRQN():
     def __init__(self, im_h, im_w, k, n_actions, scope):
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
-        
         self.batch_size = tf.placeholder(tf.int32, name='batch_size')
         self.sequence_length = tf.placeholder(tf.int32, name='sequence_length')
 
         self.images = tf.placeholder(tf.float32, name='images',
-                shape=[None, None, im_h, im_w, 3])
+                                     shape=[None, None, im_h, im_w, 3])
         # we'll merge all sequences in one single batch for treatment
         # but all outputs will be reshaped to [batch_size, length, ...]
         self.all_images = tf.reshape(self.images,
-                [self.batch_size*self.sequence_length, im_h, im_w, 3])
+                                     [self.batch_size*self.sequence_length,
+                                      im_h, im_w, 3])
 
         self._init_conv_layers()
         self._init_game_features_output()
@@ -62,10 +63,10 @@ class DRQN():
         self.layer4 = slim.fully_connected(
                 slim.flatten(self.conv2), 512, scope=self.scope+'_l4')
         self.flat_game_features = slim.fully_connected(
-                self.layer4, k, scope=self.scope+'_l4.5')
+                self.layer4, self.k, scope=self.scope+'_l4.5')
         self.game_features = tf.reshape(
                 self.flat_game_features,
-                [self.batch_size, self.sequence_length, k])
+                [self.batch_size, self.sequence_length, self.k])
 
     def _init_recurrent_part(self):
         self.layer3 = tf.reshape(slim.flatten(self.conv2),
@@ -101,10 +102,11 @@ class DRQN():
         self.loss = tf.reduce_mean(tf.square(y-Qas))
         self.train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.loss)
 
+
 if __name__ == '__main__':
     fake_dataset_size = 100
     batch_size = 1
-    sequence_length = 1
+    sequence_length = 8
     im_w = 108
     im_h = 60
     k = 1
@@ -140,8 +142,8 @@ if __name__ == '__main__':
             while not game.is_episode_finished():
                 state = game.get_state()
                 S = state.screen_buffer
-                h, w = S.shape[:2]
-                S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1])
+                # h, w = S.shape[:2]
+                # S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1])
                 if np.random.rand() < epsilon:
                     action = random.choice(actions)
                 else:
@@ -157,5 +159,5 @@ if __name__ == '__main__':
         mem = ReplayMemory(min_size=100, max_size=1000)
         while not mem.full:
             mem.add(play_episode(epsilon=1))
-            print(len(mem.episodes))
+            print(sum(map(len, mem.episodes)))
 
