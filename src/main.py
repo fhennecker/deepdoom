@@ -2,6 +2,9 @@ import random
 import numpy as np
 import vizdoom as vd
 import scipy.ndimage as Simg
+import ennemies
+import map_parser
+from tqdm import tqdm
 
 from network import tf, DRQN
 from memory import ReplayMemory
@@ -32,6 +35,13 @@ if __name__ == '__main__':
 
     game = vd.DoomGame()
     game.load_config("basic.cfg")
+    # Ennemy detection
+    walls = map_parser.parse("maps/basic.txt")
+    game.clear_available_game_variables()
+    game.add_available_game_variable(vd.GameVariable.POSITION_X)
+    game.add_available_game_variable(vd.GameVariable.POSITION_Y)
+    game.add_available_game_variable(vd.GameVariable.POSITION_Z)
+    game.set_labels_buffer_enabled(True)
     game.init()
 
     with tf.Session() as sess:
@@ -39,7 +49,7 @@ if __name__ == '__main__':
         sess.run(init)
         print("Training vars:", [v.name for v in tf.trainable_variables()])
 
-        actions = np.eye(n_actions, dtype=np.uint32).tolist()
+        actions = np.eye(3, dtype=np.uint32).tolist()
 
         def play_episode(epsilon):
             game.new_episode()
@@ -53,6 +63,9 @@ if __name__ == '__main__':
                 h, w = S.shape[:2]
                 S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1])
 
+                enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
+                game_features = [enn]
+
                 # Epsilon-Greedy strat
                 if np.random.rand() < epsilon:
                     action = random.choice(actions)
@@ -62,7 +75,7 @@ if __name__ == '__main__':
                     })
                     action = actions[action_no[0][0]]
                 reward = game.make_action(action)
-                dump.append((S, action, reward))
+                dump.append((S, action, reward, game_features))
             return dump
 
         # 1 / Bootstrap memory
@@ -73,11 +86,11 @@ if __name__ == '__main__':
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
-        for i in range(1000):
+        for i in tqdm(range(1000)):
             samples = mem.sample(batch_size, sequence_length)
-            for screens, actions, rewards in samples:
-                sess.run(main.choice, feed_dict={
-                    main.batch_size: 1,
-                    main.images: [screens]
-                })
-            break
+            screens, actions, rewards, game_features = map(np.array, zip(*samples))
+            sess.run(main.choice, feed_dict={
+                main.batch_size: batch_size,
+                main.sequence_length: sequence_length,
+                main.images: screens,
+            })
