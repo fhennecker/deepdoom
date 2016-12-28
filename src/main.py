@@ -112,13 +112,14 @@ if __name__ == '__main__':
         game, walls = create_game()
         for i in tqdm(range(TRAINING_STEPS)):
             mem.add(play_episode(game, walls))
-            samples = mem.sample(batch_size, sequence_length)
-            screens, actions, rewards, game_features = map(np.array, zip(*samples))
-            loss = sess.run(main.features_loss, feed_dict={
-                main.batch_size: batch_size,
-                main.sequence_length: sequence_length,
-                main.images: screens,
-                main.game_features_in: game_features
-            })
+            for j in range(100):
+                samples = mem.sample(batch_size, sequence_length)
+                screens, actions, rewards, game_features = map(np.array, zip(*samples))
+                loss = sess.run(main.features_loss, feed_dict={
+                    main.batch_size: batch_size,
+                    main.sequence_length: sequence_length,
+                    main.images: screens,
+                    main.game_features_in: game_features
+                })
 
-        print(loss)
+            print(loss)
