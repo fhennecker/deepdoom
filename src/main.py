@@ -42,6 +42,7 @@ def play_episode(game, walls, verbose=False):
     epsilon = 1
     game.new_episode()
     dump = []
+    zoomed = None
     while not game.is_episode_finished():
         # Get screen buf
         state = game.get_state()
@@ -49,7 +50,10 @@ def play_episode(game, walls, verbose=False):
 
         # Resample to our network size
         h, w = S.shape[:2]
-        S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1]) # NOQA
+        if not zoomed:
+            zoomed = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1]) # NOQA
+        else:
+            Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1], output=zoomed)
 
         enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
         game_features = [enn]
