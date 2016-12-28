@@ -35,9 +35,11 @@ class DRQN():
                 slim.flatten(self.conv2), 512, scope=self.scope+'_l4')
         self.flat_game_features = slim.fully_connected(
                 self.layer4, self.k, scope=self.scope+'_l4.5')
-        self.game_features = tf.reshape(
-                self.flat_game_features,
-                [self.batch_size, self.sequence_length, self.k])
+        self.game_features = tf.reshape(self.flat_game_features, [self.batch_size, self.sequence_length, self.k])
+        self.game_features_in = tf.placeholder(tf.float32, name='game_features_in', shape=[None, None, self.k])
+
+        self.features_loss = tf.reduce_mean(tf.square(self.game_features - self.game_features_in))
+        self.features_train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.features_loss)
 
     def _init_recurrent_part(self):
         self.layer3 = tf.reshape(slim.flatten(self.conv2),

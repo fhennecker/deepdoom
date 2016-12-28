@@ -17,6 +17,7 @@ im_w = 108
 im_h = 60
 k = 1
 n_actions = 6
+actions = np.eye(n_actions, dtype=np.uint32).tolist()
 
 
 if __name__ == '__main__':
@@ -48,8 +49,6 @@ if __name__ == '__main__':
         init = tf.global_variables_initializer()
         sess.run(init)
         print("Training vars:", [v.name for v in tf.trainable_variables()])
-
-        actions = np.eye(3, dtype=np.uint32).tolist()
 
         def play_episode(epsilon):
             game.new_episode()
@@ -86,11 +85,15 @@ if __name__ == '__main__':
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
-        for i in tqdm(range(1000)):
+        # for i in tqdm(range(10)):
+        for i in range(1000):
             samples = mem.sample(batch_size, sequence_length)
             screens, actions, rewards, game_features = map(np.array, zip(*samples))
-            sess.run(main.choice, feed_dict={
+            loss = sess.run(main.features_loss, feed_dict={
                 main.batch_size: batch_size,
                 main.sequence_length: sequence_length,
                 main.images: screens,
+                main.game_features_in: game_features
             })
+            if i%10 == 9:
+                print(loss)
