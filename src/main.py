@@ -50,7 +50,7 @@ def play_episode(game, walls, verbose=False):
 
         # Resample to our network size
         h, w = S.shape[:2]
-        if not zoomed:
+        if zoomed is None:
             zoomed = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1]) # NOQA
         else:
             Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1], output=zoomed)
