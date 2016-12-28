@@ -78,7 +78,7 @@ if __name__ == '__main__':
             return dump
 
         # 1 / Bootstrap memory
-        mem = ReplayMemory(min_size=1000, max_size=10000)
+        mem = ReplayMemory(min_size=10000, max_size=100000)
         while not mem.initialized:
             mem.add(play_episode(epsilon=1))
             print(sum(map(len, mem.episodes)))
