@@ -35,6 +35,45 @@ def create_game():
     return game, walls
 
 
+def doom_server(memory_full, queue):
+    game, walls = create_game()
+
+    if not memory_full.is_set():
+        dump = play_episode(game, walls)
+        queue.put(dump)
+
+    game.close()
+
+
+def play_episode(game, walls):
+    epsilon = 1
+    game.new_episode()
+    dump = []
+    while not game.is_episode_finished():
+        # Get screen buf
+        state = game.get_state()
+        S = state.screen_buffer # NOQA
+
+        # Resample to our network size
+        h, w = S.shape[:2]
+        S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1]) # NOQA
+
+        enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
+        game_features = [enn]
+
+        # Epsilon-Greedy strat
+        if np.random.rand() < epsilon:
+            action = random.choice(actions)
+        else:
+            action_no = sess.run(main.choice, feed_dict={
+                main.images: [[S]],
+            })
+            action = actions[action_no[0][0]]
+        reward = game.make_action(action)
+        dump.append((S, action, reward, game_features))
+    return dump
+
+
 if __name__ == '__main__':
     print('Building main DRQN')
     main = DRQN(im_h, im_w, k, n_actions, 'main')
@@ -56,45 +95,34 @@ if __name__ == '__main__':
         sess.run(init)
         print("Training vars:", [v.name for v in tf.trainable_variables()])
 
-        def play_episode(epsilon=1):
-            game, walls = create_game()
-
-            game.new_episode()
-            dump = []
-            while not game.is_episode_finished():
-                # Get screen buf
-                state = game.get_state()
-                S = state.screen_buffer # NOQA
-
-                # Resample to our network size
-                h, w = S.shape[:2]
-                S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1]) # NOQA
-
-                enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
-                game_features = [enn]
-
-                # Epsilon-Greedy strat
-                if np.random.rand() < epsilon:
-                    action = random.choice(actions)
-                else:
-                    action_no = sess.run(main.choice, feed_dict={
-                        main.images: [[S]],
-                    })
-                    action = actions[action_no[0][0]]
-                reward = game.make_action(action)
-                dump.append((S, action, reward, game_features))
-            return dump
-
         # 1 / Bootstrap memory
         mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
 
-        from multiprocessing import Pool, cpu_count
-        p = Pool(cpu_count())
+        from multiprocessing import cpu_count, Queue, Event, Process
+        memory_full = Event()
+        q = Queue()
+        pool = []
+
+        for _ in range(cpu_count()):
+            p = Process(target=doom_server, args=(memory_full, q))
+            pool.append(p)
+            p.start()
 
         while not mem.initialized:
-            for dump in p.map(play_episode, [1] * cpu_count()):
-                mem.add(dump)
-                print(sum(map(len, mem.episodes)))
+            mem.add(q.get())
+            print(sum(map(len, mem.episodes)))
+
+        memory_full.set()
+        for _ in range(cpu_count()):
+            try:
+                q.get_nowait()
+            except:
+                pass
+
+        print("Joining pool...")
+        for p in pool:
+            p.join(5)
+            p.terminate()
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
