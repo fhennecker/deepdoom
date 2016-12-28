@@ -2,6 +2,8 @@ import random
 import numpy as np
 import vizdoom as vd
 import scipy.ndimage as Simg
+import ennemies
+import map_parser
 
 from network import tf, DRQN
 from memory import ReplayMemory
@@ -19,7 +21,7 @@ if __name__ == '__main__':
     print('Building main DRQN')
     main = DRQN(im_h, im_w, k, n_actions, 'main')
     print('Building target DRQN')
-    target = DRQN(im_h, im_w, k, n_actions, 'target')
+    # target = DRQN(im_h, im_w, k, n_actions, 'target')
     # TODO target = main
 
     # fake states
@@ -36,6 +38,15 @@ if __name__ == '__main__':
 
         game = vd.DoomGame()
         game.load_config("basic.cfg")
+
+        # Ennemy detection
+        walls = map_parser.parse("maps/basic.txt")
+        game.clear_available_game_variables()
+        game.add_available_game_variable(vd.GameVariable.POSITION_X)
+        game.add_available_game_variable(vd.GameVariable.POSITION_Y)
+        game.add_available_game_variable(vd.GameVariable.POSITION_Z)
+        game.set_labels_buffer_enabled(True)
+
         game.init()
 
         actions = np.eye(3, dtype=np.uint32).tolist()
@@ -45,6 +56,7 @@ if __name__ == '__main__':
             dump = []
             while not game.is_episode_finished():
                 state = game.get_state()
+                has_visible_ennemies = len(ennemies.get_visible_ennemies(state, walls)) != 0
                 S = state.screen_buffer
                 h, w = S.shape[:2]
                 S = Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1])
