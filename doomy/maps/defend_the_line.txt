@@ -1,0 +1,179 @@
+namespace = "zdoom";
+thing // 0
+{
+id = 1;
+x = -480.000;
+y = 288.000;
+angle = 0;
+type = 1;
+skill1 = true;
+skill2 = true;
+skill3 = true;
+skill4 = true;
+skill5 = true;
+single = true;
+dm = true;
+coop = true;
+skill6 = true;
+skill7 = true;
+skill8 = true;
+class1 = true;
+class2 = true;
+class3 = true;
+class4 = true;
+class5 = true;
+class6 = true;
+class7 = true;
+class8 = true;
+}
+
+vertex // 0
+{
+x = 0.000;
+y = 512.000;
+}
+
+vertex // 1
+{
+x = 128.000;
+y = 512.000;
+}
+
+vertex // 2
+{
+x = 128.000;
+y = 64.000;
+}
+
+vertex // 3
+{
+x = 0.000;
+y = 64.000;
+}
+
+vertex // 4
+{
+x = -512.000;
+y = 64.000;
+}
+
+vertex // 5
+{
+x = -512.000;
+y = 512.000;
+}
+
+vertex // 6
+{
+x = -160.000;
+y = 512.000;
+}
+
+linedef // 0
+{
+v1 = 0;
+v2 = 1;
+sidefront = 0;
+blocking = true;
+}
+
+linedef // 1
+{
+v1 = 1;
+v2 = 2;
+sidefront = 1;
+blocking = true;
+}
+
+linedef // 2
+{
+v1 = 2;
+v2 = 3;
+sidefront = 2;
+blocking = true;
+}
+
+linedef // 3
+{
+v1 = 3;
+v2 = 4;
+sidefront = 3;
+blocking = true;
+}
+
+linedef // 4
+{
+v1 = 4;
+v2 = 5;
+sidefront = 4;
+blocking = true;
+}
+
+linedef // 5
+{
+v1 = 5;
+v2 = 6;
+sidefront = 5;
+blocking = true;
+}
+
+linedef // 6
+{
+v1 = 6;
+v2 = 0;
+sidefront = 6;
+blocking = true;
+}
+
+sidedef // 0
+{
+sector = 0;
+texturemiddle = "BRICK12";
+}
+
+sidedef // 1
+{
+sector = 0;
+texturemiddle = "BRICK12";
+}
+
+sidedef // 2
+{
+sector = 0;
+texturemiddle = "BRICK12";
+}
+
+sidedef // 3
+{
+sector = 0;
+texturemiddle = "BRICK12";
+}
+
+sidedef // 4
+{
+sector = 0;
+texturemiddle = "BRICK12";
+}
+
+sidedef // 5
+{
+sector = 0;
+texturemiddle = "BRICK12";
+}
+
+sidedef // 6
+{
+sector = 0;
+offsetx = 288;
+texturemiddle = "BRICK12";
+}
+
+sector // 0
+{
+heightfloor = 0;
+heightceiling = 104;
+texturefloor = "CRATOP1";
+textureceiling = "CRATOP1";
+lightlevel = 210;
+}
+

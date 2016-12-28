@@ -1,0 +1,412 @@
+namespace = "zdoom";
+thing // 0
+{
+id = 1;
+x = 0.000;
+y = 0.000;
+angle = 0;
+type = 1;
+skill1 = true;
+skill2 = true;
+skill3 = true;
+skill4 = true;
+skill5 = true;
+single = true;
+dm = true;
+coop = true;
+skill6 = true;
+skill7 = true;
+skill8 = true;
+class1 = true;
+class2 = true;
+class3 = true;
+class4 = true;
+class5 = true;
+class6 = true;
+class7 = true;
+class8 = true;
+}
+
+vertex // 0
+{
+x = -800.000;
+y = 0.000;
+}
+
+vertex // 1
+{
+x = -735.000;
+y = 306.000;
+}
+
+vertex // 2
+{
+x = 32.000;
+y = 800.000;
+}
+
+vertex // 3
+{
+x = 306.000;
+y = 739.000;
+}
+
+vertex // 4
+{
+x = 739.000;
+y = -306.000;
+}
+
+vertex // 5
+{
+x = 735.000;
+y = -306.000;
+}
+
+vertex // 6
+{
+x = 306.000;
+y = -735.000;
+}
+
+vertex // 7
+{
+x = 0.000;
+y = -800.000;
+}
+
+vertex // 8
+{
+x = -566.000;
+y = 566.000;
+}
+
+vertex // 9
+{
+x = -306.000;
+y = 739.000;
+}
+
+vertex // 10
+{
+x = -566.000;
+y = -566.000;
+}
+
+vertex // 11
+{
+x = -735.000;
+y = -306.000;
+}
+
+vertex // 12
+{
+x = 800.000;
+y = 0.000;
+}
+
+vertex // 13
+{
+x = 566.000;
+y = -566.000;
+}
+
+vertex // 14
+{
+x = -306.000;
+y = -735.000;
+}
+
+vertex // 15
+{
+x = -768.000;
+y = -150.646;
+}
+
+vertex // 16
+{
+x = 566.000;
+y = 566.000;
+}
+
+vertex // 17
+{
+x = 739.000;
+y = 306.000;
+}
+
+linedef // 0
+{
+v1 = 0;
+v2 = 1;
+sidefront = 0;
+blocking = true;
+}
+
+linedef // 1
+{
+v1 = 2;
+v2 = 3;
+sidefront = 1;
+blocking = true;
+}
+
+linedef // 2
+{
+v1 = 4;
+v2 = 5;
+sidefront = 2;
+blocking = true;
+}
+
+linedef // 3
+{
+v1 = 6;
+v2 = 7;
+sidefront = 3;
+blocking = true;
+}
+
+linedef // 4
+{
+v1 = 8;
+v2 = 9;
+sidefront = 4;
+blocking = true;
+}
+
+linedef // 5
+{
+v1 = 10;
+v2 = 11;
+sidefront = 5;
+blocking = true;
+}
+
+linedef // 6
+{
+v1 = 12;
+v2 = 4;
+sidefront = 6;
+blocking = true;
+}
+
+linedef // 7
+{
+v1 = 5;
+v2 = 13;
+sidefront = 7;
+blocking = true;
+}
+
+linedef // 8
+{
+v1 = 13;
+v2 = 6;
+sidefront = 8;
+blocking = true;
+}
+
+linedef // 9
+{
+v1 = 14;
+v2 = 10;
+sidefront = 9;
+blocking = true;
+}
+
+linedef // 10
+{
+v1 = 11;
+v2 = 15;
+sidefront = 10;
+blocking = true;
+}
+
+linedef // 11
+{
+v1 = 1;
+v2 = 8;
+sidefront = 11;
+blocking = true;
+}
+
+linedef // 12
+{
+v1 = 9;
+v2 = 2;
+sidefront = 12;
+blocking = true;
+}
+
+linedef // 13
+{
+v1 = 16;
+v2 = 17;
+sidefront = 13;
+blocking = true;
+}
+
+linedef // 14
+{
+v1 = 17;
+v2 = 12;
+sidefront = 14;
+blocking = true;
+}
+
+linedef // 15
+{
+v1 = 3;
+v2 = 16;
+sidefront = 15;
+blocking = true;
+}
+
+linedef // 16
+{
+v1 = 7;
+v2 = 14;
+sidefront = 16;
+blocking = true;
+}
+
+linedef // 17
+{
+v1 = 15;
+v2 = 0;
+sidefront = 17;
+blocking = true;
+}
+
+sidedef // 0
+{
+sector = 0;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 1
+{
+sector = 0;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 2
+{
+sector = 0;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 3
+{
+sector = 0;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 4
+{
+sector = 0;
+offsetx = 800;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 5
+{
+sector = 0;
+offsetx = 800;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 6
+{
+sector = 0;
+offsetx = 800;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 7
+{
+sector = 0;
+offsetx = 800;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 8
+{
+sector = 0;
+offsetx = 1111;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 9
+{
+sector = 0;
+offsetx = 300;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 10
+{
+sector = 0;
+offsetx = 1111;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 11
+{
+sector = 0;
+offsetx = 300;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 12
+{
+sector = 0;
+offsetx = 1111;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 13
+{
+sector = 0;
+offsetx = 300;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 14
+{
+sector = 0;
+offsetx = 444;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 15
+{
+sector = 0;
+offsetx = 162;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 16
+{
+sector = 0;
+offsetx = 254;
+texturemiddle = "TANROCK2";
+}
+
+sidedef // 17
+{
+sector = 0;
+offsetx = 1269;
+texturemiddle = "TANROCK2";
+}
+
+sector // 0
+{
+heightfloor = 0;
+heightceiling = 300;
+texturefloor = "FLOOR0_5";
+textureceiling = "CEIL4_1";
+lightlevel = 210;
+}
+
