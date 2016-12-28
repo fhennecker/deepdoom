@@ -1,6 +1,5 @@
 import json
 import map_parser
-import matplotlib.pyplot as plt
 
 
 def wad_to_walls(string):
@@ -61,6 +60,7 @@ def parse(filename):
 
 
 def plot_map(map, ennemies=None, player_pos=None):
+    import matplotlib.pyplot as plt
 
     walls = map_parser.parse("maps/%s.txt" % map)
     for a, b in walls:
