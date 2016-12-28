@@ -41,7 +41,7 @@ def doom_server(memory_full, queue):
     if not memory_full.is_set():
         dump = play_episode(game, walls)
         queue.put(dump)
-
+    queue.close()
     game.close()
 
 
