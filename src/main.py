@@ -50,7 +50,7 @@ def play_episode(game, walls, verbose=False):
 
         # Resample to our network size
         h, w = S.shape[:2]
-        Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1], output=zoomed[len(dump)])
+        Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1], output=zoomed[len(dump)], order=0)
         S = zoomed[len(dump)]
 
         enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
