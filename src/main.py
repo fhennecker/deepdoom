@@ -18,12 +18,13 @@ im_w = 108
 im_h = 60
 k = 1
 n_actions = 2
-actions = np.eye(n_actions, dtype=np.uint32).tolist()
+ACTION_SET = np.eye(n_actions, dtype=np.uint32).tolist()
 
 
 def create_game():
     game = vd.DoomGame()
     game.load_config("basic.cfg")
+
     # Ennemy detection
     walls = map_parser.parse("maps/basic.txt")
     game.clear_available_game_variables()
@@ -31,11 +32,12 @@ def create_game():
     game.add_available_game_variable(vd.GameVariable.POSITION_Y)
     game.add_available_game_variable(vd.GameVariable.POSITION_Z)
     game.set_labels_buffer_enabled(True)
+
     game.init()
     return game, walls
 
 
-def play_episode(game, walls):
+def play_episode(game, walls, verbose=False):
     epsilon = 1
     game.new_episode()
     dump = []
@@ -53,12 +55,15 @@ def play_episode(game, walls):
 
         # Epsilon-Greedy strat
         if np.random.rand() < epsilon:
-            action = random.choice(actions)
+            action = random.choice(ACTION_SET)
         else:
             action_no = sess.run(main.choice, feed_dict={
                 main.images: [[S]],
             })
-            action = actions[action_no[0][0]]
+            action = ACTION_SET[action_no[0][0]]
+
+        if verbose:
+            print(action)
         reward = game.make_action(action)
         dump.append((S, action, reward, game_features))
     return dump
