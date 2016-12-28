@@ -17,7 +17,7 @@ sequence_length = 8
 im_w = 108
 im_h = 60
 k = 1
-n_actions = 6
+n_actions = 2
 actions = np.eye(n_actions, dtype=np.uint32).tolist()
 
 
@@ -126,15 +126,16 @@ if __name__ == '__main__':
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
-        # for i in tqdm(range(10)):
-        for i in range(TRAINING_STEPS):
+        game, walls = create_game()
+        for i in tqdm(range(TRAINING_STEPS)):
+            mem.add(play_episode(game, walls))
             samples = mem.sample(batch_size, sequence_length)
             screens, actions, rewards, game_features = map(np.array, zip(*samples))
-            loss, lol = sess.run([main.features_loss, main.game_features], feed_dict={
+            loss = sess.run(main.features_loss, feed_dict={
                 main.batch_size: batch_size,
                 main.sequence_length: sequence_length,
                 main.images: screens,
                 main.game_features_in: game_features
             })
-            if i % 10 == 0:
-                print(loss)
+
+        print(loss)
