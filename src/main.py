@@ -12,7 +12,7 @@ from size_config import MIN_MEM_SIZE, MAX_MEM_SIZE, TRAINING_STEPS
 
 
 fake_dataset_size = 100
-batch_size = 10
+batch_size = 25
 sequence_length = 8
 im_w = 108
 im_h = 60
