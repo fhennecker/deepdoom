@@ -1,6 +1,5 @@
 import json
 import map_parser
-import matplotlib.pyplot as plt
 
 
 def wad_to_walls(string):
