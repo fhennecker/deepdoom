@@ -35,16 +35,6 @@ def create_game():
     return game, walls
 
 
-def doom_server(memory_full, queue):
-    game, walls = create_game()
-
-    if not memory_full.is_set():
-        dump = play_episode(game, walls)
-        queue.put(dump)
-    queue.close()
-    game.close()
-
-
 def play_episode(game, walls):
     epsilon = 1
     game.new_episode()
@@ -74,6 +64,13 @@ def play_episode(game, walls):
     return dump
 
 
+def wrap_play_episode(i):
+    game, walls = create_game()
+    res = play_episode(game, walls)
+    game.close()
+    return res
+
+
 if __name__ == '__main__':
     print('Building main DRQN')
     main = DRQN(im_h, im_w, k, n_actions, 'main')
@@ -98,31 +95,11 @@ if __name__ == '__main__':
         # 1 / Bootstrap memory
         mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
 
-        from multiprocessing import cpu_count, Queue, Event, Process
-        memory_full = Event()
-        q = Queue()
-        pool = []
-
-        for _ in range(cpu_count()):
-            p = Process(target=doom_server, args=(memory_full, q))
-            pool.append(p)
-            p.start()
-
+        from multiprocessing import Pool, cpu_count
         while not mem.initialized:
-            mem.add(q.get())
+            for episode in Pool(cpu_count()).map(wrap_play_episode, range(cpu_count())):
+                mem.add(episode)
             print(sum(map(len, mem.episodes)))
-
-        memory_full.set()
-        for _ in range(cpu_count()):
-            try:
-                q.get_nowait()
-            except:
-                pass
-
-        print("Joining pool...")
-        for p in pool:
-            p.join(5)
-            p.terminate()
 
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
