@@ -8,6 +8,7 @@ from tqdm import tqdm
 
 from network import tf, DRQN
 from memory import ReplayMemory
+from size_config import MIN_MEM_SIZE, MAX_MEM_SIZE, TRAINING_STEPS
 
 
 fake_dataset_size = 100
@@ -78,7 +79,7 @@ if __name__ == '__main__':
             return dump
 
         # 1 / Bootstrap memory
-        mem = ReplayMemory(min_size=10000, max_size=100000)
+        mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
         while not mem.initialized:
             mem.add(play_episode(epsilon=1))
             print(sum(map(len, mem.episodes)))
@@ -86,14 +87,14 @@ if __name__ == '__main__':
         # 2 / Replay all date shitte
         print("Replay ~o~ !!!")
         # for i in tqdm(range(10)):
-        for i in range(1000):
+        for i in range(TRAINING_STEPS):
             samples = mem.sample(batch_size, sequence_length)
             screens, actions, rewards, game_features = map(np.array, zip(*samples))
-            loss = sess.run(main.features_loss, feed_dict={
+            loss, lol = sess.run([main.features_loss, game_features], feed_dict={
                 main.batch_size: batch_size,
                 main.sequence_length: sequence_length,
                 main.images: screens,
                 main.game_features_in: game_features
             })
-            if i%10 == 9:
-                print(loss)
+            if i % 10 == 0:
+                print(lol, loss)
