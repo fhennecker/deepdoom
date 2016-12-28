@@ -1,4 +1,5 @@
 import random
+import numpy as np
 
 
 class ReplayMemory():
@@ -6,13 +7,16 @@ class ReplayMemory():
         self.episodes = []
         self.min_size, self.max_size = min_size, max_size
 
+    def __len__(self):
+        return sum(map(len, self.episodes))
+
     @property
     def full(self):
-        return len(self.episodes) >= self.max_size
+        return len(self) >= self.max_size
 
     @property
     def initialized(self):
-        return len(self.episodes) >= self.min_size
+        return len(self) >= self.min_size
 
     def add(self, episode):
         if self.full:
@@ -23,5 +27,5 @@ class ReplayMemory():
         def take_seq():
             episode = random.choice(self.episodes)
             start = random.randint(0, len(episode)-sequence_length)
-            return episode[start:start+sequence_length]
+            return [np.array(x) for x in zip(*episode[start:start+sequence_length])]
         return [take_seq() for b in range(batch_size)]
