@@ -13,7 +13,7 @@ from size_config import MIN_MEM_SIZE, MAX_MEM_SIZE, TRAINING_STEPS
 
 
 fake_dataset_size = 100
-batch_size = 25
+batch_size = 10
 sequence_length = 8
 im_w = 108
 im_h = 60
@@ -118,15 +118,18 @@ if __name__ == '__main__':
         print("--------")
         print("training_step,loss")
         game, walls = create_game()
-        for i in range(TRAINING_STEPS//10):
-            # Play and add new episode to memory
-            mem.add(play_episode(game, walls))
-            for j in range(10):
+        for i in range(TRAINING_STEPS):
+            # Play and add new episodes to memory
+            for episode in workers.map(wrap_play_episode, range(cores)):
+                mem.add(episode)
+
+            for j in range(cores):
                 # Sample a batch and ingest into the NN
                 samples = mem.sample(batch_size, sequence_length)
                 # screens, actions, rewards, game_features
                 S, A, R, F = map(np.array, zip(*samples))
                 main.learn_game_features(S, F)
+
             loss = sess.run(main.features_loss, feed_dict={
                 main.batch_size: batch_size,
                 main.sequence_length: sequence_length,
