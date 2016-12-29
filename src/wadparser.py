@@ -11,7 +11,7 @@ def section_parser(total_size, fmt_size, fmt):
 
 
 lump_parsers = {
-    'LINEDEFS': section_parser(14, 4, 'HH'),
+    'LINEDEFS': section_parser(14, 10, 'HHHHH'),
     'VERTEXES': section_parser(4, 4, 'hh'),
 }
 
@@ -47,7 +47,7 @@ def extract_maps(dit):
 
 def extract_map_lines(map_content):
     lines, verts = map_content['LINEDEFS'], map_content['VERTEXES']
-    return [(verts[v1], verts[v2]) for v1, v2 in lines]
+    return [(verts[v1], verts[v2], r) for v1, v2, *r in lines]
 
 
 def parse_all_maps(filename):
