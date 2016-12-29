@@ -119,12 +119,11 @@ if __name__ == '__main__':
             for episode in workers.map(wrap_play_episode, range(cores)):
                 mem.add(episode)
 
-            for j in range(cores):
-                # Sample a batch and ingest into the NN
-                samples = mem.sample(batch_size, sequence_length)
-                # screens, actions, rewards, game_features
-                S, A, R, F = map(np.array, zip(*samples))
-                main.learn_game_features(S, F)
+            # Sample a batch and ingest into the NN
+            samples = mem.sample(batch_size*cores, sequence_length)
+            # screens, actions, rewards, game_features
+            S, A, R, F = map(np.array, zip(*samples))
+            main.learn_game_features(S, F)
 
             loss = main.current_game_features_loss(S, F)
             print("{},{}".format(i, loss))

@@ -36,14 +36,25 @@ class DRQN():
                 slim.flatten(self.conv2), 512, scope=self.scope+'_l4')
         self.flat_game_features = slim.fully_connected(
                 self.layer4, 2*self.k, scope=self.scope+'_l4.5')
-        reshaped = tf.reshape(self.flat_game_features, [self.batch_size, self.sequence_length, self.k, 2])
-        self.game_features = tf.nn.softmax(reshaped)
-        self.game_features_in = tf.placeholder(tf.float32, name='game_features_in', shape=[None, None, self.k, 2])
+        reshaped = tf.reshape(self.flat_game_features,
+                              [self.batch_size, self.sequence_length,
+                               self.k, 2])
 
+        # Output layer
+        self.game_features = tf.nn.softmax(reshaped)
+        # Observed game features
+        self.game_features_in = tf.placeholder(tf.float32,
+                                               name='game_features_in',
+                                               shape=[None, None, self.k, 2])
+
+        # Difference between observed and predicted game features
         delta = self.game_features - self.game_features_in
         # delta = tf.Print(delta, [delta], summarize=10, name="dFeatures")
+
+        # Optimize on RMS of this difference
         self.features_loss = tf.reduce_mean(tf.square(delta))
-        self.features_train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.features_loss)
+        optimizer = tf.train.RMSPropOptimizer(0.001)
+        self.features_train_step = optimizer.minimize(self.features_loss)
 
     def _init_recurrent_part(self):
         self.layer3 = tf.reshape(slim.flatten(self.conv2),
@@ -82,7 +93,7 @@ class DRQN():
     def _game_features_learning(self, func, screens, features):
         assert screens.shape[:2] == features.shape[:2]
         batch_size, sequence_length = features.shape[:2]
-        F = np.zeros((batch_size, sequence_length, self.k, 2))
+        F = np.zeros((batch_size, sequence_length, self.k, 2))  # NOQA
         F[:, :, :, 0] = features
         F[:, :, :, 1] = ~features
         return func(feed_dict={
@@ -93,7 +104,9 @@ class DRQN():
         })
 
     def learn_game_features(self, screens, features):
-        return self._game_features_learning(self.features_train_step.run, screens, features)
+        return self._game_features_learning(self.features_train_step.run,
+                                            screens, features)
 
     def current_game_features_loss(self, screens, features):
-        return self._game_features_learning(self.features_loss.eval, screens, features)
+        return self._game_features_learning(self.features_loss.eval,
+                                            screens, features)
