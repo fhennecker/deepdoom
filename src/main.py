@@ -15,7 +15,7 @@ from config import *  # NOQA
 # Image input size
 im_w, im_h = 108, 60
 # Number of game features
-k = 1
+k = 3
 
 # Import from config
 batch_size = BATCH_SIZE
@@ -29,7 +29,7 @@ def create_game():
     game.load_config("basic.cfg")
 
     # Ennemy detection
-    walls = map_parser.parse("maps/basic.txt")
+    walls = map_parser.parse("maps/deathmatch.txt")
     game.clear_available_game_variables()
     game.add_available_game_variable(vd.GameVariable.POSITION_X)
     game.add_available_game_variable(vd.GameVariable.POSITION_Y)
@@ -55,8 +55,7 @@ def play_episode(game, walls, verbose=False):
         Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1], output=zoomed[len(dump)], order=0)
         S = zoomed[len(dump)]
 
-        enn = len(ennemies.get_visible_ennemies(state, walls)) > 0
-        game_features = [enn]
+        game_features = ennemies.has_visible_entities(state, walls)
 
         # Epsilon-Greedy strat
         if np.random.rand() < epsilon:

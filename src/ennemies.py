@@ -18,25 +18,31 @@ PICKUPS = [
     "SuperShotgun", "YellowCard", "YellowSkull"
 ]
 
+BLASTS = [
+    "BulletPuff", "Blood", "BaronBall"
+]
+
 IGNORABLE = [
-    "TeleportFog", "DoomPlayer", "BulletPuff", "Blood", "BaronBall"
+    "TeleportFog", "DoomPlayer"
 ]
 
 
-def get_cone_ennemies(state):
-    return [x for x in state.labels if x.object_name in ENNEMIES]
+def get_cone_entities(state, entity_type):
+    return [x for x in state.labels if x.object_name in entity_type]
 
 
-def get_visible_ennemies(state, walls):
-    cone = get_cone_ennemies(state)
+def has_visible(state, walls, entity_type):
+    cone = get_cone_entities(state, entity_type)
     player = (state.game_variables[0], state.game_variables[1])
-
-    visible = []
     for entity in cone:
         if all([is_visible(player, wall, entity) for wall in walls]):
-            visible.append(entity)
+            return True
+    return False
 
-    return visible
+
+def has_visible_entities(state, wall):
+    types = ENNEMIES, PICKUPS, BLASTS
+    return [has_visible(state, wall, x) for x in types]
 
 
 def is_visible(player, wall, entity):
