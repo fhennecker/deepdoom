@@ -4,7 +4,8 @@ import tensorflow.contrib.slim as slim
 
 
 class DRQN():
-    def __init__(self, im_h, im_w, k, n_actions, scope):
+    def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate):
+        self.learning_rate = learning_rate
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
         self.batch_size = tf.placeholder(tf.int32, name='batch_size')
@@ -53,7 +54,7 @@ class DRQN():
 
         # Optimize on RMS of this difference
         self.features_loss = tf.reduce_mean(tf.square(delta))
-        optimizer = tf.train.RMSPropOptimizer(0.001)
+        optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
         self.features_train_step = optimizer.minimize(self.features_loss)
 
     def _init_recurrent_part(self):
@@ -88,7 +89,7 @@ class DRQN():
                 tf.one_hot(self.choice, self.n_actions) * self.target_q, 2)
         Qas = tf.reduce_sum(tf.one_hot(self.choice, self.n_actions) * self.Q, 2)
         self.loss = tf.reduce_mean(tf.square(y-Qas))
-        self.train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.loss)
+        self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
     def _game_features_learning(self, func, screens, features):
         assert screens.shape[:2] == features.shape[:2]

@@ -9,15 +9,18 @@ from tqdm import tqdm  # NOQA
 
 from network import tf, DRQN
 from memory import ReplayMemory
-from size_config import MIN_MEM_SIZE, MAX_MEM_SIZE, TRAINING_STEPS
+from config import *  # NOQA
 
 
-batch_size = 10
-sequence_length = 8
-im_w = 108
-im_h = 60
+# Image input size
+im_w, im_h = 108, 60
+# Number of game features
 k = 1
-n_actions = 2
+
+# Import from config
+batch_size = BATCH_SIZE
+sequence_length = SEQUENCE_LENGTH
+n_actions = N_ACTIONS
 ACTION_SET = np.eye(n_actions, dtype=np.uint32).tolist()
 
 
@@ -80,7 +83,7 @@ def wrap_play_episode(i):
 
 if __name__ == '__main__':
     print('Building main DRQN')
-    main = DRQN(im_h, im_w, k, n_actions, 'main')
+    main = DRQN(im_h, im_w, k, n_actions, 'main', learning_rate=LEARNING_RATE)
     # print('Building target DRQN')
     # target = DRQN(im_h, im_w, k, n_actions, 'target')
     # TODO target = main
@@ -99,7 +102,7 @@ if __name__ == '__main__':
         mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
 
         from multiprocessing import Pool, cpu_count
-        cores = cpu_count()
+        cores = min(cpu_count(), MAX_CPUS)
         workers = Pool(cores)
 
         # 1 / Bootstrap memory
