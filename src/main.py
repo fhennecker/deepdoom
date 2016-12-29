@@ -92,8 +92,6 @@ if __name__ == '__main__':
     state = (np.zeros([batch_size, main.h_size]),
              np.zeros([batch_size, main.h_size]))
 
-    game, walls = create_game()
-
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
@@ -116,7 +114,6 @@ if __name__ == '__main__':
         # 2 / Replay and learn
         print("--------")
         print("training_step,loss")
-        game, walls = create_game()
         for i in range(TRAINING_STEPS):
             # Play and add new episodes to memory
             for episode in workers.map(wrap_play_episode, range(cores)):
