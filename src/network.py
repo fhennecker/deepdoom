@@ -37,8 +37,10 @@ class DRQN():
                 self.layer4, self.k, scope=self.scope+'_l4.5')
         self.game_features = tf.reshape(self.flat_game_features, [self.batch_size, self.sequence_length, self.k])
         self.game_features_in = tf.placeholder(tf.float32, name='game_features_in', shape=[None, None, self.k])
-        self.features_loss = tf.reduce_mean(tf.square(self.game_features - self.game_features_in))
-        self.features_train_step = tf.train.RMSPropOptimizer(0.01).minimize(self.features_loss)
+        delta = self.game_features - self.game_features_in
+        # delta = tf.Print(delta, [delta], summarize=100)
+        self.features_loss = tf.reduce_mean(tf.square(delta))
+        self.features_train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.features_loss)
 
     def _init_recurrent_part(self):
         self.layer3 = tf.reshape(slim.flatten(self.conv2),
@@ -73,3 +75,13 @@ class DRQN():
         Qas = tf.reduce_sum(tf.one_hot(self.choice, self.n_actions) * self.Q, 2)
         self.loss = tf.reduce_mean(tf.square(y-Qas))
         self.train_step = tf.train.RMSPropOptimizer(0.001).minimize(self.loss)
+
+    def learn_game_features(self, screens, features):
+        assert screens.shape[:2] == features.shape[:2]
+        batch_size, sequence_length = features.shape[:2]
+        self.features_train_step.run(feed_dict={
+            self.batch_size: batch_size,
+            self.sequence_length: sequence_length,
+            self.images: screens,
+            self.game_features_in: features,
+        })

@@ -100,28 +100,37 @@ if __name__ == '__main__':
         sess.run(init)
         print("Training vars:", [v.name for v in tf.trainable_variables()])
 
-        # 1 / Bootstrap memory
         mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
 
         from multiprocessing import Pool, cpu_count
-        while not mem.initialized:
-            for episode in Pool(cpu_count()).map(wrap_play_episode, range(cpu_count())):
-                mem.add(episode)
-            print("\rHave", sum(map(len, mem.episodes)), "frames", end="")
-        print()
+        cores = cpu_count()
+        workers = Pool(cores)
 
-        # 2 / Replay all date shitte
-        print("Replay ~o~ !!!")
+        # 1 / Bootstrap memory
+        print("--------")
+        print("mem_size")
+        while not mem.initialized:
+            for episode in workers.map(wrap_play_episode, range(cores)):
+                mem.add(episode)
+            print(len(mem))
+
+        # 2 / Replay and learn
+        print("--------")
+        print("training_step,loss")
         game, walls = create_game()
-        for i in range(TRAINING_STEPS):
+        for i in range(TRAINING_STEPS//10):
+            # Play and add new episode to memory
             mem.add(play_episode(game, walls))
-            for j in range(100):
+            for j in range(10):
+                # Sample a batch and ingest into the NN
                 samples = mem.sample(batch_size, sequence_length)
-                screens, actions, rewards, game_features = map(np.array, zip(*samples))
-                loss = sess.run(main.features_loss, feed_dict={
-                    main.batch_size: batch_size,
-                    main.sequence_length: sequence_length,
-                    main.images: screens,
-                    main.game_features_in: game_features,
-                })
-            print("\rTraining step", i, "/ Loss =", loss, end="")
+                # screens, actions, rewards, game_features
+                S, A, R, F = map(np.array, zip(*samples))
+                main.learn_game_features(S, F)
+            loss = sess.run(main.features_loss, feed_dict={
+                main.batch_size: batch_size,
+                main.sequence_length: sequence_length,
+                main.images: S,
+                main.game_features_in: F,
+            })
+            print("{},{}".format(i, loss))
