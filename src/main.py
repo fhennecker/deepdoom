@@ -44,7 +44,7 @@ def play_episode(game, walls, verbose=False):
     epsilon = 1
     game.new_episode()
     dump = []
-    zoomed = np.zeros((300, im_h, im_w, 3), dtype=np.uint8)
+    zoomed = np.zeros((1200, im_h, im_w, 3), dtype=np.uint8)
     while not game.is_episode_finished():
         # Get screen buf
         state = game.get_state()

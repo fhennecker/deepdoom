@@ -14,7 +14,7 @@ TRAINING_STEPS = 1000
 MAX_CPUS = 32
 
 # Number of possible actions
-N_ACTIONS = 4
+N_ACTIONS = 9
 
 # Learning rate for tensorflow optimizers
 LEARNING_RATE = 0.00001
