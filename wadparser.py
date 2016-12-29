@@ -1,5 +1,4 @@
 from struct import unpack
-from sys import argv
 
 
 def section_parser(total_size, fmt_size, fmt):
@@ -50,10 +49,15 @@ def extract_map_lines(map_content):
     lines, verts = map_content['LINEDEFS'], map_content['VERTEXES']
     return [(verts[v1], verts[v2]) for v1, v2 in lines]
 
-if __name__ == "__main__":
-    wad = parse_wad_buffer(open(argv[1], 'rb').read())
-    maps = {
+
+def parse_all_maps(filename):
+    wad = parse_wad_buffer(open(filename, 'rb').read())
+    return {
         name: extract_map_lines(content)
         for name, content in extract_maps(wad)
     }
-    print(maps)
+
+
+if __name__ == "__main__":
+    from sys import argv
+    print(parse_all_maps(argv[1]))
