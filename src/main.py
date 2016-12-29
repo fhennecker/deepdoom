@@ -118,7 +118,7 @@ if __name__ == '__main__':
             for episode in workers.map(wrap_play_episode, range(cores)):
                 mem.add(episode)
 
-            for i in range(10):
+            for j in range(10):
                 # Sample a batch and ingest into the NN
                 samples = mem.sample(batch_size*cores, sequence_length)
                 # screens, actions, rewards, game_features
