@@ -5,14 +5,13 @@ import vizdoom as vd
 import scipy.ndimage as Simg
 import ennemies
 import map_parser
-from tqdm import tqdm # NOQA
+from tqdm import tqdm  # NOQA
 
 from network import tf, DRQN
 from memory import ReplayMemory
 from size_config import MIN_MEM_SIZE, MAX_MEM_SIZE, TRAINING_STEPS
 
 
-fake_dataset_size = 100
 batch_size = 10
 sequence_length = 8
 im_w = 108
@@ -86,9 +85,6 @@ if __name__ == '__main__':
     # target = DRQN(im_h, im_w, k, n_actions, 'target')
     # TODO target = main
 
-    # fake states
-    Xtr = np.ones((fake_dataset_size, sequence_length, im_h, im_w, 3))
-
     # initial LSTM state
     state = (np.zeros([batch_size, main.h_size]),
              np.zeros([batch_size, main.h_size]))
@@ -130,10 +126,5 @@ if __name__ == '__main__':
                 S, A, R, F = map(np.array, zip(*samples))
                 main.learn_game_features(S, F)
 
-            loss = sess.run(main.features_loss, feed_dict={
-                main.batch_size: batch_size,
-                main.sequence_length: sequence_length,
-                main.images: S,
-                main.game_features_in: F,
-            })
+            loss = main.current_game_features_loss(S, F)
             print("{},{}".format(i, loss))
