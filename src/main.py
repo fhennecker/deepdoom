@@ -147,15 +147,18 @@ if __name__ == '__main__':
             if i % 100 == 0:
                 saver.save(sess, "./model.ckpt")
 
-        # #  3 / Play
+        #  3 / Play
         # print("-------")
         # game, walls = create_game()
 
+        # DIV = 1 / 1000000
+        # frames = 0
         # for i in range(QLEARNING_STEPS):
-        #     if i > 1000000:
+        #     if frames > 1000000:
         #         e = 0.1
         #     else:
-        #         e = 0.1 + 0.9 * (1 - (i/1000000))
+        #         e = 0.1 + 0.9 * (1 - (frames * DIV))
         #     res = play_episode(game, walls, skip=4, epsilon=e)
+        #     frames += len(res)
 
         # game.close()
