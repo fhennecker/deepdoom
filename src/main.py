@@ -40,42 +40,47 @@ def create_game():
     return game, walls
 
 
-def play_episode(game, walls, verbose=False):
-    epsilon = 1
+def play_episode(game, walls, verbose=False, epsilon=0.1, skip=1):
     game.new_episode()
     dump = []
     zoomed = np.zeros((500, im_h, im_w, 3), dtype=np.uint8)
+    action = ACTION_SET[0]
+    i = 0
     while not game.is_episode_finished():
-        # Get screen buf
-        state = game.get_state()
-        S = state.screen_buffer # NOQA
+        if i % skip == 0:
+            # Get screen buf
+            state = game.get_state()
+            S = state.screen_buffer # NOQA
 
-        # Resample to our network size
-        h, w = S.shape[:2]
-        Simg.zoom(S, [1.*im_h/h, 1.*im_w/w, 1], output=zoomed[len(dump)], order=0)
-        S = zoomed[len(dump)]
+            # Resample to our network size
+            h, w = S.shape[:2]
+            Simg.zoom(S, [1. * im_h / h, 1. * im_w / w, 1], output=zoomed[len(dump)], order=0)
+            S = zoomed[len(dump)] # NOQA
 
-        game_features = ennemies.has_visible_entities(state, walls)
+            game_features = ennemies.has_visible_entities(state, walls)
 
-        # Epsilon-Greedy strat
-        if np.random.rand() < epsilon:
-            action = random.choice(ACTION_SET)
+            # Epsilon-Greedy strat
+            if np.random.rand() < epsilon:
+                action = random.choice(ACTION_SET)
+            else:
+                action_no = sess.run(main.choice, feed_dict={
+                    main.images: [[S]],
+                })
+                action = ACTION_SET[action_no[0][0]]
+
+            if verbose:
+                print(action)
+            reward = game.make_action(action)
+            dump.append((S, action, reward, game_features))
         else:
-            action_no = sess.run(main.choice, feed_dict={
-                main.images: [[S]],
-            })
-            action = ACTION_SET[action_no[0][0]]
-
-        if verbose:
-            print(action)
-        reward = game.make_action(action)
-        dump.append((S, action, reward, game_features))
+            game.make_action(action)
+        i += 1
     return dump
 
 
 def wrap_play_episode(i):
     game, walls = create_game()
-    res = play_episode(game, walls)
+    res = play_episode(game, walls, epsilon=1, skip=4)
     game.close()
     return res
 
@@ -132,7 +137,7 @@ if __name__ == '__main__':
 
             for j in range(10):
                 # Sample a batch and ingest into the NN
-                samples = mem.sample(batch_size*cores, sequence_length)
+                samples = mem.sample(batch_size * cores, sequence_length)
                 # screens, actions, rewards, game_features
                 S, A, R, F = map(np.array, zip(*samples))
                 main.learn_game_features(S, F)
@@ -141,3 +146,16 @@ if __name__ == '__main__':
             print("{},{}".format(i, loss))
             if i % 100 == 0:
                 saver.save(sess, "./model.ckpt")
+
+        # #  3 / Play
+        # print("-------")
+        # game, walls = create_game()
+
+        # for i in range(QLEARNING_STEPS):
+        #     if i > 1000000:
+        #         e = 0.1
+        #     else:
+        #         e = 0.1 + 0.9 * (1 - (i/1000000))
+        #     res = play_episode(game, walls, skip=4, epsilon=e)
+
+        # game.close()
