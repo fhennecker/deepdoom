@@ -24,12 +24,18 @@ In order to plug our work to the Doom game, we are using the Vizdoom API \citep{
 The agents will be playing in a setup of deathmatch. This means that they play in a level that requires to have the maximum amount of kills and the minimum amount of deaths, which is called best k/d ratio.
 \section{Methods}
 In order to implement the techniques described in the paper,\todo{}
+
 \subsection{Deep Recurrent Q-Networks}
 \todo{partially observable environments}
 \todo{estimates Q(o t , h t−1 , a t ) instead of Q(s t , a t )}
+
 \subsection{Game Features}
 As described in the paper \citep{Lample2016}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to overcome the gaps in efficiency, we used the game features. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. Even though this information can't be used during testing phase, it was used during the training of the agents to improve their accuracy.
+
+
 \subsection{Hyperparameters}
+Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory size of 1000000 frames. In the bootstrapping phase, our agent only plays random actions drawn from the set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because a uniformely random sample of all these actions would lead the agent to stay at the same place and face approximately the same direction all the time. This bootstrapping phase is used to populate the replay memory.
+
 \todo{screen resolution}
 
 \section{Results}
