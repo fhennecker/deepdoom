@@ -1,6 +1,6 @@
 all: report.pdf
 
-report.pdf:
+report.pdf: report.tex report.bib
 	latex report
 	bibtex report
 	latex report
