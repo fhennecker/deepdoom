@@ -81,6 +81,9 @@ def wrap_play_episode(i):
 
 
 if __name__ == '__main__':
+    from os import system
+    system('git show | head -1')
+
     print('Building main DRQN')
     main = DRQN(im_h, im_w, k, n_actions, 'main', learning_rate=LEARNING_RATE)
     # print('Building target DRQN')
