@@ -1,4 +1,4 @@
-@inproceedings{Kempka2016ViZDoom,
+@inproceedings{Kempka2016,
       author    = {Micha{\l} Kempka and Marek Wydmuch and Grzegorz Runc and Jakub Toczek and Wojciech Ja\'skowski},
       title     = {{ViZDoom}: A {D}oom-based {AI} Research Platform for Visual Reinforcement Learning},
       booktitle = {IEEE Conference on Computational Intelligence and Games},
@@ -11,12 +11,29 @@
       Note      = {The best paper award}
 }
 
-@article{mnih2013playing,
-  title={Playing atari with deep reinforcement learning},
-  author={Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and Graves, Alex and Antonoglou, Ioannis and Wierstra, Daan and Riedmiller, Martin},
-  journal={arXiv preprint arXiv:1312.5602},
-  year={2013}
+
+@article{Mnih2015,
+abstract = {The theory of reinforcement learning provides a normative account 1 , deeply rooted in psychological 2 and neuroscientific 3 perspectives on animal behaviour, of how agents may optimize their control of an environment. To use reinforcement learning successfully in situations approaching real-world complexity, however, agents are confronted with a difficult task: they must derive efficient representations of the environment from high-dimensional sensory inputs, and use these to generalize past experience to new situations. Remarkably, humans and other animals seem to solve this problem through a harmonious combination of reinforcement learning and hierarchical sensory pro-cessing systems 4,5 , the former evidenced by a wealth of neural data revealing notable parallels between the phasic signals emitted by dopa-minergic neurons and temporal difference reinforcement learning algorithms 3 . While reinforcement learning agents have achieved some successes in a variety of domains 6–8 , their applicability has previously been limited to domains in which useful features can be handcrafted, or to domains with fully observed, low-dimensional state spaces. Here we use recent advances in training deep neural networks 9–11 to develop a novel artificial agent, termed a deep Q-network, that can learn successful policies directly from high-dimensional sensory inputs using end-to-end reinforcement learning. We tested this agent on the challenging domain of classic Atari 2600 games 12},
+archivePrefix = {arXiv},
+arxivId = {1312.5602},
+author = {Mnih, Volodymyr and Kavukcuoglu, Koray and Silver, David and Rusu, Andrei a and Veness, Joel and Bellemare, Marc G and Graves, Alex and Riedmiller, Martin and Fidjeland, Andreas K and Ostrovski, Georg and Petersen, Stig and Beattie, Charles and Sadik, Amir and Antonoglou, Ioannis and King, Helen and Kumaran, Dharshan and Wierstra, Daan and Legg, Shane and Hassabis, Demis},
+doi = {10.1038/nature14236},
+eprint = {1312.5602},
+file = {:home/titou/VUB/LearningDynamics/deepdoom/papers/mnih2015.pdf:pdf},
+isbn = {1476-4687 (Electronic) 0028-0836 (Linking)},
+issn = {0028-0836},
+journal = {Nature},
+mendeley-groups = {Project Learning Dynamics},
+number = {7540},
+pages = {529--533},
+pmid = {25719670},
+publisher = {Nature Publishing Group},
+title = {{Human-level control through deep reinforcement learning}},
+url = {http://dx.doi.org/10.1038/nature14236},
+volume = {518},
+year = {2015}
 }
+
 
 @article{Lample2016,
     abstract = {Advances in deep reinforcement learning have allowed autonomous agents to perform well on Atari games, often outperforming humans, using only raw pixels to make their decisions. However, most of these games take place in 2D environments that are fully observable to the agent. In this paper, we present the first architecture to tackle 3D environments in first-person shooter games, that involve partially observable states. Typically, deep reinforcement learning methods only utilize visual input for training. We present a method to augment these models to exploit game feature information such as the presence of enemies or items, during the training phase. Our model is trained to simultaneously learn these features along with minimizing a Q-learning objective, which is shown to dramatically improve the training speed and performance of our agent. Our architecture is also modularized to allow different models to be independently trained for different phases of the game. We show that the proposed architecture substantially outperforms built-in AI agents of the game as well as humans in deathmatch scenarios.},
