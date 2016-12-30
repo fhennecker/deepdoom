@@ -1,3 +1,7 @@
+src/checkpoint
+src/model.ckpt.data-00000-of-00001
+src/model.ckpt.index
+src/model.ckpt.meta
 _vizdoom.ini
 # Latex
 *.aux
