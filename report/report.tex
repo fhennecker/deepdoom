@@ -1,23 +1,33 @@
 \documentclass[letterpaper]{article}
 \usepackage{natbib,alifexi}
+\usepackage{todonotes}
 
 \title{Implementation\\Playing FPS Games with Deep Reinforcement Learning}
 \author{Titouan Christophe$^{1}$, Florentin Hennecker$^{2}$, Nikita Marchant$^{1}$ \and Bruno Rocha Pereira$^{1}$ \\
 \mbox{}\\
-$^1$Vrije Universiteit Brussel \\
-$^2$Universit\'e Libre de Bruxelles \\
+$^1$Vrije Universiteit Brussel, Pleinlaan 2, 1050 Brussels, Belgium \\
+$^2$Universit\'e Libre de Bruxelles, Boulevard du Triomphe - CP 212, 1050
+Brussels, Belgium \\
 \{tichrist,nimarcha,brochape\}@vub.ac.be, \{fhenneck\}@ulb.ac.be}
 
 
 \begin{document}
 \maketitle
-
 \begin{abstract}
 \end{abstract}
 
 \section{Introduction}
 
-Citations :\citep{CA2}
+\section{Methods}
+In order to implement the techniques described in the paper,\todo{}
+\subsection{Game Features}
+As described in the paper \citep{Kempka2016ViZDoom}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to overcome the gaps in efficiency, we used the game features. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. This was used during the training of the agents to improve their accuracy.
+
+\section{Results}
+
+\section{Discussion}
+
+
 \footnotesize
 \bibliographystyle{apalike}
 \bibliography{report}
