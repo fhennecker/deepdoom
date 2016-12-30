@@ -94,9 +94,18 @@ if __name__ == '__main__':
     state = (np.zeros([batch_size, main.h_size]),
              np.zeros([batch_size, main.h_size]))
 
+    saver = tf.train.Saver()
+
     with tf.Session() as sess:
         init = tf.global_variables_initializer()
         sess.run(init)
+
+        try:
+            open('./model.ckpt')
+            saver.restore(sess, "./model.ckpt")
+        except:
+            pass
+
         print("Training vars:", [v.name for v in tf.trainable_variables()])
 
         mem = ReplayMemory(min_size=MIN_MEM_SIZE, max_size=MAX_MEM_SIZE)
@@ -130,3 +139,5 @@ if __name__ == '__main__':
 
             loss = main.current_game_features_loss(S, F)
             print("{},{}".format(i, loss))
+            if i % 100 == 0:
+                saver.save(sess, "./model.ckpt")
