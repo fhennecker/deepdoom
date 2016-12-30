@@ -1,6 +1,6 @@
 \documentclass[letterpaper]{article}
 \usepackage{natbib,alifexi}
-\usepackage{todonotes}
+\usepackage[bordercolor=gray!20,backgroundcolor=blue!10,linecolor=blue,textsize=footnotesize,textwidth=0.8in]{todonotes}
 \usepackage{hyperref}
 
 \title{Implementation\\Playing FPS Games with Deep Reinforcement Learning}
@@ -19,7 +19,6 @@ Brussels, Belgium \\
 \end{abstract}
 
 \section{Introduction}
-\todo{\citep{mnih2013playing} and blabla have full knowledge of the scene(Can use regular DQN), not in 3D FPS like doom -> need DQRN}
 Deep Reinforcement learning has brought in the past solutions to automating and learning typical human-computer interactions. \todo{refs!}
 However, most of the previous applications of Deep Q-Networks assume a full knowledge of their environment. The application of those traditional DQN is thus limited in the case of playing FPS\footnote{First Person Shooter} games, where the field of vision of the player is limited. Deep recurrent networks were proposed to solve this problem \citep{Hausknecht2015} applied to Atari game. This paper applies techniques used for 2D games and extends them for use on a 3D game named Doom.
 In order to plug our work to the Doom game, we are using the Vizdoom API \citep{Kempka2016} that provides an easy use of the game controls as well as knowledge about the current state of the game.
