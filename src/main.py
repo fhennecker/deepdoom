@@ -152,6 +152,10 @@ if __name__ == '__main__':
         # game, walls = create_game()
 
         # for i in range(QLEARNING_STEPS):
-        #     res = play_episode(game, walls, skip=4)
+        #     if i > 1000000:
+        #         e = 0.1
+        #     else:
+        #         e = 0.1 + 0.9 * (1 - (i/1000000))
+        #     res = play_episode(game, walls, skip=4, epsilon=e)
 
         # game.close()
