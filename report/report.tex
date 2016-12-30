@@ -17,11 +17,18 @@ Brussels, Belgium \\
 \end{abstract}
 
 \section{Introduction}
-
+\todo{\citep{mnih2013playing} and blabla have full knowledge of the scene(Can use regular DQN), not in 3D FPS like doom -> need DQRN}
+\todo{Use of the Vizdoom API \citep{Kempka2016ViZDoom}}
+\todo{Deathmap -> goal is to improve the k/d ratio}
 \section{Methods}
 In order to implement the techniques described in the paper,\todo{}
+\subsection{Deep Recurrent Q-Networks}
+\todo{partially observable environments}
+\todo{estimates Q(o t , h t−1 , a t ) instead of Q(s t , a t )}
 \subsection{Game Features}
-As described in the paper \citep{Kempka2016ViZDoom}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to overcome the gaps in efficiency, we used the game features. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. This was used during the training of the agents to improve their accuracy.
+As described in the paper \citep{Lample2016}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to overcome the gaps in efficiency, we used the game features. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. Even though this information can't be used during testing phase, it was used during the training of the agents to improve their accuracy.
+\subsection{Hyperparameters}
+\todo{screen resolution}
 
 \section{Results}
 
