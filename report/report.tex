@@ -42,9 +42,6 @@ $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' 
 
 The problem with the model described above is that it assumes a full knowledge of the state $s_t$. However in the case of DOOM, we only get a partial observation of the environment, limited by the field of vision of the main character. In order to solve that problem, we are using a Deep Recurrent Q-Network, as described in \citep{Hausknecht2015}. The main idea is to estimate $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The parameter $h_{t-1}$ represents the hidden state of the agent and is returned by the the network in $t-1$. In order to use a DRQN, we will simply use an LSTM to calculate $h_{t-1}$ and feed it to a regular DQN.
 
-\todo{partially observable environments}
-\todo{estimates Q(o t , h t−1 , a t ) instead of Q(s t , a t )}
-
 \subsection{Game Features}
 As described in the paper \citep{Lample2016}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to overcome the gaps in efficiency, we used the game features. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. Even though this information can't be used during testing phase, it was used during the training of the agents to improve their accuracy.
 
