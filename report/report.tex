@@ -33,7 +33,7 @@ In order to implement the techniques described in the paper,\todo{Dropout \cite{
 \subsection{Deep Recurrent Q-Networks}
 Most papers solving human-computer interaction problems are based on Deep Q-Networks. In those, agents try to learn $Q(s_t,a_t)$ which represents an estimation of how valuable an action $a_t$ is in a state $s_t$. In order to find the optimal $Q$-function, DQN networks use a neural network parametrized by $\theta$, which represents the weights of the neural network. Their goal is to find an estimate of the Q-function Q* which is verifies the Bellman optimality equation:
 
-$$ Q*(s,a) = E\{r + \gamma \max_{a'}Q^*(s',a')\|s,a\} $$
+$$ Q*(s,a) = E\{r + \gamma \max_{a'}Q^*(s',a')|s,a\} $$
 With $r$ being the reward of playing $a$ in a state $s$ and $\gamma\in [0,1]$ the discount factor.
 
 This gives, since $Q_{\theta} \approx Q^*(s,a)$ the loss function below:
