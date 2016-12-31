@@ -2,7 +2,7 @@
 MIN_MEM_SIZE, MAX_MEM_SIZE = 2400, 80000
 
 # Batch size for NN ingestion
-BATCH_SIZE = 10
+BATCH_SIZE = 32
 
 # Sequence length for NN ingestion
 SEQUENCE_LENGTH = 8

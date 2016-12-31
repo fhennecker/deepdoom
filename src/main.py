@@ -106,10 +106,11 @@ if __name__ == '__main__':
         sess.run(init)
 
         try:
-            open('./model.ckpt')
             saver.restore(sess, "./model.ckpt")
         except:
-            pass
+            import traceback
+            traceback.print_exc()
+            print("=== Recreate new model ! ===")
 
         print("Training vars:", [v.name for v in tf.trainable_variables()])
 
@@ -129,21 +130,27 @@ if __name__ == '__main__':
 
         # 2 / Replay and learn
         print("--------")
-        print("training_step,loss")
+        print("training_step,loss_traning,loss_test")
         for i in range(TRAINING_STEPS):
             # Play and add new episodes to memory
             for episode in workers.map(wrap_play_episode, range(cores)):
                 mem.add(episode)
 
-            for j in range(10):
+            for j in range(cores):
                 # Sample a batch and ingest into the NN
-                samples = mem.sample(batch_size * cores, sequence_length)
+                samples = mem.sample(batch_size, sequence_length)
                 # screens, actions, rewards, game_features
                 S, A, R, F = map(np.array, zip(*samples))
                 main.learn_game_features(S, F)
 
-            loss = main.current_game_features_loss(S, F)
-            print("{},{}".format(i, loss))
+            training_loss = main.current_game_features_loss(S, F)
+            # Sample a batch and ingest into the NN
+            samples = mem.sample(batch_size, sequence_length)
+            # screens, actions, rewards, game_features
+            S, A, R, F = map(np.array, zip(*samples))
+            test_loss = main.current_game_features_loss(S, F)
+            print("{},{},{}".format(i, training_loss, test_loss))
+
             if i % 100 == 0:
                 saver.save(sess, "./model.ckpt")
 
