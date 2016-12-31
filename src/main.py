@@ -143,6 +143,7 @@ if __name__ == '__main__':
                 # screens, actions, rewards, game_features
                 S, A, R, F = map(np.array, zip(*samples))
                 main.learn_game_features(S, F)
+                main.learn_q(sess, S, A, R)
 
             training_loss = main.current_game_features_loss(S, F)
             # Sample a batch and ingest into the NN
@@ -150,6 +151,7 @@ if __name__ == '__main__':
             # screens, actions, rewards, game_features
             S, A, R, F = map(np.array, zip(*samples))
             test_loss = main.current_game_features_loss(S, F)
+
             print("{},{},{}".format(i, training_loss, test_loss))
 
             if i % 100 == 0:

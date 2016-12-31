@@ -64,14 +64,15 @@ class DRQN():
 
         self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
         self.state_in = self.cell.zero_state(self.batch_size, tf.float32)
-        self.rnn_output, self.state_out = tf.nn.dynamic_rnn(
+
+        rnn_output, self.state_out = tf.nn.dynamic_rnn(
                 self.cell,
                 self.layer3,
                 initial_state=self.state_in,
                 dtype=tf.float32,
                 scope=self.scope+'_RNN/')
 
-        self.rnn_output = tf.reshape(self.rnn_output, [-1, self.h_size])
+        self.rnn_output = tf.reshape(rnn_output, [-1, self.h_size])
         self.Q = slim.fully_connected(
             self.rnn_output, self.n_actions, scope=self.scope+'_actions',
             activation_fn=None)
@@ -111,3 +112,29 @@ class DRQN():
     def current_game_features_loss(self, screens, features):
         return self._game_features_learning(self.features_loss.eval,
                                             screens, features)
+
+    def learn_q(self, sess, screens, actions, rewards, gamma=0.99):
+        assert screens.shape[:2] == actions.shape[:2]
+        assert screens.shape[:2] == rewards.shape[:2]
+        batch_size, sequence_length = screens.shape[:2]
+        if hasattr(self, 'last_state'):
+            state = self.last_state
+        else:
+            state = (
+                np.zeros((batch_size, self.h_size)),
+                np.zeros((batch_size, self.h_size)),
+            )
+
+        actions, state = sess.run([self.choice, self.state_out], feed_dict={
+            self.batch_size: batch_size,
+            self.sequence_length: sequence_length,
+            self.images: screens,
+            self.state_in: state,
+        })
+
+        self.last_state = sess.run(self.state_out, feed_dict={
+            self.batch_size: batch_size,
+            self.sequence_length: sequence_length,
+            self.images: screens,
+            self.state_in: state,
+        })
