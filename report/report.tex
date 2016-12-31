@@ -33,6 +33,9 @@ In order to implement the techniques described in the paper,\todo{}
 \subsection{Game Features}
 As described in the paper \citep{Lample2016}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to overcome the gaps in efficiency, we used the game features. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. Even though this information can't be used during testing phase, it was used during the training of the agents to improve their accuracy.
 
+\subsection{Action phase}
+As opposed to the paper \citep{Lample2016} which uses a navigation phase as well as an action phase, we decided to only focus on the action phase. The navigation phase is the phase where the agent focuses on exploring the map to collect items and find enemies. We will indeed drop that step to immediately concentrate our efforts on the action phase, which consists in shooting at enemies when they are detected. This so-called action phase will of course take place after a training phase during which the agent learns how to interact properly with the game.
+
 
 \subsection{Hyperparameters}
 Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory size of 1000000 frames. In the bootstrapping phase, our agent only plays random actions drawn from the set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because a uniformely random sample of all these actions would lead the agent to stay at the same place and face approximately the same direction all the time. This bootstrapping phase is used to populate the replay memory.
