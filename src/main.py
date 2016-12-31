@@ -102,14 +102,15 @@ if __name__ == '__main__':
     saver = tf.train.Saver()
 
     with tf.Session() as sess:
-        init = tf.global_variables_initializer()
-        sess.run(init)
-
         try:
-            saver.restore(sess, "./model.ckpt")
+            saver = tf.train.import_meta_graph('model.ckpt.meta')
+            saver.restore(sess, tf.train.latest_checkpoint('./'))
+            print("Successfully loaded model")
         except:
             import traceback
             traceback.print_exc()
+            init = tf.global_variables_initializer()
+            sess.run(init)
             print("=== Recreate new model ! ===")
 
         print("Training vars:", [v.name for v in tf.trainable_variables()])
