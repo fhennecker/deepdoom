@@ -26,11 +26,15 @@ class DRQN():
 
     def _init_conv_layers(self):
         self.conv1 = slim.conv2d(
-                self.all_images, 32, [8, 8], [4, 4], 'VALID',
-                biases_initializer=None, scope=self.scope+'_conv1')
+            self.all_images, num_outputs=32,
+            kernel_size=[8, 8], stride=[4, 4], padding='VALID',
+            biases_initializer=None, scope=self.scope+'_conv1'
+        )
         self.conv2 = slim.conv2d(
-                self.conv1, 64, [4, 4], [2, 2], 'VALID',
-                biases_initializer=None, scope=self.scope+'_conv2')
+            self.conv1, num_outputs=64,
+            kernel_size=[4, 4], stride=[2, 2], padding='VALID',
+            biases_initializer=None, scope=self.scope+'_conv2'
+        )
 
     def _init_game_features_output(self):
         self.layer4 = slim.fully_connected(
@@ -58,13 +62,18 @@ class DRQN():
         self.features_train_step = optimizer.minimize(self.features_loss)
 
     def _init_recurrent_part(self):
-        self.layer3 = tf.reshape(slim.flatten(self.conv2),
-                                 [self.batch_size, self.sequence_length, 4608])
+        # Flat fully connected layer (Layer3' in the paper)
         self.h_size = 4608
+        self.layer3 = tf.reshape(
+            slim.flatten(self.conv2),
+            [self.batch_size, self.sequence_length, self.h_size]
+        )
 
+        # LSTM cell
         self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
         self.state_in = self.cell.zero_state(self.batch_size, tf.float32)
 
+        # Recurrence
         rnn_output, self.state_out = tf.nn.dynamic_rnn(
                 self.cell,
                 self.layer3,
@@ -73,11 +82,13 @@ class DRQN():
                 scope=self.scope+'_RNN/')
 
         self.rnn_output = tf.reshape(rnn_output, [-1, self.h_size])
-        self.Q = slim.fully_connected(
+
+        # Q-estimator for actions
+        Q = slim.fully_connected(
             self.rnn_output, self.n_actions, scope=self.scope+'_actions',
             activation_fn=None)
-        self.Q = tf.reshape(self.Q,
-                [self.batch_size, self.sequence_length, self.n_actions])
+        self.Q = tf.reshape(Q, [self.batch_size, self.sequence_length,
+                                self.n_actions])
         self.choice = tf.argmax(self.Q, 2)
 
     def _define_loss(self):
