@@ -127,7 +127,7 @@ class DRQN():
         return self._game_features_learning(self.features_loss.eval,
                                             screens, features)
 
-    def learn_q(self, sess, screens, actions, rewards, gamma=0.99):
+    def feed_lstm(self, sess, screens, actions, rewards):
         assert screens.shape[:2] == actions.shape[:2]
         assert screens.shape[:2] == rewards.shape[:2]
         batch_size, sequence_length = screens.shape[:2]
@@ -161,3 +161,16 @@ class DRQN():
             self.images: [[screenbuf]],
         })
         return r[0][0]
+
+    def train_q(self, screens, actions, rewards, target_q, gamma=0.99):
+        assert screens.shape[:2] == actions.shape[:2]
+        assert screens.shape[:2] == rewards.shape[:2]
+        batch_size, sequence_length = screens.shape[:2]
+
+        self.train_step.run(feed_dict={
+            self.batch_size: batch_size,
+            self.sequence_length: sequence_length,
+            self.rewards: rewards,
+            self.gamma: gamma,
+            self.target_q: target_q,
+        })
