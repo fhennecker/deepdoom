@@ -88,13 +88,14 @@ def wrap_play_random_episode(i=0):
 # Need to be imported and created after wrap_play_random_episode
 from multiprocessing import Pool, cpu_count
 N_CORES = min(cpu_count(), MAX_CPUS)
+if N_CORES > 1:
+    workers = Pool(N_CORES)
 
 
 def multiplay():
-    if N_CORES == 1:
+    if N_CORES <= 1:
         return [wrap_play_random_episode()]
     else:
-        workers = Pool(N_CORES)
         return workers.map(wrap_play_random_episode, range(N_CORES))
 
 
@@ -198,28 +199,26 @@ def learning_phase(sess):
 
         # Adapt target every 10 runs
         if i > 0 and i % 10 == 0:
-            for i in range(10):
-                main.reset_hidden_state(batch_size=BATCH_SIZE)
-                # Sample a batch and ingest into the NN
-                samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
-                # screens, actions, rewards, game_features
-                S, A, R, F = map(np.array, zip(*samples))
+            main.reset_hidden_state(batch_size=BATCH_SIZE)
+            # Sample a batch and ingest into the NN
+            samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
+            # screens, actions, rewards, game_features
+            S, A, R, F = map(np.array, zip(*samples))
 
-                target_q = sess.run(target.Q, feed_dict={
-                    target.batch_size: BATCH_SIZE,
-                    target.sequence_length: SEQUENCE_LENGTH,
-                    target.images: S,
-                })
+            target_q = sess.run(target.Q, feed_dict={
+                target.batch_size: BATCH_SIZE,
+                target.sequence_length: SEQUENCE_LENGTH,
+                target.images: S,
+            })
 
-                sess.run(main.train_step, feed_dict={
-                    main.batch_size: BATCH_SIZE,
-                    main.sequence_length: SEQUENCE_LENGTH,
-                    main.images: S,
-                    main.target_q: target_q,
-                    main.gamma: 0.99,
-                    main.rewards: R,
-                })
-                # main.train_q(S, A, R, target_q)
+            sess.run(main.train_step, feed_dict={
+                main.batch_size: BATCH_SIZE,
+                main.sequence_length: SEQUENCE_LENGTH,
+                main.images: S,
+                main.target_q: target_q,
+                main.gamma: 0.99,
+                main.rewards: R,
+            })
 
         # Save the model periodically
         if i > 0 and i % 100 == 0:
