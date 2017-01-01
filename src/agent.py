@@ -108,7 +108,6 @@ def update_target(sess):
         sess.run(t.assign(m.value()))
 
 
-@csv_output("mem_size", "n_games")
 def init_phase(sess):
     """
     Attempt to restore a model, or initialize all variables.
@@ -125,6 +124,9 @@ def init_phase(sess):
         sess.run(init)
         print("=== Recreate new model ! ===")
 
+
+@csv_output("mem_size", "n_games")
+def bootstrap_phase(sess):
     while not mem.initialized:
         for episode in multiplay():
             mem.add(episode)
