@@ -58,7 +58,7 @@ def play_random_episode(game, walls, verbose=False, skip=1):
         # Get game features an action
         game_features = ennemies.has_visible_entities(state, walls)
         action = random.choice(ACTION_SET)
-        reward = game.make_action(action, tics=skip)
+        reward = game.make_action(action, skip)
         dump.append((S, action, reward, game_features))
     return dump
 
