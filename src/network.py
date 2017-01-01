@@ -25,11 +25,14 @@ class DRQN():
         self._define_loss()
 
     def _init_conv_layers(self):
+        # First convolution from screen buffer
         self.conv1 = slim.conv2d(
             self.all_images, num_outputs=32,
             kernel_size=[8, 8], stride=[4, 4], padding='VALID',
             biases_initializer=None, scope=self.scope+'_conv1'
         )
+
+        # Second convolution layer
         self.conv2 = slim.conv2d(
             self.conv1, num_outputs=64,
             kernel_size=[4, 4], stride=[2, 2], padding='VALID',
@@ -149,3 +152,12 @@ class DRQN():
             self.images: screens,
             self.state_in: state,
         })
+
+    def choose(self, screenbuf):
+        """Choose an action based on the current screen buffer"""
+        r = self.choice.eval(feed_dict={
+            self.batch_size: 1,
+            self.sequence_length: 1,
+            self.images: [[screenbuf]],
+        })
+        return r[0][0]

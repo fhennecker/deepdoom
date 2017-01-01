@@ -10,11 +10,14 @@ SEQUENCE_LENGTH = 8
 # Number of training steps
 TRAINING_STEPS = 1000
 
+# Number of training steps
+QLEARNING_STEPS = 1000
+
 # Maximum number of cores to use
 MAX_CPUS = 32
 
 # Number of possible actions
-N_ACTIONS = 9
+N_ACTIONS = 8
 
 # Learning rate for tensorflow optimizers
 LEARNING_RATE = 0.00001
