@@ -67,6 +67,7 @@ class DRQN():
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
         self.h_size = 4608
+        self.reset_hidden_state()
         self.layer3 = tf.reshape(
             slim.flatten(self.conv2),
             [self.batch_size, self.sequence_length, self.h_size]
@@ -127,50 +128,38 @@ class DRQN():
         return self._game_features_learning(self.features_loss.eval,
                                             screens, features)
 
+    def reset_hidden_state(self, batch_size=1):
+        shape = batch_size, self.h_size
+        self.rnn_state = np.zeros(shape), np.zeros(shape)
+
     def feed_lstm(self, sess, screens, actions, rewards):
         assert screens.shape[:2] == actions.shape[:2]
         assert screens.shape[:2] == rewards.shape[:2]
         batch_size, sequence_length = screens.shape[:2]
-        if hasattr(self, 'last_state'):
-            state = self.last_state
-        else:
-            state = (
-                np.zeros((batch_size, self.h_size)),
-                np.zeros((batch_size, self.h_size)),
-            )
 
         actions, state = sess.run([self.choice, self.state_out], feed_dict={
             self.batch_size: batch_size,
             self.sequence_length: sequence_length,
             self.images: screens,
-            self.state_in: state,
+            self.state_in: self.rnn_state,
         })
 
         self.last_state = sess.run(self.state_out, feed_dict={
             self.batch_size: batch_size,
             self.sequence_length: sequence_length,
             self.images: screens,
-            self.state_in: state,
+            self.state_in: self.rnn_state,
         })
 
-    def choose(self, screenbuf):
+    def choose(self, sess, epsilon, screenbuf):
         """Choose an action based on the current screen buffer"""
-        r = self.choice.eval(feed_dict={
+        is_random = np.random.rand() <= epsilon
+        to_get = [self.rnn_output]
+        if not is_random:
+            to_get += self.choice
+        r = sess.run(to_get, feed_dict={
             self.batch_size: 1,
             self.sequence_length: 1,
             self.images: [[screenbuf]],
         })
-        return r[0][0]
-
-    def train_q(self, screens, actions, rewards, target_q, gamma=0.99):
-        assert screens.shape[:2] == actions.shape[:2]
-        assert screens.shape[:2] == rewards.shape[:2]
-        batch_size, sequence_length = screens.shape[:2]
-
-        self.train_step.run(feed_dict={
-            self.batch_size: batch_size,
-            self.sequence_length: sequence_length,
-            self.rewards: rewards,
-            self.gamma: gamma,
-            self.target_q: target_q,
-        })
+        return np.random.randint(self.n_actions) if is_random else r[1][0][0]

@@ -88,14 +88,13 @@ def wrap_play_random_episode(i=0):
 # Need to be imported and created after wrap_play_random_episode
 from multiprocessing import Pool, cpu_count
 N_CORES = min(cpu_count(), MAX_CPUS)
-if N_CORES > 1:
-    workers = Pool(N_CORES)
 
 
 def multiplay():
     if N_CORES == 1:
         return [wrap_play_random_episode()]
     else:
+        workers = Pool(N_CORES)
         return workers.map(wrap_play_random_episode, range(N_CORES))
 
 
@@ -144,7 +143,10 @@ def training_phase(sess):
             samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
             # screens, actions, rewards, game_features
             S, A, R, F = map(np.array, zip(*samples))
+            # Supervised learning for game features
             main.learn_game_features(S, F)
+            # Feed recurrent part
+            main.reset_hidden_state(batch_size=BATCH_SIZE)
             main.feed_lstm(sess, S, A, R)
         training_loss = main.current_game_features_loss(S, F)
 
@@ -160,7 +162,7 @@ def training_phase(sess):
             saver.save(sess, "./model.ckpt")
 
 
-@csv_output("qlearning_step", "epsilon", "reward")
+@csv_output("qlearning_step", "epsilon", "reward", "steps")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
     game, walls = create_game()
@@ -174,25 +176,30 @@ def learning_phase(sess):
         epsilon = 1 - (0.9 * i / QLEARNING_STEPS)
         game.new_episode()
         episode = []
+
+        # Initialize new hidden state
+        main.reset_hidden_state(batch_size=1)
         while not game.is_episode_finished():
+            # Get and resize screen buffer
             state = game.get_state()
             h, w, d = state.screen_buffer.shape
-            if np.random.rand() < epsilon:
-                action = random.choice(ACTION_SET)
-            else:
-                Simg.zoom(state.screen_buffer,
-                          [1. * im_h / h, 1. * im_w / w, 1],
-                          output=screenbuf, order=0)
-                action = ACTION_SET[main.choose(screenbuf)]
+            Simg.zoom(state.screen_buffer,
+                      [1. * im_h / h, 1. * im_w / w, 1],
+                      output=screenbuf, order=0)
+
+            # Choose action with e-greedy network
+            action_no = main.choose(sess, epsilon, screenbuf)
+            action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
             episode.append((screenbuf, action, reward, game_features))
         mem.add(episode)
         tot_reward = sum(r for (s, a, r, f) in episode)
-        print("{},{},{}".format(i, epsilon, tot_reward))
+        print("{},{},{},{}".format(i, epsilon, tot_reward, len(episode)))
 
         # Adapt target every 10 runs
         if i > 0 and i % 10 == 0:
             for i in range(10):
+                main.reset_hidden_state(batch_size=BATCH_SIZE)
                 # Sample a batch and ingest into the NN
                 samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
                 # screens, actions, rewards, game_features
