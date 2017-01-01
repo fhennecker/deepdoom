@@ -183,20 +183,21 @@ def learning_phase(sess):
 
         # Initialize new hidden state
         main.reset_hidden_state(batch_size=1)
-        i = 0
+        s = 0
         while not game.is_episode_finished():
             # Get and resize screen buffer
             state = game.get_state()
             h, w, d = state.screen_buffer.shape
             Simg.zoom(state.screen_buffer,
                       [1. * im_h / h, 1. * im_w / w, 1],
-                      output=screenbuf[i], order=0)
+                      output=screenbuf[s], order=0)
 
             # Choose action with e-greedy network
-            action_no = main.choose(sess, epsilon, screenbuf[i])
+            action_no = main.choose(sess, epsilon, screenbuf[s])
             action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
-            episode.append((screenbuf[i], action, reward, game_features))
+            episode.append((screenbuf[s], action, reward, game_features))
+            s += 1
         mem.add(episode)
         tot_reward = sum(r for (s, a, r, f) in episode)
         print("{},{},{},{}".format(i, epsilon, tot_reward, len(episode)))
