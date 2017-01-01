@@ -156,7 +156,7 @@ class DRQN():
         is_random = np.random.rand() <= epsilon
         to_get = [self.rnn_output]
         if not is_random:
-            to_get += self.choice
+            to_get += [self.choice]
         r = sess.run(to_get, feed_dict={
             self.batch_size: 1,
             self.sequence_length: 1,
