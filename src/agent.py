@@ -128,7 +128,7 @@ def init_phase(sess):
     while not mem.initialized:
         for episode in multiplay():
             mem.add(episode)
-        print("{},{}".format(len(mem), len(mem.episodes) // N_CORES))
+        print("{},{}".format(len(mem), len(mem.episodes)))
 
 
 @csv_output("training_step", "loss_training", "loss_test")
