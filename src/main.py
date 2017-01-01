@@ -105,7 +105,7 @@ if __name__ == '__main__':
         cores = min(cpu_count(), MAX_CPUS)
         workers = Pool(cores)
 
-        # 1 / Bootstrap memory
+        # 1 / Bootstrap memory with random actions
         print("--------")
         print("mem_size")
         while not mem.initialized:
@@ -113,10 +113,12 @@ if __name__ == '__main__':
                 mem.add(episode)
             print(len(mem))
 
-        # 2 / Play
+        # 2 / Train to recognize game features and initialize Q
+        # Play a new episode on each core to feed the replay mem, then replay
+        # as many batches as new episodes
         print("--------")
         print("training_step,loss_traning,loss_test")
-        for i in range(TRAINING_STEPS):
+        for i in range(TRAINING_STEPS//cores):
             # Play and add new episodes to memory
             for episode in workers.map(wrap_play_random_episode, range(cores)):
                 mem.add(episode)
@@ -136,7 +138,7 @@ if __name__ == '__main__':
             S, A, R, F = map(np.array, zip(*samples))
             test_loss = main.current_game_features_loss(S, F)
 
-            print("{},{},{}".format(i, training_loss, test_loss))
+            print("{},{},{}".format(i*cores, training_loss, test_loss))
 
             if i > 0 and i % 100 == 0:
                 saver.save(sess, "./model.ckpt")
