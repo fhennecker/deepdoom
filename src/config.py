@@ -7,6 +7,9 @@ BATCH_SIZE = 32
 # Sequence length for NN ingestion
 SEQUENCE_LENGTH = 8
 
+# Maximum episode duration, in frames
+MAX_EPISODE_LENGTH = 125  # 500 with a frame skip of 4
+
 # Number of training steps
 TRAINING_STEPS = 1000
 

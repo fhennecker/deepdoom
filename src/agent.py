@@ -10,7 +10,7 @@ from memory import ReplayMemory
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
-    QLEARNING_STEPS
+    QLEARNING_STEPS, MAX_EPISODE_LENGTH
 )
 
 # Config variables
@@ -58,7 +58,7 @@ def create_game():
 def play_random_episode(game, walls, verbose=False, skip=1):
     game.new_episode()
     dump = []
-    zoomed = np.zeros((500, im_h, im_w, 3), dtype=np.uint8)
+    zoomed = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
     action = ACTION_SET[0]
     while not game.is_episode_finished():
         # Get screen buf
@@ -173,8 +173,9 @@ def learning_phase(sess):
     # From now on, we don't use game features, but we provide an empty
     # numpy array so that the ReplayMemory is still zippable
     game_features = np.zeros(N_FEATURES)
-    screenbuf = np.zeros((im_h, im_w, 3), dtype=np.uint8)
     for i in range(QLEARNING_STEPS):
+        screenbuf = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
+
         # Linearly decreasing epsilon
         epsilon = 1 - (0.9 * i / QLEARNING_STEPS)
         game.new_episode()
@@ -182,26 +183,27 @@ def learning_phase(sess):
 
         # Initialize new hidden state
         main.reset_hidden_state(batch_size=1)
+        i = 0
         while not game.is_episode_finished():
             # Get and resize screen buffer
             state = game.get_state()
             h, w, d = state.screen_buffer.shape
             Simg.zoom(state.screen_buffer,
                       [1. * im_h / h, 1. * im_w / w, 1],
-                      output=screenbuf, order=0)
+                      output=screenbuf[i], order=0)
 
             # Choose action with e-greedy network
-            action_no = main.choose(sess, epsilon, screenbuf)
+            action_no = main.choose(sess, epsilon, screenbuf[i])
             action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
-            episode.append((screenbuf, action, reward, game_features))
+            episode.append((screenbuf[i], action, reward, game_features))
         mem.add(episode)
         tot_reward = sum(r for (s, a, r, f) in episode)
         print("{},{},{},{}".format(i, epsilon, tot_reward, len(episode)))
 
         # Adapt target every 10 runs
         if i > 0 and i % 10 == 0:
-            if i % 100 == 0:
+            if i % 1000 == 0:
                 update_target(sess)
             main.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
@@ -225,7 +227,7 @@ def learning_phase(sess):
             })
 
         # Save the model periodically
-        if i > 0 and i % 100 == 0:
+        if i > 0 and i % 1000 == 0:
             saver.save(sess, "./model.ckpt")
 
     game.close()

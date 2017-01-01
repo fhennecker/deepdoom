@@ -28,10 +28,10 @@ if __name__ == '__main__':
 
         if options.bootstrap:
             bootstrap_phase(sess)
-    
+
         if options.training:
             training_phase(sess)
-        
+
         update_target(sess)
 
         if options.learning:
