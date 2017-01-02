@@ -7,6 +7,7 @@ import map_parser
 import ennemies
 from network import tf, DRQN
 from memory import ReplayMemory
+from basic_ennemy_pos import basic_ennemy_pos_features
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
@@ -17,7 +18,7 @@ from config import (
 
 # Config variables
 im_w, im_h = 108, 60
-N_FEATURES = 1
+N_FEATURES = 3
 ACTION_SET = np.eye(N_ACTIONS, dtype=np.uint32).tolist()
 SECTION_SEPARATOR = "------------"
 
@@ -98,8 +99,8 @@ def play_random_episode(game, walls, verbose=False, skip=1):
                   output=zoomed[len(dump)], order=0)
         S = zoomed[len(dump)]  # NOQA
 
-        # Get game features an action
-        game_features = ennemies.has_visible_entities(state, walls)[:N_FEATURES]
+        # Get game features and action
+        game_features = basic_ennemy_pos_features(state)
         action = random.choice(ACTION_SET)
         reward = game.make_action(action, skip)
         dump.append((S, action, reward, game_features))
@@ -161,39 +162,6 @@ def bootstrap_phase(sess):
         print("{},{}".format(len(mem), len(mem.episodes)))
 
 
-@csv_output("training_step", "loss_training", "loss_test")
-def training_phase(sess):
-    """Supervised learning for game features"""
-    for i in range(TRAINING_STEPS // N_CORES):
-        # Play and add new episodes to memory
-        for episode in multiplay():
-            if len(episode) > SEQUENCE_LENGTH:
-                mem.add(episode)
-
-        for j in range(N_CORES):
-            # Sample a batch and ingest into the NN
-            samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
-            # screens, actions, rewards, game_features
-            S, A, R, F = map(np.array, zip(*samples))
-            # Supervised learning for game features
-            main.learn_game_features(S, F)
-            # Feed recurrent part
-            main.reset_hidden_state(batch_size=BATCH_SIZE)
-            main.feed_lstm(sess, S, A, R)
-        training_loss = main.current_game_features_loss(S, F)
-
-        # Sample a batch and ingest into the NN
-        samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
-        # screens, actions, rewards, game_features
-        S, A, R, F = map(np.array, zip(*samples))
-        test_loss = main.current_game_features_loss(S, F)
-
-        print("{},{},{}".format(i * N_CORES, training_loss, test_loss))
-
-        if i > 0 and i % 100 == 0:
-            saver.save(sess, "./model.ckpt")
-
-
 @csv_output("qlearning_step", "epsilon", "reward", "steps", "kills")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
@@ -201,7 +169,6 @@ def learning_phase(sess):
 
     # From now on, we don't use game features, but we provide an empty
     # numpy array so that the ReplayMemory is still zippable
-    game_features = np.zeros(N_FEATURES)
     for i in range(QLEARNING_STEPS):
         screenbuf = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
 
@@ -216,6 +183,7 @@ def learning_phase(sess):
         while not game.is_episode_finished():
             # Get and resize screen buffer
             state = game.get_state()
+            features = basic_ennemy_pos_features(state)
             h, w, d = state.screen_buffer.shape
             Simg.zoom(state.screen_buffer,
                       [1. * im_h / h, 1. * im_w / w, 1],
@@ -226,8 +194,7 @@ def learning_phase(sess):
                                     dropout_p=0.75)
             action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
-            # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
-            episode.append((screenbuf[s], action, reward, game_features))
+            episode.append((screenbuf[s], action, reward, features))
             s += 1
         # episode = reward_reshape(episode)
         if len(episode) > SEQUENCE_LENGTH:
@@ -257,6 +224,10 @@ def learning_phase(sess):
                 target.dropout_p: 1,
             })
 
+            # Learn game features (Helps CNN)
+            main.learn_game_features(S, F)
+
+            # Learn Q
             sess.run(main.train_step, feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,

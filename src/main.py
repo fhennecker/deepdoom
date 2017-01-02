@@ -10,9 +10,6 @@ if __name__ == '__main__':
     parser.add_option("-B", "--no-bootstrap", dest="bootstrap",
                       action="store_false", default=True,
                       help="Do not populate replay memory with random actions")
-    parser.add_option("-T", "--no-training", dest="training",
-                      action="store_false", default=True,
-                      help="Do not the training phase")
     parser.add_option("-Q", "--no-learning", dest="learning",
                       action="store_false", default=True,
                       help="Do not perform the learning phase")
@@ -24,16 +21,13 @@ if __name__ == '__main__':
     with tf.Session() as sess:
         from agent import (
             init_phase, bootstrap_phase,
-            training_phase, learning_phase, testing_phase,
+            learning_phase, testing_phase,
             update_target
         )
         init_phase(sess)
 
         if options.bootstrap:
             bootstrap_phase(sess)
-
-        if options.training:
-            training_phase(sess)
 
         update_target(sess)
 

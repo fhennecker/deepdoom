@@ -134,6 +134,7 @@ class DRQN():
             self.sequence_length: sequence_length,
             self.images: screens,
             self.game_features_in: F,
+            self.dropout_p: 0.75,
         })
 
     def learn_game_features(self, screens, features):
