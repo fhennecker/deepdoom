@@ -193,7 +193,7 @@ def training_phase(sess):
             saver.save(sess, "./model.ckpt")
 
 
-@csv_output("qlearning_step", "epsilon", "reward", "steps", "kills", "deaths")
+@csv_output("qlearning_step", "epsilon", "reward", "steps", "kills")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
     game, walls = create_game()
@@ -226,15 +226,16 @@ def learning_phase(sess):
             reward = game.make_action(action, 4)
             kill_count = state.game_variables[3]
             item_count = state.game_variables[5]
-            episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
+            # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
+            episode.append((screenbuf[s], action, reward, game_features))
             s += 1
-        episode = reward_reshape(episode)
+        # episode = reward_reshape(episode)
         if len(episode) > SEQUENCE_LENGTH:
             mem.add(episode)
         kills = int(state.game_variables[3])
-        deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
+        # deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
         tot_reward = sum(r for (s, a, r, f) in episode)
-        print("{},{:.3f},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills, deaths))
+        print("{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills))
 
         # Adapt target every 10 runs
         if i > 0 and i % 1 == 0:
