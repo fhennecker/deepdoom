@@ -49,18 +49,18 @@ class DRQN():
                                  scope=self.scope+'_l4'),
             self.dropout_p,
         )
-        self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
+        self.flat_game_features = slim.fully_connected(self.layer4, self.k,
                                                        scope=self.scope+'_l4.5')
         reshaped = tf.reshape(self.flat_game_features,
                               [self.batch_size, self.sequence_length,
-                               self.k, 2])
+                               self.k])
 
         # Output layer
         self.game_features = tf.nn.softmax(reshaped)
         # Observed game features
         self.game_features_in = tf.placeholder(tf.float32,
                                                name='game_features_in',
-                                               shape=[None, None, self.k, 2])
+                                               shape=[None, None, self.k])
 
         cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
             self.game_features, self.game_features_in
@@ -124,9 +124,7 @@ class DRQN():
     def _game_features_learning(self, func, screens, features):
         assert screens.shape[:2] == features.shape[:2]
         batch_size, sequence_length = features.shape[:2]
-        F = np.zeros((batch_size, sequence_length, self.k, 2))  # NOQA
-        F[:, :, :, 0] = features
-        F[:, :, :, 1] = ~features
+        F = np.zeros((batch_size, sequence_length, self.k))  # NOQA
         return func(feed_dict={
             self.batch_size: batch_size,
             self.sequence_length: sequence_length,
