@@ -237,10 +237,11 @@ def learning_phase(sess):
         print("{},{:.3f},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills, deaths))
 
         # Adapt target every 10 runs
-        if i > 0 and i % 10 == 0:
+        if i > 0 and i % 1 == 0:
             if i % 1000 == 0:
                 update_target(sess)
             main.reset_hidden_state(batch_size=BATCH_SIZE)
+            target.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
             samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH+1)
             # screens, actions, rewards, game_features
