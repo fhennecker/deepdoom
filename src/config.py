@@ -25,7 +25,11 @@ N_ACTIONS = 8
 # Learning rate for tensorflow optimizers
 LEARNING_RATE = 0.00001
 
+DEATH_PENALTY = 25
+KILL_REWARD = 100
+PICKUP_REWARD = 4
+
 try:
-    from local_config import *
+    from local_config import * # NOQA
 except ImportError:
     pass

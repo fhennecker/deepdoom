@@ -10,7 +10,8 @@ from memory import ReplayMemory
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
-    QLEARNING_STEPS, MAX_EPISODE_LENGTH
+    QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
+    KILL_REWARD, PICKUP_REWARD
 )
 
 # Config variables
@@ -46,13 +47,38 @@ def create_game():
     # Ennemy detection
     walls = map_parser.parse("maps/deathmatch.txt")
     game.clear_available_game_variables()
-    game.add_available_game_variable(vd.GameVariable.POSITION_X)
-    game.add_available_game_variable(vd.GameVariable.POSITION_Y)
-    game.add_available_game_variable(vd.GameVariable.POSITION_Z)
+    game.add_available_game_variable(vd.GameVariable.POSITION_X)  # 0
+    game.add_available_game_variable(vd.GameVariable.POSITION_Y)  # 1
+    game.add_available_game_variable(vd.GameVariable.POSITION_Z)  # 2
+
+    game.add_available_game_variable(vd.GameVariable.KILLCOUNT)   # 3
+    game.add_available_game_variable(vd.GameVariable.DEATHCOUNT)  # 4
+    game.add_available_game_variable(vd.GameVariable.ITEMCOUNT)   # 5
+
     game.set_labels_buffer_enabled(True)
 
     game.init()
     return game, walls
+
+
+def reward_reshape(dump):
+    is_dead = len(dump) < MAX_EPISODE_LENGTH
+    reward = [frame[2] for frame in dump]
+    kills = [frame[4] for frame in dump]
+    items = [frame[5] for frame in dump]
+    kill_diff = [0] + [(kills[i] - kills[i - 1]) * KILL_REWARD for i in range(1, len(kills))]
+    item_diff = [0] + [(items[i] - items[i - 1]) * PICKUP_REWARD for i in range(1, len(items))]
+
+    reshaped_reward = [r + k + i for r, k, i in zip(reward, kill_diff, item_diff)]
+
+    if is_dead:
+        reshaped_reward[-1] -= DEATH_PENALTY
+
+    return [
+        (buffer, action, r_reward, game_features)
+        for (buffer, action, _, game_features, _, _), r_reward
+        in zip(dump, reshaped_reward)
+    ]
 
 
 def play_random_episode(game, walls, verbose=False, skip=1):
@@ -159,13 +185,13 @@ def training_phase(sess):
         S, A, R, F = map(np.array, zip(*samples))
         test_loss = main.current_game_features_loss(S, F)
 
-        print("{},{},{}".format(i*N_CORES, training_loss, test_loss))
+        print("{},{},{}".format(i * N_CORES, training_loss, test_loss))
 
         if i > 0 and i % 100 == 0:
             saver.save(sess, "./model.ckpt")
 
 
-@csv_output("qlearning_step", "epsilon", "reward", "steps")
+@csv_output("qlearning_step", "epsilon", "reward", "steps", "kills", "deaths")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
     game, walls = create_game()
@@ -196,11 +222,16 @@ def learning_phase(sess):
             action_no = main.choose(sess, epsilon, screenbuf[s])
             action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
-            episode.append((screenbuf[s], action, reward, game_features))
+            kill_count = state.game_variables[3]
+            item_count = state.game_variables[5]
+            episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
             s += 1
+        episode = reward_reshape(episode)
         mem.add(episode)
+        kills = int(state.game_variables[3])
+        deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
         tot_reward = sum(r for (s, a, r, f) in episode)
-        print("{},{},{},{}".format(i, epsilon, tot_reward, len(episode)))
+        print("{},{:.3f},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills, deaths))
 
         # Adapt target every 10 runs
         if i > 0 and i % 10 == 0:
