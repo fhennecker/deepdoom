@@ -4,7 +4,7 @@ import tensorflow.contrib.slim as slim
 
 
 class DRQN():
-    def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate):
+    def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate, test=False):
         self.learning_rate = learning_rate
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
@@ -22,7 +22,8 @@ class DRQN():
         self._init_conv_layers()
         self._init_game_features_output()
         self._init_recurrent_part()
-        self._define_loss()
+        if not test:
+            self._define_loss()
 
     def _init_conv_layers(self):
         # First convolution from screen buffer

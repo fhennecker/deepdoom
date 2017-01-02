@@ -24,7 +24,7 @@ SECTION_SEPARATOR = "------------"
 print('Building main DRQN')
 main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE)
 print('Building target DRQN')
-target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE)
+target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE, True)
 saver = tf.train.Saver()
 mem = ReplayMemory(MIN_MEM_SIZE, MAX_MEM_SIZE)
 
