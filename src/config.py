@@ -6,6 +6,8 @@ BATCH_SIZE = 32
 
 # Sequence length for NN ingestion
 SEQUENCE_LENGTH = 8
+# Number of states to ignore when computing loss
+IGNORE_UP_TO = 4
 
 # Maximum episode duration, in frames
 MAX_EPISODE_LENGTH = 125  # 500 with a frame skip of 4
