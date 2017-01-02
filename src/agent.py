@@ -247,17 +247,17 @@ def learning_phase(sess):
             target_q = sess.run(target.max_Q, feed_dict={
                 target.batch_size: BATCH_SIZE,
                 target.sequence_length: SEQUENCE_LENGTH,
-                target.images: S[1:],
+                target.images: S[:,1:],
             })
 
             sess.run(main.train_step, feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
-                main.images: S[:-1],
+                main.images: S[:,:-1],
                 main.target_q: target_q,
                 main.gamma: 0.99,
-                main.rewards: R[:-1],
-                main.actions: A[:-1],
+                main.rewards: R[:,:-1],
+                main.actions: A[:,:-1],
             })
 
         # Save the model periodically
