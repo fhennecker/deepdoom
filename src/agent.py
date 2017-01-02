@@ -15,7 +15,7 @@ from config import (
 
 # Config variables
 im_w, im_h = 108, 60
-N_FEATURES = 3
+N_FEATURES = 1
 ACTION_SET = np.eye(N_ACTIONS, dtype=np.uint32).tolist()
 SECTION_SEPARATOR = "------------"
 
@@ -72,7 +72,7 @@ def play_random_episode(game, walls, verbose=False, skip=1):
         S = zoomed[len(dump)]  # NOQA
 
         # Get game features an action
-        game_features = ennemies.has_visible_entities(state, walls)
+        game_features = ennemies.has_visible_entities(state, walls)[:N_FEATURES]
         action = random.choice(ACTION_SET)
         reward = game.make_action(action, skip)
         dump.append((S, action, reward, game_features))
@@ -230,5 +230,56 @@ def learning_phase(sess):
         # Save the model periodically
         if i > 0 and i % 1000 == 0:
             saver.save(sess, "./model.ckpt")
+
+    game.close()
+
+
+feature_names = [
+    "\033[31;1mENNEMIES\033[0m",
+    "\033[32;1mPICKUPS\033[0m",
+    "\033[33;1mBLASTS\033[0m"
+]
+
+
+def testing_phase(sess):
+    """Reinforcement learning for Qvalues"""
+    game, walls = create_game()
+
+    # From now on, we don't use game features, but we provide an empty
+    # numpy array so that the ReplayMemory is still zippable
+    for i in range(QLEARNING_STEPS):
+        screenbuf = np.zeros((im_h, im_w, 3), dtype=np.uint8)
+
+        # Linearly decreasing epsilon
+        epsilon = 0.1
+        game.new_episode()
+
+        # Initialize new hidden state
+        main.reset_hidden_state(batch_size=1)
+        total_reward = 0
+        while not game.is_episode_finished():
+            # Get and resize screen buffer
+            state = game.get_state()
+            h, w, d = state.screen_buffer.shape
+            Simg.zoom(state.screen_buffer,
+                      [1. * im_h / h, 1. * im_w / w, 1],
+                      output=screenbuf, order=0)
+
+            features = sess.run(main.game_features, feed_dict={
+                main.sequence_length: 1,
+                main.batch_size: 1,
+                main.images: [[screenbuf]],
+            })
+
+            observed_game_features = ennemies.has_visible_entities(state, walls)
+            predicted_game_features = 1 - features[0][0].argmax(axis=1)
+            print(observed_game_features, predicted_game_features)
+            # if active_features:
+            #     print(" - ".join(active_features))
+
+            # Choose action with e-greedy network
+            action_no = main.choose(sess, epsilon, screenbuf)
+            action = ACTION_SET[action_no]
+            total_reward += game.make_action(action, 4)
 
     game.close()
