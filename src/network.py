@@ -77,7 +77,7 @@ class DRQN():
         self.reset_hidden_state()
         self.layer3 = tf.nn.dropout(
             tf.reshape(slim.flatten(self.conv2),
-                       [self.batch_size, self.sequence_length, self.h_size]),
+                       [self.batch_size, self.sequence_length, 4608]),
             self.dropout_p,
         )
 
