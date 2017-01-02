@@ -62,13 +62,11 @@ class DRQN():
                                                name='game_features_in',
                                                shape=[None, None, self.k, 2])
 
-        # Difference between observed and predicted game features
-        delta = self.game_features - self.game_features_in
-        # delta = tf.Print(delta, [delta], summarize=10, name="dFeatures")
+        cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
+            self.game_features, self.game_features_in
+        )
+        optimizer = tf.train.RMSPropOptimizer(cross_entropy)
 
-        # Optimize on RMS of this difference
-        self.features_loss = tf.reduce_mean(tf.square(delta))
-        optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
         self.features_train_step = optimizer.minimize(self.features_loss)
 
     def _init_recurrent_part(self):

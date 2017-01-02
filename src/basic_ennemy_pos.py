@@ -1,5 +1,7 @@
 import numpy as np
 
+N_FEATURES = 2
+
 
 def basic_ennemy_x(state):
     """
@@ -19,7 +21,6 @@ def basic_ennemy_x(state):
 def basic_ennemy_pos_features(state):
     ennemy_pos = basic_ennemy_x(state)
     return [
-        ennemy_pos < 0.45,           # Ennemy on the left
+        ennemy_pos < 0.5,            # Ennemy on the left
         0.45 <= ennemy_pos <= 0.55,  # Ennemy in the middle
-        0.55 < ennemy_pos,           # Ennemy on the right
     ]

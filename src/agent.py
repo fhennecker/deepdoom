@@ -7,7 +7,7 @@ import map_parser
 import ennemies
 from network import tf, DRQN
 from memory import ReplayMemory
-from basic_ennemy_pos import basic_ennemy_pos_features
+from basic_ennemy_pos import basic_ennemy_pos_features, N_FEATURES
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
@@ -18,7 +18,6 @@ from config import (
 
 # Config variables
 im_w, im_h = 108, 60
-N_FEATURES = 3
 ACTION_SET = np.eye(N_ACTIONS, dtype=np.uint32).tolist()
 SECTION_SEPARATOR = "------------"
 
@@ -285,9 +284,9 @@ def testing_phase(sess):
                 main.dropout_p: 1,  # No dropout in testing
             })
 
-            observed_game_features = ennemies.has_visible_entities(state, walls)
+            observed_game_features = 1 * np.array(basic_ennemy_pos_features(state))
             predicted_game_features = 1 - features[0][0].argmax(axis=1)
-            print(observed_game_features, predicted_game_features)
+            print("actual:", observed_game_features, "predicted:", predicted_game_features)
 
             # Choose action with e-greedy network
             action_no = main.choose(sess, epsilon, screenbuf, dropout_p=1)
