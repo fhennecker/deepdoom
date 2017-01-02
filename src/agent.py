@@ -241,6 +241,7 @@ def learning_phase(sess):
         if i % 10 == 0:
             update_target(sess)
 
+        # Then replay a few sequences
         for j in range(BACKPROP_STEPS):
             main.reset_hidden_state(batch_size=BATCH_SIZE)
             target.reset_hidden_state(batch_size=BATCH_SIZE)
@@ -269,7 +270,7 @@ def learning_phase(sess):
             })
 
         # Save the model periodically
-        if i > 0 and i % 1000 == 0:
+        if i > 0 and i % 500 == 0:
             saver.save(sess, "./model.ckpt")
 
     game.close()
