@@ -108,6 +108,11 @@ class DRQN():
         y = self.rewards + self.gamma * self.target_q
         Qas = tf.reduce_sum(tf.one_hot(tf.argmax(self.actions, 2), 
                                        self.n_actions) * self.Q, 2)
+
+        self.ignore_up_to = tf.placeholder(tf.int32, name='ignore_up_to')
+        y = tf.slice(y, [0, self.ignore_up_to], [-1, -1])
+        Qas = tf.slice(Qas, [0, self.ignore_up_to], [-1, -1])
+
         self.loss = tf.reduce_mean(tf.square(y-Qas))
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 

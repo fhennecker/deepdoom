@@ -11,7 +11,7 @@ from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
     QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
-    KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS,
+    KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS, IGNORE_UP_TO,
 )
 
 # Config variables
@@ -256,6 +256,7 @@ def learning_phase(sess):
             sess.run(main.train_step, feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
+                main.ignore_up_to: IGNORE_UP_TO,
                 main.images: S[:,:-1],
                 main.target_q: target_q,
                 main.gamma: 0.99,
