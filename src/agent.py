@@ -208,23 +208,24 @@ def learning_phase(sess):
                 update_target(sess)
             main.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
-            samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
+            samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH+1)
             # screens, actions, rewards, game_features
             S, A, R, F = map(np.array, zip(*samples))
 
-            target_q = sess.run(target.Q, feed_dict={
+            target_q = sess.run(target.max_Q, feed_dict={
                 target.batch_size: BATCH_SIZE,
                 target.sequence_length: SEQUENCE_LENGTH,
-                target.images: S,
+                target.images: S[1:],
             })
 
             sess.run(main.train_step, feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
-                main.images: S,
+                main.images: S[:-1],
                 main.target_q: target_q,
                 main.gamma: 0.99,
-                main.rewards: R,
+                main.rewards: R[:-1],
+                main.actions: A[:-1],
             })
 
         # Save the model periodically

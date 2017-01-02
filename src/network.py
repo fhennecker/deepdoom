@@ -94,6 +94,7 @@ class DRQN():
         self.Q = tf.reshape(Q, [self.batch_size, self.sequence_length,
                                 self.n_actions])
         self.choice = tf.argmax(self.Q, 2)
+        self.max_Q = tf.reduce_max(self.Q, 2)
 
     def _define_loss(self):
         self.gamma = tf.placeholder(tf.float32, name='gamma')
@@ -101,9 +102,11 @@ class DRQN():
                                        shape=[None, None, self.n_actions])
         self.rewards = tf.placeholder(tf.float32, name='rewards',
                                       shape=[None, None])
-        y = self.rewards + self.gamma * tf.reduce_sum(
-                tf.one_hot(self.choice, self.n_actions) * self.target_q, 2)
-        Qas = tf.reduce_sum(tf.one_hot(self.choice, self.n_actions) * self.Q, 2)
+        self.actions = tf.placeholder(tf.float32, name='actions',
+                                      shape=[None, None, self.n_actions])
+        y = self.rewards + self.gamma * self.target_q
+        Qas = tf.reduce_sum(tf.one_hot(tf.argmax(self.actions, 2), 
+                                       self.n_actions) * self.Q, 2)
         self.loss = tf.reduce_mean(tf.square(y-Qas))
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
