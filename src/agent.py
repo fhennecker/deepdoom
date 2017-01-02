@@ -155,7 +155,8 @@ def init_phase(sess):
 def bootstrap_phase(sess):
     while not mem.initialized:
         for episode in multiplay():
-            mem.add(episode)
+            if len(episode) > SEQUENCE_LENGTH:
+                mem.add(episode)
         print("{},{}".format(len(mem), len(mem.episodes)))
 
 

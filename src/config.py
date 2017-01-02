@@ -20,7 +20,7 @@ QLEARNING_STEPS = 1000
 MAX_CPUS = 32
 
 # Number of possible actions
-N_ACTIONS = 8
+N_ACTIONS = 3
 
 # Learning rate for tensorflow optimizers
 LEARNING_RATE = 0.00001
