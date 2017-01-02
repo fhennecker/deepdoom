@@ -73,7 +73,7 @@ class DRQN():
 
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
-        self.h_size = 4608
+        self.h_size = 300
         self.reset_hidden_state()
         self.layer3 = tf.nn.dropout(
             tf.reshape(slim.flatten(self.conv2),
