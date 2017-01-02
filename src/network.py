@@ -99,7 +99,7 @@ class DRQN():
     def _define_loss(self):
         self.gamma = tf.placeholder(tf.float32, name='gamma')
         self.target_q = tf.placeholder(tf.float32, name='target_q',
-                                       shape=[None, None, self.n_actions])
+                                       shape=[None, None])
         self.rewards = tf.placeholder(tf.float32, name='rewards',
                                       shape=[None, None])
         self.actions = tf.placeholder(tf.float32, name='actions',
