@@ -15,6 +15,9 @@ MAX_EPISODE_LENGTH = 125  # 500 with a frame skip of 4
 # Number of training steps
 TRAINING_STEPS = 1000
 
+# Number of backpropagation steps to execute after each episode
+BACKPROP_STEPS = 15
+
 # Number of training steps
 QLEARNING_STEPS = 5000
 

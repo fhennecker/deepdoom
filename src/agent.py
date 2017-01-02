@@ -12,6 +12,7 @@ from config import (
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
     QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
     KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS, IGNORE_UP_TO,
+    BACKPROP_STEPS,
 )
 
 # Config variables
@@ -238,9 +239,10 @@ def learning_phase(sess):
         print("{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills))
 
         # Adapt target every 10 runs
-        if i > 0 and i % 1 == 0:
-            if i % 1000 == 0:
-                update_target(sess)
+        if i % 10 == 0:
+            update_target(sess)
+
+        for j in range(BACKPROP_STEPS):
             main.reset_hidden_state(batch_size=BATCH_SIZE)
             target.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
