@@ -31,7 +31,7 @@ MAX_CPUS = 32
 N_ACTIONS = 3
 
 # Learning rate for tensorflow optimizers
-LEARNING_RATE = 0.00001
+LEARNING_RATE = 0.001
 
 DEATH_PENALTY = 25
 KILL_REWARD = 100
