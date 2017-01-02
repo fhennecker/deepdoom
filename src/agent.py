@@ -11,7 +11,7 @@ from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
     QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
-    KILL_REWARD, PICKUP_REWARD
+    KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS,
 )
 
 # Config variables
@@ -205,7 +205,7 @@ def learning_phase(sess):
         screenbuf = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
 
         # Linearly decreasing epsilon
-        epsilon = 1 - (0.9 * i / QLEARNING_STEPS)
+        epsilon = max(0.1, 1 - (0.9 * i / QLEARNING_STEPS))
         game.new_episode()
         episode = []
 

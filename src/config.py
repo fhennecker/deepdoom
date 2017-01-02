@@ -14,7 +14,10 @@ MAX_EPISODE_LENGTH = 125  # 500 with a frame skip of 4
 TRAINING_STEPS = 1000
 
 # Number of training steps
-QLEARNING_STEPS = 1000
+QLEARNING_STEPS = 5000
+
+# Number of steps during which epsilon should be decreased
+GREEDY_STEPS = 1000
 
 # Maximum number of cores to use
 MAX_CPUS = 32
