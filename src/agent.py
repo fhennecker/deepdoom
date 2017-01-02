@@ -229,7 +229,8 @@ def learning_phase(sess):
             episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
             s += 1
         episode = reward_reshape(episode)
-        mem.add(episode)
+        if len(episode) > SEQUENCE_LENGTH:
+            mem.add(episode)
         kills = int(state.game_variables[3])
         deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
         tot_reward = sum(r for (s, a, r, f) in episode)
