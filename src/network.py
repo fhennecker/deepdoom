@@ -65,9 +65,9 @@ class DRQN():
         cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
             self.game_features, self.game_features_in
         )
-        optimizer = tf.train.RMSPropOptimizer(cross_entropy)
+        optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
 
-        self.features_train_step = optimizer.minimize(self.features_loss)
+        self.features_train_step = optimizer.minimize(cross_entropy)
 
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
