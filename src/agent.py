@@ -222,11 +222,10 @@ def learning_phase(sess):
                       output=screenbuf[s], order=0)
 
             # Choose action with e-greedy network
-            action_no = main.choose(sess, epsilon, screenbuf[s])
+            action_no = main.choose(sess, epsilon, screenbuf[s],
+                                    dropout_p=0.75)
             action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
-            kill_count = state.game_variables[3]
-            item_count = state.game_variables[5]
             # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
             episode.append((screenbuf[s], action, reward, game_features))
             s += 1
@@ -254,17 +253,19 @@ def learning_phase(sess):
                 target.batch_size: BATCH_SIZE,
                 target.sequence_length: SEQUENCE_LENGTH,
                 target.images: S[:,1:],
+                target.dropout_p: 1,
             })
 
             sess.run(main.train_step, feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
                 main.ignore_up_to: IGNORE_UP_TO,
-                main.images: S[:,:-1],
+                main.images: S[:, :-1],
                 main.target_q: target_q,
                 main.gamma: 0.99,
-                main.rewards: R[:,:-1],
-                main.actions: A[:,:-1],
+                main.rewards: R[:, :-1],
+                main.actions: A[:, :-1],
+                main.dropout_p: 0.75,
             })
 
         # Save the model periodically
@@ -309,16 +310,15 @@ def testing_phase(sess):
                 main.sequence_length: 1,
                 main.batch_size: 1,
                 main.images: [[screenbuf]],
+                main.dropout_p: 1,  # No dropout in testing
             })
 
             observed_game_features = ennemies.has_visible_entities(state, walls)
             predicted_game_features = 1 - features[0][0].argmax(axis=1)
             print(observed_game_features, predicted_game_features)
-            # if active_features:
-            #     print(" - ".join(active_features))
 
             # Choose action with e-greedy network
-            action_no = main.choose(sess, epsilon, screenbuf)
+            action_no = main.choose(sess, epsilon, screenbuf, dropout_p=1)
             action = ACTION_SET[action_no]
             total_reward += game.make_action(action, 4)
 

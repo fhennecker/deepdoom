@@ -11,6 +11,9 @@ class DRQN():
         self.batch_size = tf.placeholder(tf.int32, name='batch_size')
         self.sequence_length = tf.placeholder(tf.int32, name='sequence_length')
 
+        # Dropout probability
+        self.dropout_p = tf.placeholder(tf.float32, name='dropout_p')
+
         self.images = tf.placeholder(tf.float32, name='images',
                                      shape=[None, None, im_h, im_w, 3])
         # we'll merge all sequences in one single batch for treatment
@@ -41,10 +44,13 @@ class DRQN():
         )
 
     def _init_game_features_output(self):
-        self.layer4 = slim.fully_connected(
-                slim.flatten(self.conv2), 512, scope=self.scope+'_l4')
-        self.flat_game_features = slim.fully_connected(
-                self.layer4, 2*self.k, scope=self.scope+'_l4.5')
+        self.layer4 = tf.nn.dropout(
+            slim.fully_connected(slim.flatten(self.conv2), 512,
+                                 scope=self.scope+'_l4'),
+            self.dropout_p,
+        )
+        self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
+                                                       scope=self.scope+'_l4.5')
         reshaped = tf.reshape(self.flat_game_features,
                               [self.batch_size, self.sequence_length,
                                self.k, 2])
@@ -69,9 +75,10 @@ class DRQN():
         # Flat fully connected layer (Layer3' in the paper)
         self.h_size = 4608
         self.reset_hidden_state()
-        self.layer3 = tf.reshape(
-            slim.flatten(self.conv2),
-            [self.batch_size, self.sequence_length, self.h_size]
+        self.layer3 = tf.nn.dropout(
+            tf.reshape(slim.flatten(self.conv2),
+                       [self.batch_size, self.sequence_length, self.h_size]),
+            self.dropout_p,
         )
 
         # LSTM cell
@@ -160,7 +167,7 @@ class DRQN():
             self.state_in: self.rnn_state,
         })
 
-    def choose(self, sess, epsilon, screenbuf):
+    def choose(self, sess, epsilon, screenbuf, dropout_p):
         """Choose an action based on the current screen buffer"""
         is_random = np.random.rand() <= epsilon
         to_get = [self.rnn_output]
@@ -170,5 +177,6 @@ class DRQN():
             self.batch_size: 1,
             self.sequence_length: 1,
             self.images: [[screenbuf]],
+            self.dropout_p: dropout_p,
         })
         return np.random.randint(self.n_actions) if is_random else r[1][0][0]
