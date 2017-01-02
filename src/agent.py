@@ -205,7 +205,7 @@ def learning_phase(sess):
         screenbuf = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
 
         # Linearly decreasing epsilon
-        epsilon = max(0.1, 1 - (0.9 * i / QLEARNING_STEPS))
+        epsilon = max(0.1, 1 - (0.9 * i / GREEDY_STEPS))
         game.new_episode()
         episode = []
 
