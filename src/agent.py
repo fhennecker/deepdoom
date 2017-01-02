@@ -166,7 +166,8 @@ def training_phase(sess):
     for i in range(TRAINING_STEPS // N_CORES):
         # Play and add new episodes to memory
         for episode in multiplay():
-            mem.add(episode)
+            if len(episode) > SEQUENCE_LENGTH:
+                mem.add(episode)
 
         for j in range(N_CORES):
             # Sample a batch and ingest into the NN
