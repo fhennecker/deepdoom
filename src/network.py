@@ -134,6 +134,7 @@ class DRQN():
             self.sequence_length: sequence_length,
             self.images: screens,
             self.game_features_in: F,
+            self.dropout_p: 0.75,
         })
 
     def learn_game_features(self, screens, features):
@@ -158,6 +159,7 @@ class DRQN():
             self.sequence_length: sequence_length,
             self.images: screens,
             self.state_in: self.rnn_state,
+            self.dropout_p: 0.75,
         })
 
         self.last_state = sess.run(self.state_out, feed_dict={
@@ -165,6 +167,7 @@ class DRQN():
             self.sequence_length: sequence_length,
             self.images: screens,
             self.state_in: self.rnn_state,
+            self.dropout_p: 0.75,
         })
 
     def choose(self, sess, epsilon, screenbuf, dropout_p):
