@@ -2,7 +2,7 @@ import numpy as np
 import vizdoom as vd
 import map_parser
 
-N_FEATURES = 2
+N_FEATURES = 1
 
 
 def basic_ennemy_x(state):

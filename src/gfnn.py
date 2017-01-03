@@ -55,14 +55,14 @@ class GFNN:
         self.conv1 = slim.conv2d(
             self.images, num_outputs=32,
             kernel_size=[8, 8], stride=[4, 4], padding='VALID',
-            biases_initializer=None, scope=self.my("conv1")
+            scope=self.my("conv1")
         )
 
         # Second convolution layer
         self.conv2 = slim.conv2d(
             self.conv1, num_outputs=64,
             kernel_size=[4, 4], stride=[2, 2], padding='VALID',
-            biases_initializer=None, scope=self.my("conv2")
+            scope=self.my("conv2")
         )
 
         # Fully connected flat output with dropout
@@ -75,7 +75,8 @@ class GFNN:
         # Output layer
         self.prediction = tf.reshape(
             slim.fully_connected(self.cnn_output, n_features,
-                                 scope=self.my("output"),activation_fn=None),
+                                 scope=self.my("output"),
+                                 activation_fn=None),
             [batch_size, n_features]
         )
 
@@ -109,6 +110,7 @@ class GFNN:
 
 if __name__ == "__main__":
     import random
+    import matplotlib.pyplot as plt
     from basic_ennemy_pos import (
         create_game, basic_ennemy_pos_features, N_FEATURES,
         basic_ennemy_x
@@ -128,7 +130,7 @@ if __name__ == "__main__":
         sess.run(init)
 
         i = 0
-        while i < 1e4:
+        while i < 1e6:
             # Linearly decreasing epsilon
             epsilon = 0.1
             game.new_episode()
@@ -149,33 +151,31 @@ if __name__ == "__main__":
                 action = random.choice(ACTION_SET)
                 game.make_action(action, 4)
 
-                if mem.size > 1000 and i % 100 == 0:
+                if i > 0 and i % 1000 == 0:
+                    # Get and resize screen buffer
+                    state = game.get_state()
+                    h, w, d = state.screen_buffer.shape
+                    Simg.zoom(state.screen_buffer,
+                              [1. * nn.H / h, 1. * nn.W / w, 1],
+                              output=screenbuf, order=0)
+
+                    features = basic_ennemy_pos_features(state)
+                    mem.add(screenbuf, features)
+                    action = random.choice(ACTION_SET)
+                    game.make_action(action, 4)
+
+                    preds = nn.predict(sess, np.array([screenbuf]*nn.batch_size))
+                    p = preds[0]
+                    d = p - features
+
+                    plt.imshow(screenbuf)
+                    plt.axvline(p[0]*screenbuf.shape[1], c='g')
+                    plt.axvline(features[0]*screenbuf.shape[1], c='r')
+                    plt.show()
+
+                elif mem.size > 1000 and i % 100 == 0:
                     loss = 0
                     for j in range(10):
                         images, features = mem.batch(nn.batch_size)
                         loss += nn.train(sess, images, features)
-                    print("\rLoss %5d :" % i, loss/10)
-        for j in range(10):
-            game.new_episode()
-
-            # Initialize new hidden state
-            total_reward = 0
-            while not game.is_episode_finished():
-                i += 1
-                # Get and resize screen buffer
-                state = game.get_state()
-                h, w, d = state.screen_buffer.shape
-                Simg.zoom(state.screen_buffer,
-                          [1. * nn.H / h, 1. * nn.W / w, 1],
-                          output=screenbuf, order=0)
-
-                features = basic_ennemy_pos_features(state)
-                mem.add(screenbuf, features)
-                action = random.choice(ACTION_SET)
-                game.make_action(action, 4)
-
-                preds  = nn.predict(sess, np.array([screenbuf]*nn.batch_size))
-                print("Target ====")
-                print(features)
-                print("Preds ====")
-                print(preds)
+                    print("\rLoss %5d:" % i, loss/10)
