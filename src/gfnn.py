@@ -107,7 +107,7 @@ class GFNN:
 
 if __name__ == "__main__":
     import random
-    import matplotlib.pyplot as plt
+    # import matplotlib.pyplot as plt
     from basic_ennemy_pos import (
         create_game, basic_ennemy_pos_features, N_FEATURES,
         basic_ennemy_x
@@ -123,8 +123,15 @@ if __name__ == "__main__":
     ACTION_SET = np.eye(3, dtype=np.int32).tolist()
 
     with tf.Session() as sess:
-        init = tf.global_variables_initializer()
-        sess.run(init)
+        saver = tf.train.Saver()
+        try:
+            saver = tf.train.import_meta_graph('gfnn.ckpt.meta')
+            saver.restore(sess, tf.train.latest_checkpoint('./'))
+        except:
+            print("CREATE NEW MODEL")
+            init = tf.global_variables_initializer()
+            sess.run(init)
+
 
         i = 0
         while i < 1e6:
@@ -135,8 +142,11 @@ if __name__ == "__main__":
             # Initialize new hidden state
             total_reward = 0
             while not game.is_episode_finished():
+                if i > 0 and i % 1000 == 0:
+                    saver.save(sess, "gfnn.ckpt")
+
                 i += 1
-                if i > 0 and i % 1e3 == 0:
+                if i % 1e3 == 0:
                     # Get and resize screen buffer
                     state = game.get_state()
                     h, w, d = state.screen_buffer.shape
@@ -152,11 +162,12 @@ if __name__ == "__main__":
                     preds = nn.predict(sess, np.array([screenbuf]*nn.batch_size))
                     p = preds[0]
                     d = p - features
+                    print("Test: ", d)
 
-                    plt.imshow(screenbuf)
-                    plt.axvline(p[0]*screenbuf.shape[1], c='g')
-                    plt.axvline(features[0]*screenbuf.shape[1], c='r')
-                    plt.show()
+                    # plt.imshow(screenbuf)
+                    # plt.axvline(p[0]*screenbuf.shape[1], c='g')
+                    # plt.axvline(features[0]*screenbuf.shape[1], c='r')
+                    # plt.show()
 
                 elif mem.size > 1000 and i % 100 == 0:
                     loss = 0
