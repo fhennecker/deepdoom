@@ -242,7 +242,7 @@ def learning_phase(sess):
             update_target(sess)
 
         # Then replay a few sequences
-        for j in range(BACKPROP_STEPS):
+        for j in range(len(episode)//4):
             main.reset_hidden_state(batch_size=BATCH_SIZE)
             target.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
