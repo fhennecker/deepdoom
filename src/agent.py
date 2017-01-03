@@ -219,7 +219,7 @@ def learning_phase(sess):
             target_q = sess.run(target.max_Q, feed_dict={
                 target.batch_size: BATCH_SIZE,
                 target.sequence_length: SEQUENCE_LENGTH,
-                target.images: S[:,1:],
+                target.images: S[:, 1:],
                 target.dropout_p: 1,
             })
 
