@@ -50,13 +50,12 @@ class DRQN():
             self.dropout_p,
         )
         self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
-                                                       scope=self.scope+'_l4.5')
-        reshaped = tf.reshape(self.flat_game_features,
-                              [self.batch_size, self.sequence_length,
-                               self.k, 2])
+                                                       scope=self.scope+'_l4.5',
+                                                       activation_fn=None)
 
         # Output layer
-        self.game_features = tf.nn.softmax(reshaped)
+        self.game_features = self.flat_game_features
+
         # Observed game features
         self.game_features_in = tf.placeholder(tf.float32,
                                                name='game_features_in',
@@ -68,8 +67,6 @@ class DRQN():
 
         # Optimize on RMS of this difference
         self.features_loss = tf.reduce_mean(tf.square(delta))
-        optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
-        self.features_train_step = optimizer.minimize(self.features_loss)
 
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
