@@ -133,7 +133,7 @@ def bootstrap_phase(sess):
                 action = random.choice(ACTION_SET)
                 try:
                     reward = game.make_action(action, 4)
-                except vizdoom.vizdoom.ViZDoomIsNotRunningException:
+                except vd.vizdoom.ViZDoomIsNotRunningException:
                     reward = -1000
 
                 episode.append((S, action, reward, game_features))
@@ -141,7 +141,7 @@ def bootstrap_phase(sess):
                 mem.add(episode)
                 print("{},{}".format(len(mem), len(mem.episodes)))
         except Exception:
-            game, walls = create_game()
+            pass
     game.close()
 
 
