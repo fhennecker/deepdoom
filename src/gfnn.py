@@ -73,12 +73,9 @@ class GFNN:
         )
 
         # Output layer
-        self.prediction = tf.reshape(
-            slim.fully_connected(self.cnn_output, n_features,
-                                 scope=self.my("output"),
-                                 activation_fn=None),
-            [batch_size, n_features]
-        )
+        self.prediction = slim.fully_connected(self.cnn_output, n_features,
+                                               scope=self.my("output"),
+                                               activation_fn=None)
 
         # Backprop
         # cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(self.prediction,
