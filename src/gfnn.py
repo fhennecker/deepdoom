@@ -81,6 +81,8 @@ class GFNN:
         # cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(self.prediction,
         #                                                     self.features)
         # self.loss = tf.reduce_mean(tf.square(cross_ent))
+        self.prediction = tf.Print(self.prediction, [self.prediction])
+        self.prediction = tf.Print(self.prediction, [self.features])
         self.loss = tf.reduce_mean(tf.square(self.prediction - self.features))
         optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
         self.train_step = optimizer.minimize(self.loss)
