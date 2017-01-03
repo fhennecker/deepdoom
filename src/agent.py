@@ -4,12 +4,11 @@ import numpy as np
 import scipy.ndimage as Simg
 
 import map_parser
-import ennemies
 from network import tf, DRQN
 from memory import ReplayMemory
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
-    MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
+    BATCH_SIZE, SEQUENCE_LENGTH,
     QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
     KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS, IGNORE_UP_TO,
     BACKPROP_STEPS,
@@ -82,50 +81,6 @@ def reward_reshape(dump):
     ]
 
 
-def play_random_episode(game, walls, verbose=False, skip=1):
-    game.new_episode()
-    dump = []
-    zoomed = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
-    action = ACTION_SET[0]
-    while not game.is_episode_finished():
-        # Get screen buf
-        state = game.get_state()
-        S = state.screen_buffer  # NOQA
-
-        # Resample to our network size
-        h, w = S.shape[:2]
-        Simg.zoom(S, [1. * im_h / h, 1. * im_w / w, 1],
-                  output=zoomed[len(dump)], order=0)
-        S = zoomed[len(dump)]  # NOQA
-
-        # Get game features an action
-        game_features = ennemies.has_visible_entities(state, walls)[:N_FEATURES]
-        action = random.choice(ACTION_SET)
-        reward = game.make_action(action, skip)
-        dump.append((S, action, reward, game_features))
-    return dump
-
-
-def wrap_play_random_episode(i=0):
-    game, walls = create_game()
-    res = play_random_episode(game, walls, skip=4)
-    game.close()
-    return res
-
-# Need to be imported and created after wrap_play_random_episode
-from multiprocessing import Pool, cpu_count
-N_CORES = min(cpu_count(), MAX_CPUS)
-if N_CORES > 1:
-    workers = Pool(N_CORES)
-
-
-def multiplay():
-    if N_CORES <= 1:
-        return [wrap_play_random_episode()]
-    else:
-        return workers.map(wrap_play_random_episode, range(N_CORES))
-
-
 def update_target(sess):
     """Transfer learned parameters from main to target NN"""
     v = tf.trainable_variables()
@@ -154,11 +109,31 @@ def init_phase(sess):
 
 @csv_output("mem_size", "n_games")
 def bootstrap_phase(sess):
+    game, walls = create_game()
     while not mem.initialized:
-        for episode in multiplay():
-            if len(episode) > SEQUENCE_LENGTH:
-                mem.add(episode)
+        game.new_episode()
+        episode = []
+        zoomed = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
+        action = ACTION_SET[0]
+        while not game.is_episode_finished():
+            # Get screen buf
+            state = game.get_state()
+            S = state.screen_buffer  # NOQA
+
+            # Resample to our network size
+            h, w = S.shape[:2]
+            Simg.zoom(S, [1. * im_h / h, 1. * im_w / w, 1],
+                      output=zoomed[len(episode)], order=0)
+            S = zoomed[len(episode)]  # NOQA
+
+            # Get game features and action
+            game_features = basic_ennemy_pos_features(state)
+            action = random.choice(ACTION_SET)
+            reward = game.make_action(action, 4)
+            episode.append((S, action, reward, game_features))
+        mem.add(episode)
         print("{},{}".format(len(mem), len(mem.episodes)))
+    game.close()
 
 
 @csv_output("training_step", "loss_training", "loss_test")
