@@ -50,7 +50,8 @@ class DRQN():
             self.dropout_p,
         )
         self.flat_game_features = slim.fully_connected(self.layer4, self.k,
-                                                       scope=self.scope+'_l4.5')
+                                                       scope=self.scope+'_l4.5',
+                                                       activation_fn=tf.nn.tanh)
         reshaped = tf.reshape(self.flat_game_features,
                               [self.batch_size, self.sequence_length,
                                self.k])
@@ -114,9 +115,8 @@ class DRQN():
         Qas = tf.slice(Qas, [0, self.ignore_up_to], [-1, -1])
 
         # Game features loss
-        self.cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
-            self.game_features, self.game_features_in
-        )
+        self.cross_entropy = tf.reduce_mean(tf.square(
+            self.game_features - self.game_features_in))
         # self.features_train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.cross_entropy)
 
         # Q-learning loss
@@ -125,7 +125,7 @@ class DRQN():
 
         # Overall loss (Q + Game features)
         self.loss = self.q_loss + self.cross_entropy
-        self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
+        self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.cross_entropy)
 
     def _game_features_learning(self, func, screens, features):
         assert screens.shape[:2] == features.shape[:2]

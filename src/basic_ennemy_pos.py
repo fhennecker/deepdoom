@@ -20,7 +20,4 @@ def basic_ennemy_x(state):
 
 def basic_ennemy_pos_features(state):
     ennemy_pos = basic_ennemy_x(state)
-    return [
-        ennemy_pos < 0.5,            # Ennemy on the left
-        0.45 <= ennemy_pos <= 0.55,  # Ennemy in the middle
-    ]
+    return [ennemy_pos * 2 - 1]
