@@ -223,15 +223,13 @@ def learning_phase(sess):
                 target.dropout_p: 1,
             })
 
-            # Learn game features (Helps CNN)
-            main.learn_game_features(S, F)
-
             # Learn Q
             sess.run(main.train_step, feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
                 main.ignore_up_to: IGNORE_UP_TO,
                 main.images: S[:, :-1],
+                main.game_features_in: F[:, :-1],
                 main.target_q: target_q,
                 main.gamma: 0.99,
                 main.rewards: R[:, :-1],

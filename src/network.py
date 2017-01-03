@@ -64,12 +64,11 @@ class DRQN():
                                                name='game_features_in',
                                                shape=[None, None, self.k])
 
-        cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
+        self.cross_entropy = tf.nn.sigmoid_cross_entropy_with_logits(
             self.game_features, self.game_features_in
         )
         optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
-
-        self.features_train_step = optimizer.minimize(cross_entropy)
+        self.features_train_step = optimizer.minimize(self.cross_entropy)
 
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
@@ -120,7 +119,12 @@ class DRQN():
         y = tf.slice(y, [0, self.ignore_up_to], [-1, -1])
         Qas = tf.slice(Qas, [0, self.ignore_up_to], [-1, -1])
 
-        self.loss = tf.reduce_mean(tf.square(y-Qas))
+        # Q-learning loss
+        self.q_loss = tf.reduce_mean(tf.square(y-Qas))
+        self.q_train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.q_loss)
+
+        # Overall loss (Q + Game features)
+        self.loss = self.q_loss + self.cross_entropy
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
     def _game_features_learning(self, func, screens, features):
