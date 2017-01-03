@@ -14,8 +14,19 @@ def basic_ennemy_x(state):
     horiz = state.depth_buffer[65].astype(np.int32)
     # How is the distance varying along the horizon
     line = np.diff(horiz)
+    line[np.abs(line) > 15] = 0
+    imin = line.argmin()
+    line[:imin] = 0
+    imax = line.argmax()
     # Ignore high distance diff (player gun)
-    line[np.abs(line) > 20] = 0
+
+    # plt.plot(horiz)
+    # plt.plot(line)
+    # plt.axvline(imin, c='k')
+    # plt.axvline(imax, c='r')
+    # plt.grid()
+    # plt.show()
+
     # Return the relative position
     return (line.argmin() + line.argmax()) / 2 / len(horiz)
 
