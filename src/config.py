@@ -12,9 +12,6 @@ IGNORE_UP_TO = 4
 # Maximum episode duration, in frames
 MAX_EPISODE_LENGTH = 125  # 500 with a frame skip of 4
 
-# Number of training steps
-TRAINING_STEPS = 1000
-
 # Number of backpropagation steps to execute after each episode
 BACKPROP_STEPS = 15
 
@@ -23,9 +20,6 @@ QLEARNING_STEPS = 5000
 
 # Number of steps during which epsilon should be decreased
 GREEDY_STEPS = 1000
-
-# Maximum number of cores to use
-MAX_CPUS = 32
 
 # Number of possible actions
 N_ACTIONS = 3
