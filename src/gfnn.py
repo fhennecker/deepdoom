@@ -81,8 +81,6 @@ class GFNN:
         # cross_ent = tf.nn.sigmoid_cross_entropy_with_logits(self.prediction,
         #                                                     self.features)
         # self.loss = tf.reduce_mean(tf.square(cross_ent))
-        self.prediction = tf.Print(self.prediction, [self.prediction])
-        self.prediction = tf.Print(self.prediction, [self.features])
         self.loss = tf.reduce_mean(tf.square(self.prediction - self.features))
         optimizer = tf.train.RMSPropOptimizer(self.learning_rate)
         self.train_step = optimizer.minimize(self.loss)
@@ -118,7 +116,7 @@ if __name__ == "__main__":
     nn = GFNN('gfnn', N_FEATURES, batch_size=32)
     mem = ReplayMem(100000,
                     [nn.IMAGE_SHAPE, (N_FEATURES,)],
-                    [np.uint8, np.int32])
+                    [np.uint8, np.float32])
 
     game, walls = create_game()
     screenbuf = np.zeros((nn.H, nn.W, 3), dtype=np.uint8)
@@ -138,19 +136,7 @@ if __name__ == "__main__":
             total_reward = 0
             while not game.is_episode_finished():
                 i += 1
-                # Get and resize screen buffer
-                state = game.get_state()
-                h, w, d = state.screen_buffer.shape
-                Simg.zoom(state.screen_buffer,
-                          [1. * nn.H / h, 1. * nn.W / w, 1],
-                          output=screenbuf, order=0)
-
-                features = basic_ennemy_pos_features(state)
-                mem.add(screenbuf, features)
-                action = random.choice(ACTION_SET)
-                game.make_action(action, 4)
-
-                if i > 0 and i % 1000 == 0:
+                if i > 0 and i % 1e3 == 0:
                     # Get and resize screen buffer
                     state = game.get_state()
                     h, w, d = state.screen_buffer.shape
@@ -178,3 +164,15 @@ if __name__ == "__main__":
                         images, features = mem.batch(nn.batch_size)
                         loss += nn.train(sess, images, features)
                     print("\rLoss %5d:" % i, loss/10)
+                else:
+                    # Get and resize screen buffer
+                    state = game.get_state()
+                    h, w, d = state.screen_buffer.shape
+                    Simg.zoom(state.screen_buffer,
+                              [1. * nn.H / h, 1. * nn.W / w, 1],
+                              output=screenbuf, order=0)
+
+                    features = basic_ennemy_pos_features(state)
+                    mem.add(screenbuf, features)
+                    action = random.choice(ACTION_SET)
+                    game.make_action(action, 4)
