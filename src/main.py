@@ -5,6 +5,7 @@ from optparse import OptionParser
 
 if __name__ == '__main__':
     system('git show | head -1')
+    system('cat config.py local_config.py')
 
     parser = OptionParser()
     parser.add_option("-B", "--no-bootstrap", dest="bootstrap",

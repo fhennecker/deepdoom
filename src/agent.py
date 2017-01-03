@@ -107,7 +107,7 @@ def init_phase(sess):
         print("=== Recreate new model ! ===")
 
 
-@csv_output("mem_size", "n_games")
+@csv_output("mem_size", "episodes")
 def bootstrap_phase(sess):
     game, walls = create_game()
     while not mem.initialized:
@@ -131,8 +131,9 @@ def bootstrap_phase(sess):
             action = random.choice(ACTION_SET)
             reward = game.make_action(action, 4)
             episode.append((S, action, reward, game_features))
-        mem.add(episode)
-        print("{},{}".format(len(mem), len(mem.episodes)))
+        if len(episode) > SEQUENCE_LENGTH:
+            mem.add(episode)
+            print("{},{}".format(len(mem), len(mem.episodes)))
     game.close()
 
 
