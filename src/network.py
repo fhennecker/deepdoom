@@ -33,14 +33,14 @@ class DRQN():
         self.conv1 = slim.conv2d(
             self.all_images, num_outputs=32,
             kernel_size=[8, 8], stride=[4, 4], padding='VALID',
-            biases_initializer=None, scope=self.scope+'_conv1'
+            scope=self.scope+'_conv1'
         )
 
         # Second convolution layer
         self.conv2 = slim.conv2d(
             self.conv1, num_outputs=64,
             kernel_size=[4, 4], stride=[2, 2], padding='VALID',
-            biases_initializer=None, scope=self.scope+'_conv2'
+            scope=self.scope+'_conv2'
         )
 
     def _init_game_features_output(self):
