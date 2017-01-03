@@ -116,25 +116,32 @@ def bootstrap_phase(sess):
         episode = []
         zoomed = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
         action = ACTION_SET[0]
-        while not game.is_episode_finished():
-            # Get screen buf
-            state = game.get_state()
-            S = state.screen_buffer  # NOQA
+        try:
+            while not game.is_episode_finished():
+                # Get screen buf
+                state = game.get_state()
+                S = state.screen_buffer  # NOQA
 
-            # Resample to our network size
-            h, w = S.shape[:2]
-            Simg.zoom(S, [1. * im_h / h, 1. * im_w / w, 1],
-                      output=zoomed[len(episode)], order=0)
-            S = zoomed[len(episode)]  # NOQA
+                # Resample to our network size
+                h, w = S.shape[:2]
+                Simg.zoom(S, [1. * im_h / h, 1. * im_w / w, 1],
+                          output=zoomed[len(episode)], order=0)
+                S = zoomed[len(episode)]  # NOQA
 
-            # Get game features and action
-            game_features = basic_ennemy_pos_features(state)
-            action = random.choice(ACTION_SET)
-            reward = game.make_action(action, 4)
-            episode.append((S, action, reward, game_features))
-        if len(episode) > SEQUENCE_LENGTH:
-            mem.add(episode)
-            print("{},{}".format(len(mem), len(mem.episodes)))
+                # Get game features and action
+                game_features = basic_ennemy_pos_features(state)
+                action = random.choice(ACTION_SET)
+                try:
+                    reward = game.make_action(action, 4)
+                except vizdoom.vizdoom.ViZDoomIsNotRunningException:
+                    reward = -1000
+
+                episode.append((S, action, reward, game_features))
+            if len(episode) > SEQUENCE_LENGTH:
+                mem.add(episode)
+                print("{},{}".format(len(mem), len(mem.episodes)))
+        except Exception:
+            game, walls = create_game()
     game.close()
 
 
