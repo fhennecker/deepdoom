@@ -128,7 +128,7 @@ if __name__ == "__main__":
         sess.run(init)
 
         i = 0
-        while i < 1e6:
+        while i < 1e4:
             # Linearly decreasing epsilon
             epsilon = 0.1
             game.new_episode()
@@ -155,3 +155,27 @@ if __name__ == "__main__":
                         images, features = mem.batch(nn.batch_size)
                         loss += nn.train(sess, images, features)
                     print("\rLoss %5d :" % i, loss/10)
+        for j in range(10):
+            game.new_episode()
+
+            # Initialize new hidden state
+            total_reward = 0
+            while not game.is_episode_finished():
+                i += 1
+                # Get and resize screen buffer
+                state = game.get_state()
+                h, w, d = state.screen_buffer.shape
+                Simg.zoom(state.screen_buffer,
+                          [1. * nn.H / h, 1. * nn.W / w, 1],
+                          output=screenbuf, order=0)
+
+                features = basic_ennemy_pos_features(state)
+                mem.add(screenbuf, features)
+                action = random.choice(ACTION_SET)
+                game.make_action(action, 4)
+
+                preds  = nn.predict(sess, np.array([screenbuf]*nn.batch_size))
+                print("Target ====")
+                print(features)
+                print("Preds ====")
+                print(preds)
