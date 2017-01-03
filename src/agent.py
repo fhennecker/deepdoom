@@ -6,6 +6,7 @@ import scipy.ndimage as Simg
 import map_parser
 from network import tf, DRQN
 from memory import ReplayMemory
+from basic_ennemy_pos import basic_ennemy_pos_features, N_FEATURES
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
     BATCH_SIZE, SEQUENCE_LENGTH,
