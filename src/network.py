@@ -56,7 +56,9 @@ class DRQN():
                                self.k])
 
         # Output layer
-        self.game_features = tf.nn.softmax(reshaped)
+        # self.game_features = tf.nn.softmax(reshaped)
+        self.game_features = reshaped
+
         # Observed game features
         self.game_features_in = tf.placeholder(tf.float32,
                                                name='game_features_in',

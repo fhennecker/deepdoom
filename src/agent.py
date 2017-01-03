@@ -285,7 +285,7 @@ def testing_phase(sess):
             })
 
             observed_game_features = 1 * np.array(basic_ennemy_pos_features(state))
-            predicted_game_features = 1 - features[0][0].argmax(axis=1)
+            predicted_game_features = features[0][0]
             print("actual:", observed_game_features, "predicted:", predicted_game_features)
 
             # Choose action with e-greedy network
