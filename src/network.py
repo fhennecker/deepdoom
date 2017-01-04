@@ -51,17 +51,18 @@ class DRQN():
                                  scope=self.scope+'_l4'),
             self.dropout_p,
         )
-        self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
+        self.flat_game_features = slim.fully_connected(self.layer4, self.k,
                                                        scope=self.scope+'_l4.5',
                                                        activation_fn=None)
 
         # Output layer
-        self.game_features = self.flat_game_features
+        self.game_features = tf.reshape(self.flat_game_features,
+                                        shape=[self.batch_size, self.sequence_length, self.k])
 
         # Observed game features
         self.game_features_in = tf.placeholder(tf.float32,
                                                name='game_features_in',
-                                               shape=[None, None, self.k, 2])
+                                               shape=[None, None, self.k])
 
         # Difference between observed and predicted game features
         delta = self.game_features - self.game_features_in
@@ -124,28 +125,6 @@ class DRQN():
         else:
             self.loss = tf.reduce_mean(tf.square(y-Qas)) + self.features_loss
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
-
-    def _game_features_learning(self, func, screens, features):
-        assert screens.shape[:2] == features.shape[:2]
-        batch_size, sequence_length = features.shape[:2]
-        F = np.zeros((batch_size, sequence_length, self.k, 2))  # NOQA
-        F[:, :, :, 0] = features
-        F[:, :, :, 1] = ~features
-        return func(feed_dict={
-            self.batch_size: batch_size,
-            self.sequence_length: sequence_length,
-            self.images: screens,
-            self.game_features_in: F,
-            self.dropout_p: 0.75,
-        })
-
-    def learn_game_features(self, screens, features):
-        return self._game_features_learning(self.features_train_step.run,
-                                            screens, features)
-
-    def current_game_features_loss(self, screens, features):
-        return self._game_features_learning(self.features_loss.eval,
-                                            screens, features)
 
     def reset_hidden_state(self, batch_size=1):
         shape = batch_size, self.h_size

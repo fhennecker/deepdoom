@@ -3,8 +3,7 @@ import vizdoom as vd
 import numpy as np
 import scipy.ndimage as Simg
 
-import map_parser
-import ennemies
+from basic_ennemy_pos import basic_ennemy_x
 from network import tf, DRQN
 from memory import ReplayMemory
 from config import (
@@ -24,7 +23,7 @@ SECTION_SEPARATOR = "------------"
 # Neural nets and tools
 print('Building main DRQN')
 main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE, 
-        use_game_features=USE_GAME_FEATURES)
+            use_game_features=USE_GAME_FEATURES)
 print('Building target DRQN')
 target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE, True)
 saver = tf.train.Saver()
@@ -47,7 +46,7 @@ def create_game():
     game.load_config("basic.cfg")
 
     # Ennemy detection
-    walls = map_parser.parse("maps/deathmatch.txt")
+    walls = None  # map_parser.parse("maps/deathmatch.txt")
     game.clear_available_game_variables()
     game.add_available_game_variable(vd.GameVariable.POSITION_X)  # 0
     game.add_available_game_variable(vd.GameVariable.POSITION_Y)  # 1
@@ -100,7 +99,7 @@ def play_random_episode(game, walls, verbose=False, skip=1):
         S = zoomed[len(dump)]  # NOQA
 
         # Get game features an action
-        game_features = ennemies.has_visible_entities(state, walls)[:N_FEATURES]
+        game_features = [basic_ennemy_x(state)]
         action = random.choice(ACTION_SET)
         reward = game.make_action(action, skip)
         dump.append((S, action, reward, game_features))
@@ -166,39 +165,6 @@ def bootstrap_phase(sess):
         print("{},{}".format(len(mem), len(mem.episodes)))
 
 
-@csv_output("training_step", "loss_training", "loss_test")
-def training_phase(sess):
-    """Supervised learning for game features"""
-    for i in range(TRAINING_STEPS // N_CORES):
-        # Play and add new episodes to memory
-        for episode in multiplay():
-            if len(episode) > SEQUENCE_LENGTH:
-                mem.add(episode)
-
-        for j in range(N_CORES):
-            # Sample a batch and ingest into the NN
-            samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
-            # screens, actions, rewards, game_features
-            S, A, R, F = map(np.array, zip(*samples))
-            # Supervised learning for game features
-            main.learn_game_features(S, F)
-            # Feed recurrent part
-            main.reset_hidden_state(batch_size=BATCH_SIZE)
-            main.feed_lstm(sess, S, A, R)
-        training_loss = main.current_game_features_loss(S, F)
-
-        # Sample a batch and ingest into the NN
-        samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH)
-        # screens, actions, rewards, game_features
-        S, A, R, F = map(np.array, zip(*samples))
-        test_loss = main.current_game_features_loss(S, F)
-
-        print("{},{},{}".format(i * N_CORES, training_loss, test_loss))
-
-        if i > 0 and i % 100 == 0:
-            saver.save(sess, "./model.ckpt")
-
-
 @csv_output("qlearning_step", "epsilon", "reward", "steps", "kills")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
@@ -206,7 +172,6 @@ def learning_phase(sess):
 
     # From now on, we don't use game features, but we provide an empty
     # numpy array so that the ReplayMemory is still zippable
-    game_features = np.zeros(N_FEATURES)
     for i in range(QLEARNING_STEPS):
         screenbuf = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
 
@@ -233,7 +198,7 @@ def learning_phase(sess):
                                         dropout_p=0.75, state_in=hidden_state)
                 action = ACTION_SET[action_no]
                 reward = game.make_action(action, 4)
-                # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
+                game_features = [basic_ennemy_x(state)]
                 episode.append((screenbuf[s], action, reward, game_features))
                 s += 1
             # episode = reward_reshape(episode)
@@ -263,7 +228,7 @@ def learning_phase(sess):
             target_q = sess.run(target.max_Q, feed_dict={
                 target.batch_size: BATCH_SIZE,
                 target.sequence_length: SEQUENCE_LENGTH,
-                target.images: S[:,1:],
+                target.images: S[:, 1:],
                 target.dropout_p: 1,
             })
 
@@ -277,6 +242,7 @@ def learning_phase(sess):
                 main.rewards: R[:, :-1],
                 main.actions: A[:, :-1],
                 main.dropout_p: 0.75,
+                main.game_features_in: F[:, :-1]
             })
 
         # Save the model periodically
@@ -325,7 +291,7 @@ def testing_phase(sess):
                     main.dropout_p: 1,  # No dropout in testing
                 })
 
-                observed_game_features = ennemies.has_visible_entities(state, walls)
+                observed_game_features = [basic_ennemy_x(state)]
                 predicted_game_features = 1 - features[0][0].argmax(axis=1)
                 print(observed_game_features, predicted_game_features)
 
