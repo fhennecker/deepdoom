@@ -11,7 +11,7 @@ class VideoWriter:
             '-y',                    # overwrite output file if it exists
             '-f', 'rawvideo',
             '-vcodec', 'rawvideo',
-            '-s', '%dx%d' % (W, H),  # size of one frame
+            '-s', '%dx%d' % (w, h),  # size of one frame
             '-pix_fmt', 'rgb24',
             '-r', str(fps),          # frames per second
             '-i', '-',               # The imput comes from a pipe

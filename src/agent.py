@@ -5,6 +5,7 @@ import scipy.ndimage as Simg
 
 from basic_ennemy_pos import basic_ennemy_x
 from network import tf, DRQN
+from video import VideoWriter
 from memory import ReplayMemory
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
@@ -257,6 +258,58 @@ feature_names = [
     "\033[32;1mPICKUPS\033[0m",
     "\033[33;1mBLASTS\033[0m"
 ]
+
+def recording_phase(sess,filename):
+    """Reinforcement learning for Qvalues"""
+    game, walls = create_game()
+    w, h = 200,125
+    index_video = 0
+    # From now on, we don't use game features, but we provide an empty
+    # numpy array so that the ReplayMemory is still zippable
+    for i in range(QLEARNING_STEPS):
+        screenbuf = np.zeros((im_h, im_w, 3), dtype=np.uint8)
+        epsilon = 0
+
+        try:
+            # Initialize new hidden state
+            main.reset_hidden_state(batch_size=1)
+            total_reward = 0
+            game.new_episode()
+            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
+            while not game.is_episode_finished():
+                # Get and resize screen buffer
+                state = game.get_state()
+                if i % 200 in [0,1,2]:
+                    new_filename = "videos/" + filename.split('.')[0] + "_" + str(index_video) + "."+ filename.split('.')[1]
+                    print(new_filename)
+                    video = VideoWriter(w, h,new_filename)
+                    video.add_frame(state.screen_buffer)
+                    index_video += 1
+                h, w, d = state.screen_buffer.shape
+                Simg.zoom(state.screen_buffer,
+                          [1. * im_h / h, 1. * im_w / w, 1],
+                          output=screenbuf, order=0)
+
+                features = sess.run(main.game_features, feed_dict={
+                    main.sequence_length: 1,
+                    main.batch_size: 1,
+                    main.images: [[screenbuf]],
+                    main.dropout_p: 1,  # No dropout in testing
+                })
+
+                observed_game_features = basic_ennemy_x(state)
+                predicted_game_features = features[0][0][0]
+
+                # Choose action with e-greedy network
+                action_no, hidden_state = main.choose(sess, epsilon, screenbuf,
+                        dropout_p=1, state_in=hidden_state)
+                action = ACTION_SET[action_no]
+                total_reward += game.make_action(action, 4)
+        except vd.vizdoom.ViZDoomErrorException:
+            print("VizDoom ERROR !")
+            game, walls = create_game()
+
+    game.close()
 
 
 @csv_output("actual_ennemy_pos", "predicted_pos")

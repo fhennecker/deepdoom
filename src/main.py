@@ -17,13 +17,16 @@ if __name__ == '__main__':
     parser.add_option("-R", "--no-testing", dest="testing",
                       action="store_false", default=True,
                       help="Do not perform the testing phase")
+    parser.add_option("-V", "--video-record", dest="record",
+                      action="store", default="video.mp4", type="string",
+                      help="Records")
     options, args = parser.parse_args()
 
     with tf.Session() as sess:
         from agent import (
             init_phase, bootstrap_phase,
             learning_phase, testing_phase,
-            update_target
+            update_target, recording_phase
         )
         init_phase(sess)
 
@@ -37,3 +40,6 @@ if __name__ == '__main__':
 
         if options.testing:
             testing_phase(sess)
+
+        if options.record:
+            recording_phase(sess,options.record)
