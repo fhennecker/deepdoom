@@ -183,10 +183,10 @@ def make_video(sess, filename, n_games=3):
 
         try:
             # Initialize new hidden state
-            main.reset_hidden_state(batch_size=1)
             total_reward = 0
             game.new_episode()
-            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
+            h_size = main.h_size if USE_RECURRENCE else 0
+            hidden_state = (np.zeros((1, h_size)), np.zeros((1, h_size)))
             while not game.is_episode_finished():
                 # Get and resize screen buffer
                 state = game.get_state()
