@@ -107,10 +107,14 @@ def play_random_episode(game, walls, verbose=False, skip=1):
 
 
 def wrap_play_random_episode(i=0):
-    game, walls = create_game()
-    res = play_random_episode(game, walls, skip=4)
-    game.close()
-    return res
+    try:
+        game, walls = create_game()
+        res = play_random_episode(game, walls, skip=4)
+        game.close()
+        return res
+    except vd.vizdoom.ViZDoomErrorException:
+        print("ViZDoom ERROR")
+        return []
 
 # Need to be imported and created after wrap_play_random_episode
 from multiprocessing import Pool, cpu_count
