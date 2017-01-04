@@ -259,6 +259,7 @@ feature_names = [
 ]
 
 
+@csv_output("actual_ennemy_pos", "predicted_pos")
 def testing_phase(sess):
     """Reinforcement learning for Qvalues"""
     game, walls = create_game()
@@ -267,9 +268,7 @@ def testing_phase(sess):
     # numpy array so that the ReplayMemory is still zippable
     for i in range(QLEARNING_STEPS):
         screenbuf = np.zeros((im_h, im_w, 3), dtype=np.uint8)
-
-        # Linearly decreasing epsilon
-        epsilon = 0.1
+        epsilon = 0
 
         try:
             # Initialize new hidden state
@@ -292,12 +291,12 @@ def testing_phase(sess):
                     main.dropout_p: 1,  # No dropout in testing
                 })
 
-                observed_game_features = [basic_ennemy_x(state)]
-                predicted_game_features = 1 - features[0][0].argmax(axis=1)
-                print(observed_game_features, predicted_game_features)
+                observed_game_features = basic_ennemy_x(state)
+                predicted_game_features = features[0][0][0]
+                print("{},{}".format(observed_game_features, predicted_game_features))
 
                 # Choose action with e-greedy network
-                action_no, hidden_state = main.choose(sess, epsilon, screenbuf, 
+                action_no, hidden_state = main.choose(sess, epsilon, screenbuf,
                         dropout_p=1, state_in=hidden_state)
                 action = ACTION_SET[action_no]
                 total_reward += game.make_action(action, 4)
