@@ -23,9 +23,11 @@ SECTION_SEPARATOR = "------------"
 # Neural nets and tools
 print('Building main DRQN')
 main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE, 
-            use_game_features=USE_GAME_FEATURES, learn_q=LEARN_Q)
+            use_game_features=USE_GAME_FEATURES, learn_q=LEARN_Q, 
+            recurrent=USE_RECURRENCE)
 print('Building target DRQN')
-target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE, True)
+target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE, True, 
+        recurrent=USE_RECURRENCE)
 saver = tf.train.Saver()
 mem = ReplayMemory(MIN_MEM_SIZE, MAX_MEM_SIZE)
 

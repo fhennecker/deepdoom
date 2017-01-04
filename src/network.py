@@ -5,7 +5,7 @@ import tensorflow.contrib.slim as slim
 
 class DRQN():
     def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate, 
-            test=False, use_game_features=False, learn_q=True):
+            test=False, use_game_features=False, learn_q=True, recurrent=True):
         self.learning_rate = learning_rate
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
@@ -13,6 +13,7 @@ class DRQN():
         self.sequence_length = tf.placeholder(tf.int32, name='sequence_length')
         self.use_game_features = use_game_features
         self.learn_q = learn_q
+        self.recurrent = recurrent
 
         # Dropout probability
         self.dropout_p = tf.placeholder(tf.float32, name='dropout_p')
@@ -27,7 +28,10 @@ class DRQN():
 
         self._init_conv_layers()
         self._init_game_features_output()
-        self._init_recurrent_part()
+        if recurrent:
+            self._init_recurrent_part()
+        else:
+            self._init_dqn_output()
         if not test:
             self._define_loss()
 
@@ -71,6 +75,22 @@ class DRQN():
 
         # Optimize on RMS of this difference
         self.features_loss = tf.reduce_mean(tf.square(delta))
+
+    def _init_dqn_output(self):
+        self.layer3 = tf.nn.dropout(
+            tf.reshape(slim.flatten(self.conv2),
+                       [self.batch_size, self.sequence_length, 4608]),
+            self.dropout_p,
+        )
+        self.layer3_5 = slim.fully_connected(self.layer3, 512,
+                scope=self.scope+"_layer3_5")
+        Q = slim.fully_connected(
+            self.layer3_5, self.n_actions, scope=self.scope+'_actions',
+            activation_fn=None)
+        self.Q = tf.reshape(Q, [self.batch_size, self.sequence_length,
+                                self.n_actions])
+        self.choice = tf.argmax(self.Q, 2)
+        self.max_Q = tf.reduce_max(self.Q, 2)
 
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
