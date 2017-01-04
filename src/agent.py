@@ -185,7 +185,7 @@ def learning_phase(sess):
             game.new_episode()
             # Initialize new hidden state
             s = 0
-            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
+            hidden_state = (np.zeros((1, h_size)), np.zeros((1, h_size)))
             while not game.is_episode_finished():
                 # Get and resize screen buffer
                 state = game.get_state()
@@ -273,7 +273,8 @@ def testing_phase(sess):
             # Initialize new hidden state
             total_reward = 0
             game.new_episode()
-            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
+            h_size = 0 if not USE_RECURRENCE else main.h_size
+            hidden_state = (np.zeros((1, h_size)), np.zeros((1, h_size)))
             while not game.is_episode_finished():
                 # Get and resize screen buffer
                 state = game.get_state()
