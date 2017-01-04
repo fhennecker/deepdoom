@@ -276,6 +276,7 @@ def testing_phase(sess):
             main.reset_hidden_state(batch_size=1)
             total_reward = 0
             game.new_episode()
+            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
             while not game.is_episode_finished():
                 # Get and resize screen buffer
                 state = game.get_state()
@@ -296,7 +297,8 @@ def testing_phase(sess):
                 print(observed_game_features, predicted_game_features)
 
                 # Choose action with e-greedy network
-                action_no = main.choose(sess, epsilon, screenbuf, dropout_p=1)
+                action_no, hidden_state = main.choose(sess, epsilon, screenbuf, 
+                        dropout_p=1, state_in=hidden_state)
                 action = ACTION_SET[action_no]
                 total_reward += game.make_action(action, 4)
         except vd.vizdoom.ViZDoomErrorException:
