@@ -15,3 +15,7 @@ def basic_ennemy_x(state):
     line[:imin] = 0
     imax = line.argmax()
     return (imin + imax) / 2 / len(horiz)
+
+
+def basic_ennemy_visible(state):
+    return any(l.object_name == 'Cacodemon' for l in state.labels)

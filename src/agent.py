@@ -3,7 +3,7 @@ import vizdoom as vd
 import numpy as np
 import scipy.ndimage as Simg
 
-from basic_ennemy_pos import basic_ennemy_x
+from basic_ennemy_pos import basic_ennemy_x, basic_ennemy_visible
 from network import tf, DRQN
 from memory import ReplayMemory
 from config import (
@@ -109,7 +109,7 @@ def play_random_episode(game, walls, verbose=False, skip=1):
         S = zoomed[len(dump)]  # NOQA
 
         # Get game features an action
-        game_features = [basic_ennemy_x(state)]
+        game_features = [basic_ennemy_visible(state)]
         action = random.choice(ACTION_SET)
         reward = game.make_action(action, skip)
         dump.append((S, action, reward, game_features))
@@ -209,7 +209,7 @@ def learning_phase(sess):
                                         dropout_p=0.75, state_in=hidden_state)
                 action = ACTION_SET[action_no]
                 reward = game.make_action(action, 4)
-                game_features = [basic_ennemy_x(state)]
+                game_features = [basic_ennemy_visible(state)]
                 episode.append((screenbuf[s], action, reward, game_features))
                 s += 1
             # episode = reward_reshape(episode)
@@ -303,7 +303,7 @@ def testing_phase(sess):
                     main.dropout_p: 1,  # No dropout in testing
                 })
 
-                observed_game_features = basic_ennemy_x(state)
+                observed_game_features = basic_ennemy_visible(state)
                 predicted_game_features = features[0][0][0]
                 print("{},{}".format(observed_game_features, predicted_game_features))
 
