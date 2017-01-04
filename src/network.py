@@ -177,7 +177,7 @@ class DRQN():
     def choose(self, sess, epsilon, screenbuf, dropout_p, state_in):
         """Choose an action based on the current screen buffer"""
         is_random = np.random.rand() <= epsilon
-        to_get = [self.state_out]
+        to_get = [self.Q] if self.recurrent = [self.state_out]
         if not is_random:
             to_get += [self.choice]
         feed_dict={
