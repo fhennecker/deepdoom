@@ -4,6 +4,7 @@ from os import system
 from optparse import OptionParser
 
 if __name__ == '__main__':
+    system('cat config.py local_config.py')
     system('git show | head -1')
 
     parser = OptionParser()
