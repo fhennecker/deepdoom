@@ -211,36 +211,40 @@ def learning_phase(sess):
 
         # Linearly decreasing epsilon
         epsilon = max(0.1, 1 - (0.9 * i / GREEDY_STEPS))
-        game.new_episode()
         episode = []
 
-        # Initialize new hidden state
-        main.reset_hidden_state(batch_size=1)
-        s = 0
-        hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
-        while not game.is_episode_finished():
-            # Get and resize screen buffer
-            state = game.get_state()
-            h, w, d = state.screen_buffer.shape
-            Simg.zoom(state.screen_buffer,
-                      [1. * im_h / h, 1. * im_w / w, 1],
-                      output=screenbuf[s], order=0)
+        try:
+            game.new_episode()
+            # Initialize new hidden state
+            main.reset_hidden_state(batch_size=1)
+            s = 0
+            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
+            while not game.is_episode_finished():
+                # Get and resize screen buffer
+                state = game.get_state()
+                h, w, d = state.screen_buffer.shape
+                Simg.zoom(state.screen_buffer,
+                          [1. * im_h / h, 1. * im_w / w, 1],
+                          output=screenbuf[s], order=0)
 
-            # Choose action with e-greedy network
-            action_no, hidden_state = main.choose(sess, epsilon, screenbuf[s],
-                                    dropout_p=0.75, state_in=hidden_state)
-            action = ACTION_SET[action_no]
-            reward = game.make_action(action, 4)
-            # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
-            episode.append((screenbuf[s], action, reward, game_features))
-            s += 1
-        # episode = reward_reshape(episode)
-        if len(episode) > SEQUENCE_LENGTH:
-            mem.add(episode)
-        kills = int(state.game_variables[3])
-        # deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
-        tot_reward = sum(r for (s, a, r, f) in episode)
-        print("{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills))
+                # Choose action with e-greedy network
+                action_no, hidden_state = main.choose(sess, epsilon, screenbuf[s],
+                                        dropout_p=0.75, state_in=hidden_state)
+                action = ACTION_SET[action_no]
+                reward = game.make_action(action, 4)
+                # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
+                episode.append((screenbuf[s], action, reward, game_features))
+                s += 1
+            # episode = reward_reshape(episode)
+            if len(episode) > SEQUENCE_LENGTH:
+                mem.add(episode)
+            kills = int(state.game_variables[3])
+            # deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
+            tot_reward = sum(r for (s, a, r, f) in episode)
+            print("{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills))
+        except vd.vizdoom.ViZDoomErrorException:
+            print("ViZDoom ERROR !")
+            game, walls = create_game()
 
         # Adapt target every 10 runs
         if i % 10 == 0:
@@ -299,33 +303,37 @@ def testing_phase(sess):
 
         # Linearly decreasing epsilon
         epsilon = 0.1
-        game.new_episode()
 
-        # Initialize new hidden state
-        main.reset_hidden_state(batch_size=1)
-        total_reward = 0
-        while not game.is_episode_finished():
-            # Get and resize screen buffer
-            state = game.get_state()
-            h, w, d = state.screen_buffer.shape
-            Simg.zoom(state.screen_buffer,
-                      [1. * im_h / h, 1. * im_w / w, 1],
-                      output=screenbuf, order=0)
+        try:
+            # Initialize new hidden state
+            main.reset_hidden_state(batch_size=1)
+            total_reward = 0
+            game.new_episode()
+            while not game.is_episode_finished():
+                # Get and resize screen buffer
+                state = game.get_state()
+                h, w, d = state.screen_buffer.shape
+                Simg.zoom(state.screen_buffer,
+                          [1. * im_h / h, 1. * im_w / w, 1],
+                          output=screenbuf, order=0)
 
-            features = sess.run(main.game_features, feed_dict={
-                main.sequence_length: 1,
-                main.batch_size: 1,
-                main.images: [[screenbuf]],
-                main.dropout_p: 1,  # No dropout in testing
-            })
+                features = sess.run(main.game_features, feed_dict={
+                    main.sequence_length: 1,
+                    main.batch_size: 1,
+                    main.images: [[screenbuf]],
+                    main.dropout_p: 1,  # No dropout in testing
+                })
 
-            observed_game_features = ennemies.has_visible_entities(state, walls)
-            predicted_game_features = 1 - features[0][0].argmax(axis=1)
-            print(observed_game_features, predicted_game_features)
+                observed_game_features = ennemies.has_visible_entities(state, walls)
+                predicted_game_features = 1 - features[0][0].argmax(axis=1)
+                print(observed_game_features, predicted_game_features)
 
-            # Choose action with e-greedy network
-            action_no = main.choose(sess, epsilon, screenbuf, dropout_p=1)
-            action = ACTION_SET[action_no]
-            total_reward += game.make_action(action, 4)
+                # Choose action with e-greedy network
+                action_no = main.choose(sess, epsilon, screenbuf, dropout_p=1)
+                action = ACTION_SET[action_no]
+                total_reward += game.make_action(action, 4)
+        except vd.vizdoom.ViZDoomErrorException:
+            print("VizDoom ERROR !")
+            game, walls = create_game()
 
     game.close()
