@@ -184,7 +184,6 @@ def learning_phase(sess):
         try:
             game.new_episode()
             # Initialize new hidden state
-            main.reset_hidden_state(batch_size=1)
             s = 0
             hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
             while not game.is_episode_finished():
@@ -218,8 +217,6 @@ def learning_phase(sess):
 
         # Then replay a few sequences
         for j in range(BACKPROP_STEPS):
-            main.reset_hidden_state(batch_size=BATCH_SIZE)
-            target.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
             samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH+1)
             # screens, actions, rewards, game_features
@@ -274,7 +271,6 @@ def testing_phase(sess):
 
         try:
             # Initialize new hidden state
-            main.reset_hidden_state(batch_size=1)
             total_reward = 0
             game.new_episode()
             hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))

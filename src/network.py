@@ -95,7 +95,6 @@ class DRQN():
     def _init_recurrent_part(self):
         # Flat fully connected layer (Layer3' in the paper)
         self.h_size = 300
-        self.reset_hidden_state()
         self.layer3 = tf.nn.dropout(
             tf.reshape(slim.flatten(self.conv2),
                        [self.batch_size, self.sequence_length, 4608]),
@@ -154,10 +153,6 @@ class DRQN():
             self.loss = self.q_loss
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
-    def reset_hidden_state(self, batch_size=1):
-        shape = batch_size, self.h_size
-        self.rnn_state = np.zeros(shape), np.zeros(shape)
-
     def feed_lstm(self, sess, screens, actions, rewards):
         assert screens.shape[:2] == actions.shape[:2]
         assert screens.shape[:2] == rewards.shape[:2]
@@ -185,13 +180,15 @@ class DRQN():
         to_get = [self.state_out]
         if not is_random:
             to_get += [self.choice]
-        r = sess.run(to_get, feed_dict={
+        feed_dict={
             self.batch_size: 1,
             self.sequence_length: 1,
             self.images: [[screenbuf]],
             self.dropout_p: dropout_p,
-            self.state_in: state_in,
-        })
+        }
+        if self.recurrent:
+            feed_dict[self.state_in] = state_in
+        r = sess.run(to_get, feed_dict)
         res = (np.random.randint(self.n_actions), r[0])
         if not is_random:
             res = (r[1][0][0], r[0])
