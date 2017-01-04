@@ -80,13 +80,7 @@ class DRQN():
 
         # LSTM cell
         self.cell = tf.nn.rnn_cell.LSTMCell(self.h_size)
-        self.default_hidden = tf.zeros([self.batch_size, self.h_size])
-        self.default_cell = tf.zeros([self.batch_size, self.h_size])
-        self.lstm_hidden_in = tf.placeholder_with_default(self.default_hidden,
-                [None, self.h_size])
-        self.lstm_cell_in = tf.placeholder_with_default(self.default_cell,
-                [None, self.h_size])
-        self.state_in = tf.nn.rnn_cell.LSTMStateTuple(self.lstm_hidden_in, self.lstm_cell_in)
+        self.state_in = self.cell.zero_state(self.batch_size, tf.float32)
 
         # Recurrence
         rnn_output, self.state_out = tf.nn.dynamic_rnn(
@@ -173,10 +167,10 @@ class DRQN():
             self.dropout_p: 0.75,
         })
 
-    def choose(self, sess, epsilon, screenbuf, dropout_p):
+    def choose(self, sess, epsilon, screenbuf, dropout_p, state_in):
         """Choose an action based on the current screen buffer"""
         is_random = np.random.rand() <= epsilon
-        to_get = [self.rnn_output]
+        to_get = [self.state_out]
         if not is_random:
             to_get += [self.choice]
         r = sess.run(to_get, feed_dict={
@@ -184,7 +178,9 @@ class DRQN():
             self.sequence_length: 1,
             self.images: [[screenbuf]],
             self.dropout_p: dropout_p,
-            self.lstm_cell_in: self.state_out[0],
-            self.lstm_hidden_in: self.state_out[1],
+            self.state_in: state_in,
         })
-        return np.random.randint(self.n_actions) if is_random else r[1][0][0]
+        res = (np.random.randint(self.n_actions), r[0])
+        if not is_random:
+            res = (r[1][0][0], r[0])
+        return res

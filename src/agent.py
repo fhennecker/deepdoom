@@ -213,6 +213,7 @@ def learning_phase(sess):
         # Initialize new hidden state
         main.reset_hidden_state(batch_size=1)
         s = 0
+        hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
         while not game.is_episode_finished():
             # Get and resize screen buffer
             state = game.get_state()
@@ -222,8 +223,8 @@ def learning_phase(sess):
                       output=screenbuf[s], order=0)
 
             # Choose action with e-greedy network
-            action_no = main.choose(sess, epsilon, screenbuf[s],
-                                    dropout_p=0.75)
+            action_no, hidden_state = main.choose(sess, epsilon, screenbuf[s],
+                                    dropout_p=0.75, state_in=hidden_state)
             action = ACTION_SET[action_no]
             reward = game.make_action(action, 4)
             # episode.append((screenbuf[s], action, reward, game_features, kill_count, item_count))
