@@ -12,7 +12,7 @@ class VideoWriter:
             '-f', 'rawvideo',
             '-vcodec', 'rawvideo',
             '-s', '%dx%d' % (w, h),  # size of one frame
-            '-pix_fmt', 'rgb24',
+            '-pix_fmt', 'bgr24',
             '-r', str(fps),          # frames per second
             '-i', '-',               # The imput comes from a pipe
             '-an',                   # Tells FFMPEG not to expect any audio
