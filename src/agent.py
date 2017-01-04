@@ -62,6 +62,14 @@ def create_game():
     return game, walls
 
 
+def rotate_player(game):
+    """Randomly rotates the player at the beginning"""
+    rot = np.random.randint(-35, 35)
+    direction = ACTION_SET[0] if rot > 0 else ACTION_SET[1]
+    for i in range(np.abs(rot)):
+        game.make_action(direction, 1)
+
+
 def reward_reshape(dump):
     is_dead = len(dump) < MAX_EPISODE_LENGTH
     reward = [frame[2] for frame in dump]
@@ -84,6 +92,8 @@ def reward_reshape(dump):
 
 def play_random_episode(game, walls, verbose=False, skip=1):
     game.new_episode()
+    rotate_player(game)
+
     dump = []
     zoomed = np.zeros((MAX_EPISODE_LENGTH, im_h, im_w, 3), dtype=np.uint8)
     action = ACTION_SET[0]
@@ -181,6 +191,7 @@ def learning_phase(sess):
 
         try:
             game.new_episode()
+            rotate_player(game)
             # Initialize new hidden state
             main.reset_hidden_state(batch_size=1)
             s = 0
@@ -275,6 +286,7 @@ def testing_phase(sess):
             main.reset_hidden_state(batch_size=1)
             total_reward = 0
             game.new_episode()
+            rotate_player(game)
             hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
             while not game.is_episode_finished():
                 # Get and resize screen buffer
