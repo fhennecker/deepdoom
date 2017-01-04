@@ -5,13 +5,14 @@ import tensorflow.contrib.slim as slim
 
 class DRQN():
     def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate, 
-            test=False, use_game_features=False):
+            test=False, use_game_features=False, learn_q=True):
         self.learning_rate = learning_rate
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
         self.batch_size = tf.placeholder(tf.int32, name='batch_size')
         self.sequence_length = tf.placeholder(tf.int32, name='sequence_length')
         self.use_game_features = use_game_features
+        self.learn_q = learn_q
 
         # Dropout probability
         self.dropout_p = tf.placeholder(tf.float32, name='dropout_p')
@@ -119,11 +120,18 @@ class DRQN():
         self.ignore_up_to = tf.placeholder(tf.int32, name='ignore_up_to')
         y = tf.slice(y, [0, self.ignore_up_to], [-1, -1])
         Qas = tf.slice(Qas, [0, self.ignore_up_to], [-1, -1])
+        self.q_loss = tf.reduce_mean(tf.square(y-Qas))
 
-        if not self.use_game_features:
-            self.loss = tf.reduce_mean(tf.square(y-Qas))
-        else:
-            self.loss = tf.reduce_mean(tf.square(y-Qas)) + self.features_loss
+        if self.use_game_features:
+            if self.learn_q:
+                print("Learn Q and Game Features")
+                self.loss = self.q_loss + self.features_loss
+            else:
+                print("Learn Game Features only")
+                self.loss = self.features_loss
+        elif self.learn_q:
+            print("Learn Q only")
+            self.loss = self.q_loss
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
     def reset_hidden_state(self, batch_size=1):
