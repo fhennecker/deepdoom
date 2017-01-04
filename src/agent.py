@@ -165,7 +165,7 @@ def bootstrap_phase(sess):
         print("{},{}".format(len(mem), len(mem.episodes)))
 
 
-@csv_output("qlearning_step", "epsilon", "reward", "steps", "kills")
+@csv_output("qlearning_step", "epsilon", "reward", "steps", "loss_Q", "loss_gf")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
     game, walls = create_game()
@@ -204,10 +204,8 @@ def learning_phase(sess):
             # episode = reward_reshape(episode)
             if len(episode) > SEQUENCE_LENGTH:
                 mem.add(episode)
-            kills = int(state.game_variables[3])
             # deaths = 1 if len(episode) != MAX_EPISODE_LENGTH else 0
             tot_reward = sum(r for (s, a, r, f) in episode)
-            print("{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), kills))
         except vd.vizdoom.ViZDoomErrorException:
             print("ViZDoom ERROR !")
             game, walls = create_game()
@@ -217,7 +215,7 @@ def learning_phase(sess):
             update_target(sess)
 
         # Then replay a few sequences
-        for j in range(len(episode)//4):
+        for j in range(BACKPROP_STEPS):
             main.reset_hidden_state(batch_size=BATCH_SIZE)
             target.reset_hidden_state(batch_size=BATCH_SIZE)
             # Sample a batch and ingest into the NN
@@ -232,7 +230,7 @@ def learning_phase(sess):
                 target.dropout_p: 1,
             })
 
-            sess.run(main.train_step, feed_dict={
+            loss_q, loss_gf = sess.run([main.train_step, main.loss_q, main.features_loss], feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
                 main.ignore_up_to: IGNORE_UP_TO,
@@ -244,6 +242,8 @@ def learning_phase(sess):
                 main.dropout_p: 0.75,
                 main.game_features_in: F[:, :-1]
             })
+
+        print("{},{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), loss_q, loss_gf))
 
         # Save the model periodically
         if i > 0 and i % 500 == 0:
