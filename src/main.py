@@ -26,7 +26,7 @@ if __name__ == '__main__':
         from agent import (
             init_phase, bootstrap_phase,
             learning_phase, testing_phase,
-            update_target, recording_phase
+            update_target, make_video
         )
         init_phase(sess)
 
@@ -42,4 +42,4 @@ if __name__ == '__main__':
             testing_phase(sess)
 
         if options.record:
-            recording_phase(sess,options.record)
+            make_video(sess, "videos/final.mp4", 15)

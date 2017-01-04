@@ -28,6 +28,9 @@ class VideoWriter:
             reason = self.ffmpeg.stderr.read()
             raise self.Error(reason)
 
+    def close(self):
+        self.ffmpeg.terminate()
+
 
 # Usage example
 if __name__ == "__main__":
