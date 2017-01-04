@@ -33,6 +33,9 @@ N_ACTIONS = 3
 # Learning rate for tensorflow optimizers
 LEARNING_RATE = 0.001
 
+# Use the game features in the learning phase
+USE_GAME_FEATURES = False
+
 DEATH_PENALTY = 25
 KILL_REWARD = 100
 PICKUP_REWARD = 4

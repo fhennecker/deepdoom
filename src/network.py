@@ -4,12 +4,14 @@ import tensorflow.contrib.slim as slim
 
 
 class DRQN():
-    def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate, test=False):
+    def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate, 
+            test=False, use_game_features=False):
         self.learning_rate = learning_rate
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
         self.batch_size = tf.placeholder(tf.int32, name='batch_size')
         self.sequence_length = tf.placeholder(tf.int32, name='sequence_length')
+        self.use_game_features = use_game_features
 
         # Dropout probability
         self.dropout_p = tf.placeholder(tf.float32, name='dropout_p')
@@ -117,7 +119,10 @@ class DRQN():
         y = tf.slice(y, [0, self.ignore_up_to], [-1, -1])
         Qas = tf.slice(Qas, [0, self.ignore_up_to], [-1, -1])
 
-        self.loss = tf.reduce_mean(tf.square(y-Qas))
+        if not self.use_game_features:
+            self.loss = tf.reduce_mean(tf.square(y-Qas))
+        else:
+            self.loss = tf.reduce_mean(tf.square(y-Qas)) + self.features_loss
         self.train_step = tf.train.RMSPropOptimizer(self.learning_rate).minimize(self.loss)
 
     def _game_features_learning(self, func, screens, features):

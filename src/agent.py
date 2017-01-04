@@ -12,7 +12,7 @@ from config import (
     MAX_CPUS, TRAINING_STEPS, BATCH_SIZE, SEQUENCE_LENGTH,
     QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
     KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS, IGNORE_UP_TO,
-    BACKPROP_STEPS,
+    BACKPROP_STEPS, USE_GAME_FEATURES,
 )
 
 # Config variables
@@ -23,7 +23,8 @@ SECTION_SEPARATOR = "------------"
 
 # Neural nets and tools
 print('Building main DRQN')
-main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE)
+main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE, 
+        use_game_features=USE_GAME_FEATURES)
 print('Building target DRQN')
 target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE, True)
 saver = tf.train.Saver()
