@@ -11,8 +11,8 @@ class VideoWriter:
             '-y',                    # overwrite output file if it exists
             '-f', 'rawvideo',
             '-vcodec', 'rawvideo',
-            '-s', '%dx%d' % (W, H),  # size of one frame
-            '-pix_fmt', 'rgb24',
+            '-s', '%dx%d' % (w, h),  # size of one frame
+            '-pix_fmt', 'bgr24',
             '-r', str(fps),          # frames per second
             '-i', '-',               # The imput comes from a pipe
             '-an',                   # Tells FFMPEG not to expect any audio
@@ -27,6 +27,9 @@ class VideoWriter:
         except IOError:
             reason = self.ffmpeg.stderr.read()
             raise self.Error(reason)
+
+    def close(self):
+        self.ffmpeg.terminate()
 
 
 # Usage example

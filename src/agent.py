@@ -5,6 +5,7 @@ import scipy.ndimage as Simg
 
 from basic_ennemy_pos import basic_ennemy_x
 from network import tf, DRQN
+from video import VideoWriter
 from memory import ReplayMemory
 from config import (
     N_ACTIONS, LEARNING_RATE, MIN_MEM_SIZE, MAX_MEM_SIZE,
@@ -167,6 +168,50 @@ def bootstrap_phase(sess):
         print("{},{}".format(len(mem), len(mem.episodes)))
 
 
+def make_video(sess, filename, n_games=3):
+    """Reinforcement learning for Qvalues"""
+    game, walls = create_game()
+    w, h = 200, 125
+    video = VideoWriter(w, h, 25, filename)
+    sep_frame = np.zeros((w, h, 3), dtype=np.uint8)
+
+    # From now on, we don't use game features, but we provide an empty
+    # numpy array so that the ReplayMemory is still zippable
+    for i in range(n_games):
+        screenbuf = np.zeros((im_h, im_w, 3), dtype=np.uint8)
+        epsilon = 0
+
+        try:
+            # Initialize new hidden state
+            main.reset_hidden_state(batch_size=1)
+            total_reward = 0
+            game.new_episode()
+            hidden_state = (np.zeros((1, main.h_size)), np.zeros((1, main.h_size)))
+            while not game.is_episode_finished():
+                # Get and resize screen buffer
+                state = game.get_state()
+                for i in range(3):
+                    video.add_frame(state.screen_buffer)
+                h, w, d = state.screen_buffer.shape
+                Simg.zoom(state.screen_buffer,
+                          [1. * im_h / h, 1. * im_w / w, 1],
+                          output=screenbuf, order=0)
+
+                # Choose action with e-greedy network
+                action_no, hidden_state = main.choose(sess, epsilon, screenbuf,
+                        dropout_p=1, state_in=hidden_state)
+                action = ACTION_SET[action_no]
+                total_reward += game.make_action(action, 4)
+        except vd.vizdoom.ViZDoomErrorException:
+            print("VizDoom ERROR !")
+            game, walls = create_game()
+
+        for i in range(25):
+            video.add_frame(sep_frame)
+    video.close()
+    game.close()
+
+
 @csv_output("qlearning_step", "epsilon", "reward", "steps", "loss_Q", "loss_gf")
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
@@ -211,6 +256,9 @@ def learning_phase(sess):
         except vd.vizdoom.ViZDoomErrorException:
             print("ViZDoom ERROR !")
             game, walls = create_game()
+
+        if i % 200 == 0:
+            make_video(sess, "videos/learning%05d.mp4" % i, 3)
 
         # Adapt target every 10 runs
         if i % 10 == 0:
