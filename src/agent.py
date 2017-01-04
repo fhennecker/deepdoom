@@ -230,7 +230,7 @@ def learning_phase(sess):
                 target.dropout_p: 1,
             })
 
-            loss_q, loss_gf = sess.run([main.train_step, main.q_loss, main.features_loss], feed_dict={
+            _, loss_q, loss_gf = sess.run([main.train_step, main.q_loss, main.features_loss], feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
                 main.ignore_up_to: IGNORE_UP_TO,
