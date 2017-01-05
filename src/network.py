@@ -59,15 +59,23 @@ class DRQN():
             self.dropout_p,
         )
 
+        # Observed game features
+        self.game_features_in = tf.placeholder(tf.float32,
+                                               name='game_features_in',
+                                               shape=[None, None, self.k])
+
         if self.softmax_features:
             self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
                                                            scope=self.scope+'_l4.5',
-                                                           activation_fn=None)
+                                                           activation_fn=tf.nn.sigmoid)
 
             # Output layer
             gf = tf.reshape(self.flat_game_features,
                             shape=[2, self.batch_size, self.sequence_length, self.k])
             self.game_features = tf.nn.softmax(gf, dim=0)[0]
+            cross = tf.nn.sigmoid_cross_entropy_with_logits(self.game_features,
+                                                            self.game_features_in)
+            self.features_loss = tf.reduce_mean(cross)
         else:
             self.flat_game_features = slim.fully_connected(self.layer4, self.k,
                                                            scope=self.scope+'_l4.5',
@@ -77,17 +85,12 @@ class DRQN():
             self.game_features = tf.reshape(self.flat_game_features,
                                             shape=[self.batch_size, self.sequence_length, self.k])
 
-        # Observed game features
-        self.game_features_in = tf.placeholder(tf.float32,
-                                               name='game_features_in',
-                                               shape=[None, None, self.k])
+            # Difference between observed and predicted game features
+            delta = self.game_features - self.game_features_in
+            # delta = tf.Print(delta, [delta], summarize=10, name="dFeatures")
 
-        # Difference between observed and predicted game features
-        delta = self.game_features - self.game_features_in
-        # delta = tf.Print(delta, [delta], summarize=10, name="dFeatures")
-
-        # Optimize on RMS of this difference
-        self.features_loss = tf.reduce_mean(tf.square(delta))
+            # Optimize on RMS of this difference
+            self.features_loss = tf.reduce_mean(tf.square(delta))
 
     def _init_dqn_output(self):
         self.layer3 = tf.nn.dropout(
