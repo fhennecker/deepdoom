@@ -67,7 +67,7 @@ class DRQN():
         if self.softmax_features:
             self.flat_game_features = slim.fully_connected(self.layer4, self.k,
                                                            scope=self.scope+'_l4.5',
-                                                           activation_fn=tf.nn.sigmoid)
+                                                           activation_fn=None)
 
             # Output layer
             self.game_features = tf.reshape(self.flat_game_features,
