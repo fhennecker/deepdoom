@@ -137,7 +137,9 @@ properly with the game.
 
 \subsection{Hyperparameters}
 Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
-size of $1000000$ frames and a frame skip rate of 4.
+size of $1000000$ frames and a frame skip rate of 4. The sequence length of 
+the training samples was set to 8, but only the last 4 outputs were accounted
+in the loss.
 Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
 $60 * 108$\footnote{As VizDoom does not support natively this resoluton, we
 used the $200 * 125$ resolution and downsampled it before feeding it to the
@@ -148,6 +150,8 @@ not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because
 a uniformely random sample of all these actions would lead the agent to stay
 at the same place and face approximately the same direction all the time. This
 bootstrapping phase is used to populate the replay memory.
+
+We used the RMSProp algorithm with a learning rate of 0.001.
 
 \section{Results}
 \begin{table}[h]
