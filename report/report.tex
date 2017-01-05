@@ -200,18 +200,18 @@ anything.
 \paragraph{Learning}
 In this phase, we make the agent play with an $\epsilon$-Greedy policy. The
 $\epsilon$ parameter is linearly decreased over time, until it reaches its
-minimal value of 0.1. 
+minimal value of 0.1.
 Once a game episode is finished, it is inserted in the replay memory. Then, we replay
 15 times a different batch of randomly selected episodes from the replay memory.
 For each of these replays, we run the backpropagation through the main network to
-learn Q. On some variations of our experiments, we also run the backpropagation 
+learn Q. On some variations of our experiments, we also run the backpropagation
 on the game features part of our network.
 
 Every 10 played episodes, we update the target network weights with those learned
 in the main network. Therefore, the target network is updated every 150 back
 propagations.
 
-Finally, we export a video every 200 played games, where the agent plays on itw
+Finally, we export a video every 200 played games, where the agent plays on its
 own without random actions ($\epsilon = 0$), to let human observe how the
 agent strategy is actually evolving over time.
 
@@ -252,7 +252,7 @@ We first allow the agent to play the following actions:
   \item \texttt{MOVE\_RIGHT}
   \item \texttt{ATTACK} (fire with the gun)
 \end{itemize}
-therefore, the ennemy never goes out of sight for the agent and the state is
+therefore, the enemy never goes out of sight for the agent and the state is
 fully observable.
 
 \subsubsection{Partially Observable Markovian Process}
@@ -263,7 +263,7 @@ We then change the agent's action set to the following:
   \item \texttt{MOVE\_FORWARD} (slide forward)
   \item \texttt{ATTACK}
 \end{itemize}
-With this action set, the agent is now able to move such that the ennemy is no
+With this action set, the agent is now able to move such that the enemy is no
 more visible. The state is therefore only partially observable.
 
 % Notes:
@@ -313,9 +313,9 @@ the agent killed the enemy before the episode ended in the last 64 episodes.
 
 The good performance of DRQN then followed by a sudden drop in performance could
 be explained by the fact that value function approximators are not guaranteed
-to converge \citep{divergenceofRL}, and this holds true for 
-neural networks \citep{convergenceofRL}. 
-We make the hypothesis that adding a recurrent connection could break the 
+to converge \citep{divergenceofRL}, and this holds true for
+neural networks \citep{convergenceofRL}.
+We make the hypothesis that adding a recurrent connection could break the
 convergence property claimed by DQN.
 We can indeed see on figure \ref{averageq} that
 even if our agent learns an excellent $Q$-function, its $Q$ values will at some
@@ -332,10 +332,10 @@ recurrent feedback and use DQN instead.\\
 
 In fact, DQN performs very well with or without features. This result could
 be expected as the environment in this setting is fully observable (i.e.
-the enemy is always in the field of view of the agent). One frame is then 
+the enemy is always in the field of view of the agent). One frame is then
 sufficient for the agent to make the optimal decision.\\
 
-Looking at test episodes of the DRQN agent, the behavior of the agent is excellent 
+Looking at test episodes of the DRQN agent, the behavior of the agent is excellent
 (it almost
 immediately moves in the right direction then shoots the enemy) until the
 $Q$-values diverge at which point the agent will just pick the same action
