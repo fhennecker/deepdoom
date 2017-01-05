@@ -119,7 +119,7 @@ A potentially better way to solve the history issue is to use a Deep Recurrent
 Q-Network, as described in \citep{Hausknecht2015}. A DRQN
 estimates $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
 parameter $h_{t-1}$ represents the hidden state of the agent at the previous
-transition. In our case, we will use a Long/Short Term Memory layer (LSTM)
+transition. In our case, we will use a Long Short-Term Memory layer (LSTM)
 \cite{Hochreiter1997}. In addition to the input and output state of usual neural
 networks, a LSTM unit also carries a hidden state, which has to be fed along
 with the input, and retrieved with the output. This hidden state is able to
