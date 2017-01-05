@@ -2,7 +2,7 @@
 \usepackage{natbib,alifexi}
 \usepackage[bordercolor=gray!20,backgroundcolor=blue!10,linecolor=blue,textsize=footnotesize,textwidth=0.8in]{todonotes}
 \usepackage{hyperref}
-\usepackage{algpseudocode} 
+\usepackage{algpseudocode}
 \usepackage{algorithm}
 
 \title{Implementation\\Playing FPS Games with Deep Reinforcement Learning}
@@ -48,7 +48,7 @@ In this paper, we are implementing the techniques described in
 
 \subsection{Background} We will give in the paragraphs hereinbelow a state of
 the art of the technologies that we used in our implementation so that the
-inexperimented user can easily follow.
+unexperienced user can easily follow.
 
 \subsubsection{Deep Q-Networks}
 Many reinforcement learning problems have a very high-dimensional space-state
@@ -77,7 +77,7 @@ $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' 
 
 This loss is computed on uniformly sampled game transitions stored in a
 replay memory instead of the previously played transition to reduce correlation
-between samples. Our version of the DQN algorithm is shown 
+between samples. Our version of the DQN algorithm is shown
 \begin{algorithm}
 \caption{The DQN training algorithm}\label{dqn}
 \begin{algorithmic}[1]
@@ -91,7 +91,7 @@ between samples. Our version of the DQN algorithm is shown
 			\EndIf
 			\State store old state, action, new state and reward in memory
 		\EndWhile
-		\For{number of backpropagation steps}
+		\For{number of back-propagation steps}
 			\State update Q-network with a batch of random sequences
 		\EndFor
 	\EndFor
@@ -159,8 +159,8 @@ computing performance and agent accuracy \citep{Kempka2016}.
 When training an LSTM, one feeds sequences of data for which the LSTM will
 predict one output per time step. However, the LSTM will zero its hidden state
 before the start of each sequence, and it will take several time steps for the
-hidden state to initialise. Hence, the outputs for the first time steps might
-be erroneous since their previous hidden state was not fully initialised.
+hidden state to initialize. Hence, the outputs for the first time steps might
+be erroneous since their previous hidden state was not fully initialized.
 To solve this, we discard the first time steps outputs when computing the loss,
 as explained in \citep{Lample2016}.
 
@@ -170,7 +170,7 @@ size of $1000000$ frames. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
 in the loss.
 Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
-$60 * 108$\footnote{As VizDoom does not support natively this resolution, we
+$108 * 60$\footnote{As VizDoom does not support natively this resolution, we
 used the $200 * 125$ resolution and downsampled it before feeding it to the
 agent.}.
 In the bootstrapping phase, our agent only plays random actions drawn from the
@@ -178,7 +178,7 @@ set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do
 not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because
 a uniformly random sample of all these actions would lead the agent to stay
 at the same place and face approximately the same direction all the time. This
-bootstrapping phase is used to populate the replay memory. Once the 
+bootstrapping phase is used to populate the replay memory. Once the
 bootstrapping phase is over, we run algorithm \ref{dqn} with $\epsilon$ starting at
 1 and decreasing linearly to 0.1 over 4000 episodes.
 
@@ -197,6 +197,12 @@ concentrate our efforts on the action phase, which consists in shooting at
 enemies when they are detected. This so-called action phase will of course
 take place after a training phase during which the agent learns how to interact
 properly with the game.
+
+\subsection{Limitations} In order to train and test our implementation, we only
+used one simple single-player scenario. It consists of a square room with one
+enemy in front of and visible by the agent. The scenario ends when the agent
+manages to kill the enemy or when the timer reaches 0. This means that we have
+in that case a fully-observable environment.\todo{}
 
 \subsection{Implementation}
 We implemented the model using Python 3 and Tensorflow \citep{tensorflow}.
