@@ -366,8 +366,17 @@ and stimulates the Q-evaluating layers.
 \end{figure}
 
 \section{Discussion}
-\todo{recall about the hypothesis that DRQN might lose the convergence property of DQN?}
+We presented a stable DQN able to play a basic DOOM game in which the enemy
+is always visible, and a DRQN that was also able to play but only with the help
+of jointly trained supervised game features to accelerate training. Finding
+that the performance of the DRQN agent was stable but only until a breaking
+point, we made the hypothesis that the convergence of DRQN is not guaranteed; 
+however this could also be a sign that our implementation is either wrong or
+that our parameters are not tuned properly.\\
 
+Finding that the DRQN did not perform better than the DQN in the partially
+observable Markov process setting can only hint towards the fact that our
+implementation and parameters needs more investigating into.
 
 \section{Acknowledgments}
 We would like to thank the SOFT department from the Vrije Universiteit Brussel,
