@@ -109,7 +109,7 @@ shooting around hoping that those shots would reach their targets. In order
 to make up for a lack of efficiency, we used custom made game features to train the
 agent in a supervised setup jointly with the Q-learning setup to tell the 
 agent if enemies were in his field of
-vision. The \texttt{Label buffer} \todo{explain a bit more?} 
+vision. The \texttt{Label buffer} provided by the Vizdoom API 
 was used to fetch all the entities present
 in the vision frustum. However, entities hidden by other scene elements,
 typically walls, were also parts of that buffer. We then used the map
