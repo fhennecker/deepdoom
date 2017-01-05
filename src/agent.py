@@ -213,7 +213,6 @@ def make_video(sess, filename, n_games=3):
 
 
 cols = ("qlearning_step", "epsilon", "reward", "steps", "loss_Q", "loss_gf")
-cols += tuple("Q%d" % i for i in range(N_ACTIONS))
 @csv_output(*cols)
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
@@ -232,8 +231,6 @@ def learning_phase(sess):
             game.new_episode()
             # Initialize new hidden state
             s = 0
-            h_size = 0 if not USE_RECURRENCE else main.h_size
-            hidden_state = (np.zeros((1, h_size)), np.zeros((1, h_size)))
             while not game.is_episode_finished():
                 # Get and resize screen buffer
                 state = game.get_state()
@@ -242,11 +239,7 @@ def learning_phase(sess):
                           [1. * im_h / h, 1. * im_w / w, 1],
                           output=screenbuf[s], order=0)
 
-                # Choose action with e-greedy network
-                action_no, hidden_state = main.choose(sess, epsilon, screenbuf[s],
-                                        dropout_p=0.75, state_in=hidden_state)
-
-                action = ACTION_SET[action_no]
+                action = random.choice(ACTION_SET)
                 reward = game.make_action(action, 4)
                 game_features = [basic_ennemy_x(state)]
                 episode.append((screenbuf[s], action, reward, game_features))
@@ -260,45 +253,8 @@ def learning_phase(sess):
             print("ViZDoom ERROR !")
             game, walls = create_game()
 
-        if i % 200 == 0:
-            make_video(sess, "videos/learning%05d.mp4" % i, 3)
-
-        # Adapt target every 10 runs
-        if i % 10 == 0:
-            update_target(sess)
-
-        # Then replay a few sequences
-        for j in range(BACKPROP_STEPS):
-            # Sample a batch and ingest into the NN
-            samples = mem.sample(BATCH_SIZE, SEQUENCE_LENGTH+1)
-            # screens, actions, rewards, game_features
-            S, A, R, F = map(np.array, zip(*samples))
-
-            target_q = sess.run(target.max_Q, feed_dict={
-                target.batch_size: BATCH_SIZE,
-                target.sequence_length: SEQUENCE_LENGTH,
-                target.images: S[:, 1:],
-                target.dropout_p: 1,
-            })
-
-            _, loss_q, loss_gf, qs = sess.run([main.train_step, main.q_loss, main.features_loss,main.Q], feed_dict={
-                main.batch_size: BATCH_SIZE,
-                main.sequence_length: SEQUENCE_LENGTH,
-                main.ignore_up_to: IGNORE_UP_TO,
-                main.images: S[:, :-1],
-                main.target_q: target_q,
-                main.gamma: 0.99,
-                main.rewards: R[:, :-1],
-                main.actions: A[:, :-1],
-                main.dropout_p: 0.75,
-                main.game_features_in: F[:, :-1]
-            })
-        qs = np.mean(np.mean(qs,axis =1),axis=0)
-        print("{},{},{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), loss_q, loss_gf, ",".join(map(str,qs))))
-
-        # Save the model periodically
-        if i > 0 and i % 500 == 0:
-            saver.save(sess, "./model.ckpt")
+        loss_q, loss_gf = 0, 0
+        print("{},{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), loss_q, loss_gf))
 
     game.close()
 
