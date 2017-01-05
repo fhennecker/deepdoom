@@ -52,7 +52,7 @@ estimation of how valuable an action $a_t$ is in a state $s_t$. In order to
 find $Q^*$, the optimal $Q$-function, DQN networks use a neural network
 parametrized by $\theta$, which represents the weights of the neural network
 and gives an approximation called $Q_\theta$ further in this paper. Their goal
-is to find the optimal and real Q-function Q* which is verifies the Bellman
+is to find the optimal and real $Q$-function $Q^*$ which is verifies the Bellman
 optimality equation:
 
 $$ Q^*(s,a) = E\{r + \gamma \max_{a'}Q^*(s',a')|s,a\} $$
@@ -99,15 +99,15 @@ properly with the game.
 
 
 \subsection{Hyperparameters}
-Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory size of 1000000 frames. In the bootstrapping phase, our agent only plays random actions drawn from the set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because a uniformely random sample of all these actions would lead the agent to stay at the same place and face approximately the same direction all the time. This bootstrapping phase is used to populate the replay memory.
-
-\todo{screen resolution}
+Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory size of $1000000$ frames and a frame skip rate of 4.
+Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension $60 * 108$\footnote{As VizDoom does not support natively this resoluton, we used the $200 * 125$ resolution and downsampled it before feeding it to the agent.}.
+In the bootstrapping phase, our agent only plays random actions drawn from the set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because a uniformely random sample of all these actions would lead the agent to stay at the same place and face approximately the same direction all the time. This bootstrapping phase is used to populate the replay memory.
 
 \section{Results}
 \begin{table}[h]
 \centering
 \begin{tabular}{cc}
-\multicolumn{2}{c}{Test Setup}                         \Tstrut\\ \hline 
+\multicolumn{2}{c}{Test Setup}                         \Tstrut\\ \hline
 \multicolumn{1}{c|}{CPU} & Intel i7-6800K 3.4 GHz      \Tstrut\\
 \multicolumn{1}{c|}{GPU} & Nvidia GeForce GTX 1080 8Go \Tstrut\\
 \multicolumn{1}{c|}{RAM} & 32 Go DDR4                      \Tstrut
