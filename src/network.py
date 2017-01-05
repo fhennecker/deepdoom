@@ -65,14 +65,15 @@ class DRQN():
                                                shape=[None, None, self.k])
 
         if self.softmax_features:
-            self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
+            self.flat_game_features = slim.fully_connected(self.layer4, self.k,
                                                            scope=self.scope+'_l4.5',
                                                            activation_fn=tf.nn.sigmoid)
 
             # Output layer
-            gf = tf.reshape(self.flat_game_features,
-                            shape=[2, self.batch_size, self.sequence_length, self.k])
-            self.game_features = tf.nn.softmax(gf, dim=0)[0]
+            self.game_features = tf.reshape(self.flat_game_features,
+                                            shape=[self.batch_size,
+                                                   self.sequence_length,
+                                                   self.k])
             cross = tf.nn.sigmoid_cross_entropy_with_logits(self.game_features,
                                                             self.game_features_in)
             self.features_loss = tf.reduce_mean(cross)
