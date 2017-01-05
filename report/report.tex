@@ -219,8 +219,26 @@ It is available publicly on Github
 \end{table}
 
 The training phase as well as the action phase were run on a high-end machine
-of which specifications are displayed in Table \ref{tab:specs}.
+of which specifications are displayed in Table \ref{tab:specs}.\\
 
+Both DQN and DRQN were run with and without the game feature specifying the 
+lateral position of the enemy against the back wall of the basic map. Figure
+?? \todo{ref fig} compares the rolling proportion of successful episodes
+in these 4 settings. The rolling proportion is the number of episodes in which
+the agent killed the enemy before the episode ended in the last 64 episodes.
+
+$Q$-learning is known to diverge very easily \todo{ref?}. We can indeed see 
+on figure \todo{ref fig} that
+even if our agent learns an excellent $Q$-function, its $Q$ values will at some
+point start diverging, causing the rolling proportion of successful episodes
+to drop significantly. This drop doesn't seem to occur when we remove the
+recurrent feedback and use DQN instead.\\
+
+Looking at test episodes, the behaviour of the agent is excellent (it almost
+immediately moves in the right direction then shoots the enemy) until the 
+$Q$-values diverge at which point the agent will just pick the same action
+over and over again; either hugging the left or right wall or shooting 
+indefinitely without moving.\\
 \section{Discussion}
 
 
