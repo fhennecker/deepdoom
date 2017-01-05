@@ -36,6 +36,9 @@ LEARNING_RATE = 0.001
 # Use the game features in the learning phase
 USE_GAME_FEATURES = False
 
+# Apply softmax on features prediction (saturation for binary output)
+SOFTMAX_FEATURES = False
+
 # Use LSTM or simple DQN
 USE_RECURRENCE = True
 

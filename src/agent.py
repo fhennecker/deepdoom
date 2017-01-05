@@ -13,6 +13,7 @@ from config import (
     QLEARNING_STEPS, MAX_EPISODE_LENGTH, DEATH_PENALTY,
     KILL_REWARD, PICKUP_REWARD, GREEDY_STEPS, IGNORE_UP_TO,
     BACKPROP_STEPS, USE_GAME_FEATURES, LEARN_Q, USE_RECURRENCE,
+    SOFTMAX_FEATURES,
 )
 
 # Config variables
@@ -23,12 +24,12 @@ SECTION_SEPARATOR = "------------"
 
 # Neural nets and tools
 print('Building main DRQN')
-main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE, 
-            use_game_features=USE_GAME_FEATURES, learn_q=LEARN_Q, 
-            recurrent=USE_RECURRENCE)
+main = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'main', LEARNING_RATE,
+            use_game_features=USE_GAME_FEATURES, learn_q=LEARN_Q,
+            recurrent=USE_RECURRENCE, softmax_features=SOFTMAX_FEATURES)
 print('Building target DRQN')
-target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE, True, 
-        recurrent=USE_RECURRENCE)
+target = DRQN(im_h, im_w, N_FEATURES, N_ACTIONS, 'target', LEARNING_RATE,
+              recurrent=USE_RECURRENCE)
 saver = tf.train.Saver()
 mem = ReplayMemory(MIN_MEM_SIZE, MAX_MEM_SIZE)
 
@@ -147,8 +148,9 @@ def multiplay():
 def update_target(sess):
     """Transfer learned parameters from main to target NN"""
     v = tf.trainable_variables()
-    main_vars = filter(lambda x: x.name.startswith('main'), v)
     target_vars = filter(lambda x: x.name.startswith('target'), v)
+    var_names = set(x.name.replace('target', '') for x in target_vars)
+    main_vars = filter(lambda x: x.name.startswith('main') and x.name in var_names, v)
     for t, m in zip(target_vars, main_vars):
         sess.run(t.assign(m.value()))
 

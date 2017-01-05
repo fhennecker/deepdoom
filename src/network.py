@@ -5,7 +5,8 @@ import tensorflow.contrib.slim as slim
 
 class DRQN():
     def __init__(self, im_h, im_w, k, n_actions, scope, learning_rate, 
-            test=False, use_game_features=False, learn_q=True, recurrent=True):
+            test=False, use_game_features=False, learn_q=True, recurrent=True,
+            softmax_features=False):
         self.learning_rate = learning_rate
         self.im_h, self.im_w, self.k = im_h, im_w, k
         self.scope, self.n_actions = scope, n_actions
@@ -14,6 +15,7 @@ class DRQN():
         self.use_game_features = use_game_features
         self.learn_q = learn_q
         self.recurrent = recurrent
+        self.softmax_features = softmax_features
 
         # Dropout probability
         self.dropout_p = tf.placeholder(tf.float32, name='dropout_p')
@@ -56,13 +58,25 @@ class DRQN():
                                  scope=self.scope+'_l4'),
             self.dropout_p,
         )
-        self.flat_game_features = slim.fully_connected(self.layer4, self.k,
-                                                       scope=self.scope+'_l4.5',
-                                                       activation_fn=None)
 
-        # Output layer
-        self.game_features = tf.reshape(self.flat_game_features,
-                                        shape=[self.batch_size, self.sequence_length, self.k])
+        if self.softmax_features:
+            self.flat_game_features = slim.fully_connected(self.layer4, 2*self.k,
+                                                           scope=self.scope+'_l4.5',
+                                                           activation_fn=None)
+
+            # Output layer
+            gf = tf.reshape(self.flat_game_features,
+                            shape=[2, self.batch_size, self.sequence_length, self.k])
+            gfsm = tf.nn.softmax(gf)
+            self.game_features = gfsm[0]
+        else:
+            self.flat_game_features = slim.fully_connected(self.layer4, self.k,
+                                                           scope=self.scope+'_l4.5',
+                                                           activation_fn=None)
+
+            # Output layer
+            self.game_features = tf.reshape(self.flat_game_features,
+                                            shape=[self.batch_size, self.sequence_length, self.k])
 
         # Observed game features
         self.game_features_in = tf.placeholder(tf.float32,
