@@ -329,7 +329,13 @@ recurrent feedback and use DQN instead.\\
 	\label{averageq}
 \end{figure}
 
-Looking at test episodes, the behavior of the agent is excellent (it almost
+In fact, DQN performs very well with or without features. This result could
+be expected as the environment in this setting is fully observable (i.e.
+the enemy is always in the field of view of the agent). One frame is then 
+sufficient for the agent to make the optimal decision.\\
+
+Looking at test episodes of the DRQN agent, the behavior of the agent is excellent 
+(it almost
 immediately moves in the right direction then shoots the enemy) until the
 $Q$-values diverge at which point the agent will just pick the same action
 over and over again; either hugging the left or right wall or shooting
