@@ -336,7 +336,28 @@ We then change the agent's action set to the following:
 With this action set, the agent is now able to move such that the enemy is no
 more visible. The state is therefore only partially observable. In this setting,
 we use another game feature: a binary label indicating whether the enemy is visible
-or not.
+or not. 
+
+Here, $\epsilon$ is decreasing from 1 to 0.1 in 8000 steps.
+Because our different code branches diverged at some point,
+we do not have the estimated Q-values for these simulations.
+However, the rolling success rate graph on Figure \ref{successmore} probably indicates
+that the Q values also diverged. However we never reach a performance as good as in 
+the FOMP setup. An interesting point to notice is that DQN stills perform very well
+in this setup. We emit the hypothesis that fully observable episodes could still
+occur in this setup, and that the agent optimizes its behaviour to reach those optimal
+episodes. To verify this hypothesis, we propose to randomly rotate the player at the
+beginning of the episode, such that it is forced to explore the environment. However,
+we didn't implement this supplementary test by lack of time.
+
+Looking at the exported videos however, the DQN version can be either really good at shooting
+the ennemy very fast, or can get stuck in a state where it only use the \texttt{ATTACK}
+action while facing a wall. In the DQRN version, starting around step 8000,
+the agent often falls in a state where it
+toggle between the actions \texttt{TURN\_LEFT} and \texttt{TURN\_RIGHT}. For most of
+those flickering, the ennemy or a corner is in the center of our agent's view cone.
+It probably indicates that the convolutional layer has detected an interesting pattern over there,
+and stimulates the Q-evaluating layers.
 
 \begin{figure}
     \includegraphics[width=.5\textwidth]{Graphs/success_more.pdf}
