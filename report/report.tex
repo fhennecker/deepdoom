@@ -245,25 +245,25 @@ enemy in front of and visible by the agent. The scenario ends when the agent
 manages to kill the enemy or when the timer reaches 0. We then explored two
 variations.
 
-\subsubsection{FOMP} We first allow the agent to play the following actions:
+\subsubsection{Fully Observable Markovian Process}
+We first allow the agent to play the following actions:
 \begin{itemize}
   \item \texttt{MOVE\_LEFT} (slide to the left)
   \item \texttt{MOVE\_RIGHT}
   \item \texttt{ATTACK} (fire with the gun)
 \end{itemize}
-
 therefore, the ennemy never goes out of sight for the agent and the state is
 fully observable.
 
-\subsubsection{POMP} We then change the agent's action set to the following:
+\subsubsection{Partially Observable Markovian Process}
+We then change the agent's action set to the following:
 \begin{itemize}
   \item \texttt{TURN\_LEFT} (rotate to the left)
   \item \texttt{TURN\_RIGHT}
   \item \texttt{MOVE\_FORWARD} (slide forward)
   \item \texttt{ATTACK}
 \end{itemize}
-
-With the action set, the agent is now able to move such that the ennemy is no
+With this action set, the agent is now able to move such that the ennemy is no
 more visible. The state is therefore only partially observable.
 
 % Notes:
