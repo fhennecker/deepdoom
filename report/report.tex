@@ -238,11 +238,35 @@ It is available publicly on Github
 
 
 \section{Results}
-\subsection{Limitations} In order to train and test our implementation, we only
+\subsection{Limitations} As the training time reported in \cite{Lample2016} is
+quite large (70 hours per run), and given the short time frame we had,
+we decided to focus on a simpler scenario that would allow us to have feedback
+more quickly. In order to train and test our implementation, we only
 used one simple single-player scenario. It consists of a square room with one
 enemy in front of and visible by the agent. The scenario ends when the agent
-manages to kill the enemy or when the timer reaches 0. This means that we have
-in that case a fully-observable environment.
+manages to kill the enemy or when the timer reaches 0. We then explored two
+variations.
+
+\subsubsection{FOMP} We first allow the agent to play the following actions:
+\begin{itemize}
+  \item \texttt{MOVE\_LEFT} (slide to the left)
+  \item \texttt{MOVE\_RIGHT}
+  \item \texttt{ATTACK} (fire with the gun)
+\end{itemize}
+
+therefore, the ennemy never goes out of sight for the agent and the state is
+fully observable.
+
+\subsubsection{POMP} We then change the agent's action set to the following:
+\begin{itemize}
+  \item \texttt{TURN\_LEFT} (rotate to the left)
+  \item \texttt{TURN\_RIGHT}
+  \item \texttt{MOVE\_FORWARD} (slide forward)
+  \item \texttt{ATTACK}
+\end{itemize}
+
+With the action set, the agent is now able to move such that the ennemy is no
+more visible. The state is therefore only partially observable.
 
 % Notes:
 % Fully Observable Markovian Process (FOMP): basic with MOVE_LEFT, MOVE_RIGHT, ATTACK
