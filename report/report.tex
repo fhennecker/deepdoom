@@ -262,14 +262,18 @@ the agent killed the enemy before the episode ended in the last 64 episodes.
 
 \begin{figure}
 	\subfloat[DRQN]{\includegraphics[width=.5\textwidth]{Graphs/success_DRQN.pdf}}\\
-	\subfloat[DQN]{\includegraphics[width=.5\textwidth]{Graphs/success_DRQN.pdf}}
+	\subfloat[DQN]{\includegraphics[width=.5\textwidth]{Graphs/success_DQN.pdf}}
 	\caption{Proportion of successful episodes}
 	\label{successrate}
 \end{figure}
 
 The good performance of DRQN then followed by a sudden drop in performance could
-be explained by the fact that $Q$-learning is known to diverge very easily
-\todo{ref?}. We can indeed see on figure \ref{averageq} that
+be explained by the fact that value function approximators are not guaranteed
+to converge \citep{divergenceofRL}, and this holds true for 
+neural networks \citep{convergenceofRL}. 
+We make the hypothesis that adding a recurrent connection could break the 
+convergence property claimed by DQN.
+We can indeed see on figure \ref{averageq} that
 even if our agent learns an excellent $Q$-function, its $Q$ values will at some
 point start diverging, causing the rolling proportion of successful episodes
 to drop significantly. This drop doesn't seem to occur when we remove the
@@ -277,7 +281,7 @@ recurrent feedback and use DQN instead.\\
 
 \begin{figure}
 	\subfloat[DRQN]{\includegraphics[width=.5\textwidth]{Graphs/qval_DRQN.pdf}}\\
-	\subfloat[DQN]{\includegraphics[width=.5\textwidth]{Graphs/qval_DRQN.pdf}}
+	\subfloat[DQN]{\includegraphics[width=.5\textwidth]{Graphs/qval_DQN.pdf}}
 	\caption{Average $Q$-values}
 	\label{averageq}
 \end{figure}
@@ -287,7 +291,9 @@ immediately moves in the right direction then shoots the enemy) until the
 $Q$-values diverge at which point the agent will just pick the same action
 over and over again; either hugging the left or right wall or shooting
 indefinitely without moving.\\
+
 \section{Discussion}
+\todo{recall about the hypothesis that DRQN might lose the convergence property of DQN?}
 
 
 \footnotesize
