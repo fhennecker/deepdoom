@@ -122,7 +122,7 @@ Q-Network, as described in \citep{Hausknecht2015}. A DRQN
 estimates $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
 parameter $h_{t-1}$ represents the hidden state of the agent at the previous
 transition. In our case, we will use a Long Short-Term Memory layer (LSTM)
-\cite{Hochreiter1997}. In addition to the input and output state of usual neural
+\citep{Hochreiter1997}. In addition to the input and output state of usual neural
 networks, a LSTM unit also carries a hidden state, which has to be fed along
 with the input, and retrieved with the output. This hidden state is able to
 convey information about patterns that evolve along time. In our case, it is
@@ -156,7 +156,7 @@ entities present in the vision frustum. However, entities hidden by other scene
 elements, typically walls, were also parts of that buffer. We then used the map
 characteristics in order to to check if an entity was visible or not. Even
 though this information can't be used during testing phase, it was used during
-the training of the agents to improve their accuracy. We also created a game
+the training of the agents to accelerate training. We also created a game
 feature estimating the lateral position of an enemy against a wall in a much
 simpler DOOM map.
 
