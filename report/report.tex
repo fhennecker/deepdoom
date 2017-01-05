@@ -23,8 +23,8 @@ tichrist@vub.be, fhenneck@ulb.ac.be, \{nimarcha,brochape\}@vub.ac.be}
 \maketitle
 
 \begin{abstract}
-In this article, we study a Deep Reccurent Q-Learning Network implementation
-playing in the DOOM videogame. Our findings are based on a publication from
+In this article, we study a Deep Recurrent Q-Learning Network implementation
+playing in the DOOM video game. Our findings are based on a publication from
 \cite{Lample2016}. We first present deep Q-learning under two variants (DQN and
 DRQN) which were applied to video games. We then present how we built our own
 implementation of a testbed for such algorithms. Finally, we present our results
@@ -46,12 +46,12 @@ state from one frame to the next.
 In order to plug our work to the DOOM game, we are using the ViZDoom environment
 \citep{Kempka2016} that provides a programming interface to interact with a
 DOOM game in various languages (we use Python). ViZDoom provides access to the
-screen buffer and actions buttons, as well as game metadata (such as player
-position and the labelled objects in the field of view), used only at training time.
+screen buffer and actions buttons, as well as game meta-data (such as player
+position and the labeled objects in the field of view), used only at training time.
 
 Our agent plays the basic scenario, where he is in a rectangular room.
-At the beginning, the ennemy spawns at a random position on the opposite side of
-the room. The game ends if the agent kills the ennemy, or if 500 game ticks elapsed.
+At the beginning, the enemy spawns at a random position on the opposite side of
+the room. The game ends if the agent kills the enemy, or if 500 game ticks elapsed.
 
 \section{Method}
 
@@ -65,7 +65,7 @@ Many reinforcement learning problems have a very high-dimensional space-state
 in which each dimension on its own bears very little information. Approximating
 a state-action $Q$ function over all possible states and actions becomes quickly
 intractable. However, deep neural networks have an outstanding capability to
-encode high-dimensional states into a meaningful lower-dimensional hidden state; 
+encode high-dimensional states into a meaningful lower-dimensional hidden state;
 moreover, they are also known for their function approximation capabilities
 \citep{Hornik1991}. Deep Q-Learning \citep{Mnih2015} is a major breakthrough
 showing that neural networks can learn to play Atari games.
@@ -178,7 +178,7 @@ be erroneous since their previous hidden state was not fully initialized.
 To solve this, we discard the first time steps outputs when computing the loss,
 as explained in \citep{Lample2016}.
 
-\subsubsection{Hyperparameters}
+\subsubsection{Hyper-parameters}
 Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
 size of $1000000$ frames. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
@@ -254,7 +254,7 @@ It is available publicly on Github
 The training phase as well as the action phase were run on a high-end machine
 of which specifications are displayed in Table \ref{tab:specs}.\\
 
-Both DQN and DRQN were run with and without the game feature specifying the 
+Both DQN and DRQN were run with and without the game feature specifying the
 lateral position of the enemy against the back wall of the basic map. Figure
 \ref{successrate} compares the rolling proportion of successful episodes
 in these 4 settings. The rolling proportion is the number of episodes in which
@@ -268,7 +268,7 @@ the agent killed the enemy before the episode ended in the last 64 episodes.
 \end{figure}
 
 The good performance of DRQN then followed by a sudden drop in performance could
-be explained by the fact that $Q$-learning is known to diverge very easily 
+be explained by the fact that $Q$-learning is known to diverge very easily
 \todo{ref?}. We can indeed see on figure \ref{averageq} that
 even if our agent learns an excellent $Q$-function, its $Q$ values will at some
 point start diverging, causing the rolling proportion of successful episodes
@@ -282,10 +282,10 @@ recurrent feedback and use DQN instead.\\
 	\label{averageq}
 \end{figure}
 
-Looking at test episodes, the behaviour of the agent is excellent (it almost
-immediately moves in the right direction then shoots the enemy) until the 
+Looking at test episodes, the behavior of the agent is excellent (it almost
+immediately moves in the right direction then shoots the enemy) until the
 $Q$-values diverge at which point the agent will just pick the same action
-over and over again; either hugging the left or right wall or shooting 
+over and over again; either hugging the left or right wall or shooting
 indefinitely without moving.\\
 \section{Discussion}
 
