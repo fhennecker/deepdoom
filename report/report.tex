@@ -202,8 +202,8 @@ anything.
 
 \paragraph{Learning}
 In this phase, we make the agent play with an $\epsilon$-Greedy policy. The
-$\epsilon$ parameter is linearly decreased over time, until it reaches its
-minimal value of 0.1.
+$\epsilon$ parameter starts at 1 and is linearly decreased over time 
+until it reaches its minimal value of 0.1.
 Once a game episode is finished, it is inserted in the replay memory. Then, we replay
 15 times a different batch of randomly selected episodes from the replay memory.
 For each of these replays, we run the backpropagation through the main network to
