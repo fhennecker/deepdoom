@@ -92,7 +92,7 @@ transition. In our case, we will use an LSTM to generate a new output and a new
 hidden state given an input and the previous hidden state.
 \todo{Adapter à notre archi}
 
-\subsection{Model architecture}
+\subsection{Model details}
 Our neural network is the same as the one presented in \citep{Lample2016},
 with one addition.
 It is composed of two convolutional layers followed by three separate
@@ -137,18 +137,7 @@ be erroneous since their previous hidden state was not fully initialised.
 To solve this, we discard the first time steps outputs when computing the loss,
 as explained in \citep{Lample2016}.
 
-\subsection{Action phase}
-As opposed to the paper \citep{Lample2016} which uses a navigation phase as
-well as an action phase, we decided to only focus on the action phase. The
-navigation phase is the phase where the agent focuses on exploring the map to
-collect items and find enemies. We indeed dropped that step to immediately
-concentrate our efforts on the action phase, which consists in shooting at
-enemies when they are detected. This so-called action phase will of course
-take place after a training phase during which the agent learns how to interact
-properly with the game.
-
-
-\subsection{Hyperparameters}
+\subsubsection{Hyperparameters}
 Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
 size of $1000000$ frames. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
@@ -165,6 +154,18 @@ at the same place and face approximately the same direction all the time. This
 bootstrapping phase is used to populate the replay memory.
 
 We used the RMSProp\todo{ref slides} algorithm with a learning rate of 0.001.
+
+\subsection{Action phase}
+As opposed to the paper \citep{Lample2016} which uses a navigation phase as
+well as an action phase, we decided to only focus on the action phase. The
+navigation phase is the phase where the agent focuses on exploring the map to
+collect items and find enemies. We indeed dropped that step to immediately
+concentrate our efforts on the action phase, which consists in shooting at
+enemies when they are detected. This so-called action phase will of course
+take place after a training phase during which the agent learns how to interact
+properly with the game.
+
+
 
 \section{Results}
 \begin{table}[h]
