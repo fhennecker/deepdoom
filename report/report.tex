@@ -236,6 +236,37 @@ It is available publicly on Github
 
 
 \section{Our experiments}
+% Notes:
+% Fully Observable Markovian Process (FOMP): basic with MOVE_LEFT, MOVE_RIGHT, ATTACK
+% * Experiment: e-Greedy decreasing from 1 to 0.1 over 4k epochs, then up to 8k epochs with e=0.1
+%               Test with and without game features
+%               Test DQN and DRQN
+% Partially Observable Markovian Process (POMP): basic with TURN_LEFT, TURN_RIGHT, MOVE_FORWARD, ATTACK
+% * Experiment: e-Greedy decreasing from 1 to 0.1 over 8k epochs, then up to 15k epochs with e=0.1
+%               Test with DRQN and DQN
+%   -> Videos: DQN shoots more often
+%
+% Quantifiable results (graphs)
+% Qualitative results (videos)
+
+\subsection{Test environment}
+
+We run our simulations on a gaming class computer, in order to use
+GPU-accelerated neural network processing capabilities from tensorflow.
+The machine configuration is detailled below.
+
+\begin{table}[h]
+\centering
+\begin{tabular}{cc}
+\multicolumn{2}{c}{Test Setup}                         \Tstrut\\ \hline
+\multicolumn{1}{c|}{CPU} & Intel i7-6800K 3.4 GHz      \Tstrut\\
+\multicolumn{1}{c|}{GPU} & Nvidia GeForce GTX 1080 8Go \Tstrut\\
+\multicolumn{1}{c|}{RAM} & 32 Go DDR4                      \Tstrut
+\end{tabular}
+\caption{Test setup hardware specification}
+\label{tab:specs}
+\end{table}
+
 \subsection{Limitations} As the training time reported in \cite{Lample2016} is
 quite large (70 hours per run), and given the short time frame we had,
 we decided to focus on a simpler scenario that would allow us to have feedback
@@ -253,50 +284,9 @@ We first allow the agent to play the following actions:
   \item \texttt{ATTACK} (fire with the gun)
 \end{itemize}
 therefore, the enemy never goes out of sight for the agent and the state is
-fully observable.
-
-\subsubsection{Partially Observable Markovian Process}
-We then change the agent's action set to the following:
-\begin{itemize}
-  \item \texttt{TURN\_LEFT} (rotate to the left)
-  \item \texttt{TURN\_RIGHT}
-  \item \texttt{MOVE\_FORWARD} (slide forward)
-  \item \texttt{ATTACK}
-\end{itemize}
-With this action set, the agent is now able to move such that the enemy is no
-more visible. The state is therefore only partially observable.
-
-% Notes:
-% Fully Observable Markovian Process (FOMP): basic with MOVE_LEFT, MOVE_RIGHT, ATTACK
-% * Experiment: e-Greedy decreasing from 1 to 0.1 over 4k epochs, then up to 8k epochs with e=0.1
-%               Test with and without game features
-%               Test DQN and DRQN
-% Partially Observable Markovian Process (POMP): basic with TURN_LEFT, TURN_RIGHT, MOVE_FORWARD, ATTACK
-% * Experiment: e-Greedy decreasing from 1 to 0.1 over 8k epochs, then up to 15k epochs with e=0.1
-%               Test with DRQN and DQN
-%   -> Videos: DQN shoots more often
-%
-% Quantifiable results (graphs)
-% Qualitative results (videos)
-
-\subsection{Test environment}
-
-We run our simulations on 
-
-\begin{table}[h]
-\centering
-\begin{tabular}{cc}
-\multicolumn{2}{c}{Test Setup}                         \Tstrut\\ \hline
-\multicolumn{1}{c|}{CPU} & Intel i7-6800K 3.4 GHz      \Tstrut\\
-\multicolumn{1}{c|}{GPU} & Nvidia GeForce GTX 1080 8Go \Tstrut\\
-\multicolumn{1}{c|}{RAM} & 32 Go DDR4                      \Tstrut
-\end{tabular}
-\caption{Test setup hardware specification}
-\label{tab:specs}
-\end{table}
-
-The training phase as well as the action phase were run on a high-end machine
-of which specifications are displayed in Table \ref{tab:specs}.\\
+fully observable. In this setup, the metric fed to our game features sub-network
+is the relative horizontal position of the ennemy in the field of view of our player
+(a floating point number between 0 and 1).
 
 Both DQN and DRQN were run with and without the game feature specifying the
 lateral position of the enemy against the back wall of the basic map. Figure
@@ -341,6 +331,20 @@ immediately moves in the right direction then shoots the enemy) until the
 $Q$-values diverge at which point the agent will just pick the same action
 over and over again; either hugging the left or right wall or shooting
 indefinitely without moving.\\
+
+\subsubsection{Partially Observable Markovian Process}
+We then change the agent's action set to the following:
+\begin{itemize}
+  \item \texttt{TURN\_LEFT} (rotate to the left)
+  \item \texttt{TURN\_RIGHT}
+  \item \texttt{MOVE\_FORWARD} (slide forward)
+  \item \texttt{ATTACK}
+\end{itemize}
+With this action set, the agent is now able to move such that the enemy is no
+more visible. The state is therefore only partially observable. In this setting,
+we use another game feature: a binary label indicating wether the ennemy is visible
+or not.
+
 
 \section{Discussion}
 \todo{recall about the hypothesis that DRQN might lose the convergence property of DQN?}
