@@ -34,11 +34,12 @@ on a simplified game scenario.
 Deep Q-Learning is a technique which combines the Q-Learning algorithm with
 a deep neural network. In this particular architecture, the expected return of
 each action is predicted by a neural net. The agent using this algorithm then
-choose the best action based on a policy (we only used $\epsilon$-Greedy here).
-As deep neural network can achieve pattern recognition on images, it is well
-suited to video games, where the agent has to play according to some game
-patterns rather than particular images. It also reduce the action-state space
-to be explored, as the neural network is able to generalize the pattern it recognizes
+chooses the best action based on a policy (we only used $\epsilon$-greedy here).
+Neural networks, particularly convolutional neural networks, are very good at
+encoding a highly dimensional state (in this case, a 108x60 RGB image) into a
+meaningful lower dimensional state. Moreover, a recurrent neural network can
+help handle the sequential nature of playing a video game by passing a hidden
+state from one frame to the next.
 \todo{find good refs for claims on NN}.
 
 In order to plug our work to the DOOM game, we are using the ViZDoom environment
@@ -49,7 +50,7 @@ position and the labelled objects in the field of view), used only at training t
 
 Our agent plays the basic scenario, where he is in a rectangular room.
 At the beginning, the ennemy spawns at a random position on the opposite side of
-the room. The game ends if the agent kills the ennemy, or if 500 game tics elapsed.
+the room. The game ends if the agent kills the ennemy, or if 500 game ticks elapsed.
 
 \section{Method}
 
@@ -85,7 +86,7 @@ $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' 
 
 This loss is computed on uniformly sampled game transitions stored in a
 replay memory instead of the previously played transition to reduce correlation
-between samples. Our version of the DQN algorithm is shown
+between samples. Algorithm \ref{dqn} shows how a Deep Q-Network is trained.
 \begin{algorithm}
 \caption{The DQN training algorithm}\label{dqn}
 \begin{algorithmic}[1]
