@@ -102,7 +102,7 @@ between samples. Algorithm \ref{dqn} shows how a Deep Q-Network is trained.
 			\State store old state, action, new state and reward in memory
 		\EndWhile
 		\For{number of back-propagation steps}
-			\State update Q-network with a batch of randomly 
+			\State update Q-network with a batch of randomly
 			sampled sequences
 		\EndFor
 	\EndFor
@@ -324,7 +324,7 @@ We then change the agent's action set to the following:
 \end{itemize}
 With this action set, the agent is now able to move such that the enemy is no
 more visible. The state is therefore only partially observable. In this setting,
-we use another game feature: a binary label indicating wether the ennemy is visible
+we use another game feature: a binary label indicating whether the enemy is visible
 or not.
 
 
