@@ -86,7 +86,7 @@ $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' 
 
 This loss is computed on uniformly sampled game transitions stored in a
 replay memory instead of the previously played transition to reduce correlation
-between samples. Our version of the DQN algorithm is shown
+between samples. Algorithm \ref{dqn} shows how a Deep Q-Network is trained.
 \begin{algorithm}
 \caption{The DQN training algorithm}\label{dqn}
 \begin{algorithmic}[1]
