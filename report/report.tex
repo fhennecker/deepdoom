@@ -22,33 +22,41 @@ tichrist@vub.be, fhenneck@ulb.ac.be, \{nimarcha,brochape\}@vub.ac.be}
 \maketitle
 
 \begin{abstract}
+In this article, we study a Deep Reccurent Q-Learning Network implementation
+playing in the DOOM videogame. Our findings are based on a publication from
+\cite{Lample2016}. We first present deep Q-learning under two variants (DQN and
+DRQN) which were applied to video games. We then present how we built our own
+implementation of a testbed for such algorithms. Finally, we present our results
+on a simplified game scenario.
 \end{abstract}
 
 \section{Introduction}
-Deep Reinforcement learning has brought in the past solutions to automating and
-learning typical human-computer interactions. \todo{refs!}
-However, most of the previous applications of Deep Q-Networks assume a full
-knowledge of their environment. The application of those traditional DQN is
-thus limited in the case of playing FPS\footnote{First Person Shooter} games,
-where the field of vision of the player is limited. Deep recurrent networks
-were proposed to solve this problem \citep{Hausknecht2015} applied to Atari
-game. This paper applies techniques used for 2D games and extends them for use
-on a 3D game named DOOM.
-In order to plug our work to the DOOM game, we are using the Vizdoom API
-\citep{Kempka2016} that provides an easy use of the game controls as well as
-knowledge about the current state of the game.
-The agents will be playing in a setup of deathmatch. This means that they play
-in a level that requires to have the maximum amount of kills and the minimum
-amount of deaths, which is called best k/d ratio.
-In this paper, we are implementing the techniques described in
-\citep{Lample2016}.
-\todo{say that we're only playing basic}
+Deep Q-Learning is a technique which combines the Q-Learning algorithm with
+a deep neural network. In this particular architecture, the expected return of
+each action is predicted by a neural net. The agent using this algorithm then
+choose the best action based on a policy (we only used $\epsilon$-Greedy here).
+As deep neural network can achieve pattern recognition on images, it is well
+suited to video games, where the agent has to play according to some game
+patterns rather than particular images. It also reduce the action-state space
+to be explored, as the neural network is able to generalize the pattern it recognizes
+\todo{find good refs for claims on NN}.
 
-\section{Methods}
+In order to plug our work to the DOOM game, we are using the ViZDoom environment
+\citep{Kempka2016} that provides a programming interface to interact with a
+DOOM game in various languages (we use Python). ViZDoom provides access to the
+screen buffer and actions buttons, as well as game metadata (such as player
+position and the labelled objects in the field of view), used only at training time.
+
+Our agent plays the basic scenario, where he is in a rectangular room.
+At the beginning, the ennemy spawns at a random position on the opposite side of
+the room. The game ends if the agent kills the ennemy, or if 500 game tics elapsed.
+
+\section{Method}
 
 \subsection{Background} We will give in the paragraphs hereinbelow a state of
-the art of the technologies that we used in our implementation so that the
-unexperienced user can easily follow.
+the art of the technologies that we used in our implementation. We first present
+the Deep Q-Learning Network from DeepMind, then its variant Deep Q-Learning
+Recurrent Network.
 
 \subsubsection{Deep Q-Networks}
 Many reinforcement learning problems have a very high-dimensional space-state
@@ -212,6 +220,19 @@ It is available publicly on Github
 
 
 \section{Results}
+% Notes:
+% Fully Observable Markovian Process (FOMP): basic with MOVE_LEFT, MOVE_RIGHT, ATTACK
+% * Experiment: e-Greedy decreasing from 1 to 0.1 over 4k epochs, then up to 8k epochs with e=0.1
+%               Test with and without game features
+%               Test DQN and DRQN
+% Partially Observable Markovian Process (POMP): basic with TURN_LEFT, TURN_RIGHT, MOVE_FORWARD, ATTACK
+% * Experiment: e-Greedy decreasing from 1 to 0.1 over 8k epochs, then up to 15k epochs with e=0.1
+%               Test with DRQN and DQN
+%   -> Videos: DQN shoots more often
+%
+% Quantifiable results (graphs)
+% Qualitative results (videos)
+
 \begin{table}[h]
 \centering
 \begin{tabular}{cc}
