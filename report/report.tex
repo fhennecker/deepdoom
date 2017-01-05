@@ -26,13 +26,13 @@ Brussels, Belgium \\
 Deep Reinforcement learning has brought in the past solutions to automating and
 learning typical human-computer interactions. \todo{refs!}
 However, most of the previous applications of Deep Q-Networks assume a full
-knowledge of their environment. The application of those traditional DQN is 
+knowledge of their environment. The application of those traditional DQN is
 thus limited in the case of playing FPS\footnote{First Person Shooter} games,
-where the field of vision of the player is limited. Deep recurrent networks 
-were proposed to solve this problem \citep{Hausknecht2015} applied to Atari 
+where the field of vision of the player is limited. Deep recurrent networks
+were proposed to solve this problem \citep{Hausknecht2015} applied to Atari
 game. This paper applies techniques used for 2D games and extends them for use
 on a 3D game named DOOM.
-In order to plug our work to the DOOM game, we are using the Vizdoom API 
+In order to plug our work to the DOOM game, we are using the Vizdoom API
 \citep{Kempka2016} that provides an easy use of the game controls as well as
 knowledge about the current state of the game.
 The agents will be playing in a setup of deathmatch. This means that they play
@@ -57,7 +57,7 @@ they are also known for their function approximation capabilities
 \citep{Hornik1991}. Deep Q-Learning \citep{Mnih2015} is a major breakthrough
 showing that neural networks can learn to play Atari games.
 
-In the context of a Deep Q-Network (DQN), an agent tries to learn 
+In the context of a Deep Q-Network (DQN), an agent tries to learn
 $Q(s_t,a_t)$ which represents an
 estimation of how valuable an action $a_t$ is in a state $s_t$. In order to
 find $Q^*$, the optimal $Q$-function, DQNs use a neural network
@@ -72,22 +72,22 @@ discount factor and $(s',a')$ being the next state and its associated action
 This gives, since $Q_{\theta} \approx Q^*(s,a)$ the loss function below:
 $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' , a' )-Q_{\theta_t}(s,a))^2\}$$
 
-This loss is computed on uniformly sampled game transitions stored in a 
+This loss is computed on uniformly sampled game transitions stored in a
 replay memory instead of the previously played transition to reduce correlation
 between samples.
 
 
 \subsubsection{Deep Recurrent Q-Networks}
-One of the issues posed by the model described above is that it assumes that the 
-environment is fully observable. However in the case of DOOM, we only get a 
+One of the issues posed by the model described above is that it assumes that the
+environment is fully observable. However in the case of DOOM, we only get a
 partial
 observation of the environment, limited by the field of vision of the main
-character. Previous ways of solving that issue have been to feed a sequence of 
+character. Previous ways of solving that issue have been to feed a sequence of
 frames to the DQN as a history.
 A potentially better way to solve the history issue is to use a Deep Recurrent
 Q-Network, as described in \citep{Hausknecht2015}. A DRQN
 estimates $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
-parameter $h_{t-1}$ represents the hidden state of the agent at the previous 
+parameter $h_{t-1}$ represents the hidden state of the agent at the previous
 transition. In our case, we will use an LSTM to generate a new output and a new
 hidden state given an input and the previous hidden state.
 \todo{Adapter à notre archi}
@@ -107,9 +107,9 @@ As described in the paper \citep{Lample2016}, agents not using the game
 features were unable to accurately detect enemies and were thus randomly
 shooting around hoping that those shots would reach their targets. In order
 to make up for a lack of efficiency, we used custom made game features to train the
-agent in a supervised setup jointly with the Q-learning setup to tell the 
+agent in a supervised setup jointly with the Q-learning setup to tell the
 agent if enemies were in his field of
-vision. The \texttt{Label buffer} \todo{explain a bit more?} 
+vision. The \texttt{Label buffer} \todo{explain a bit more?}
 was used to fetch all the entities present
 in the vision frustum. However, entities hidden by other scene elements,
 typically walls, were also parts of that buffer. We then used the map
@@ -137,7 +137,7 @@ properly with the game.
 
 \subsection{Hyperparameters}
 Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
-size of $1000000$ frames and a frame skip rate of 4. The sequence length of 
+size of $1000000$ frames and a frame skip rate of 4. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
 in the loss.
 Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
