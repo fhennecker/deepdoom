@@ -122,10 +122,10 @@ against a wall in a much simpler DOOM map.
 \subsubsection{Frame Skip}
 To reduce the computational complexity, it is common to use the skip-frame
 technique. With this technique, the agent receives a input frame every $k + 1$
-game frames, where $k$ is the number of of frames skipped.
-We used a value of $k=4$ because it seemed to be a good trade-off between
-computing performance and agent accuracy. \cite{Kempka2016}
-
+game frames, where $k$ is the number of of frames skipped. During those
+skipped frames, the last action of the agent is repeated automatically.
+We used a value of $k=4$ because it is a good trade-off between
+computing performance and agent accuracy \citep{Kempka2016}.
 
 
 \subsubsection{Sequential Updates}
