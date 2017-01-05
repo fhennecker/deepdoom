@@ -175,6 +175,12 @@ enemies when they are detected. This so-called action phase will of course
 take place after a training phase during which the agent learns how to interact
 properly with the game.
 
+\subsection{Limitations} In order to train and test our implementation, we only
+used one simple single-player scenario. It consists of a square room with one
+enemy in front of and visible by the agant. The scenario ends when the agent
+manages to kill the enemy or when the timer reaches 0. This means that we have
+in that case a fully-observable environment.\todo{}
+
 \subsection{Implementation}
 We implemented the model using Python 3 and Tensorflow \citep{tensorflow}.
 It is available publicly on Github
