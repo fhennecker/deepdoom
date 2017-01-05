@@ -99,9 +99,18 @@ properly with the game.
 
 
 \subsection{Hyperparameters}
-Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory size of $1000000$ frames and a frame skip rate of 4.
-Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension $60 * 108$\footnote{As VizDoom does not support natively this resoluton, we used the $200 * 125$ resolution and downsampled it before feeding it to the agent.}.
-In the bootstrapping phase, our agent only plays random actions drawn from the set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because a uniformely random sample of all these actions would lead the agent to stay at the same place and face approximately the same direction all the time. This bootstrapping phase is used to populate the replay memory.
+Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
+size of $1000000$ frames and a frame skip rate of 4.
+Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
+$60 * 108$\footnote{As VizDoom does not support natively this resoluton, we
+used the $200 * 125$ resolution and downsampled it before feeding it to the
+agent.}.
+In the bootstrapping phase, our agent only plays random actions drawn from the
+set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do
+not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because
+a uniformely random sample of all these actions would lead the agent to stay
+at the same place and face approximately the same direction all the time. This
+bootstrapping phase is used to populate the replay memory.
 
 \section{Results}
 \begin{table}[h]
@@ -116,7 +125,8 @@ In the bootstrapping phase, our agent only plays random actions drawn from the s
 \label{tab:specs}
 \end{table}
 
-The training phase as well as the action phase were run on a high-end machine of which specifications are displayed in Table \ref{tab:specs}.
+The training phase as well as the action phase were run on a high-end machine
+of which specifications are displayed in Table \ref{tab:specs}.
 
 \section{Discussion}
 
