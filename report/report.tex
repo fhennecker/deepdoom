@@ -170,7 +170,7 @@ size of $1000000$ frames. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
 in the loss.
 Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
-$60 * 108$\footnote{As VizDoom does not support natively this resolution, we
+$108 * 60$\footnote{As VizDoom does not support natively this resolution, we
 used the $200 * 125$ resolution and downsampled it before feeding it to the
 agent.}.
 In the bootstrapping phase, our agent only plays random actions drawn from the
