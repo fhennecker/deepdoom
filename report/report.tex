@@ -122,7 +122,13 @@ against a wall in a much simpler DOOM map.
 \subsubsection{Frame Skip}
 
 \subsubsection{Sequential Updates}
-
+When training an LSTM, one feeds sequences of data for which the LSTM will
+predict one output per time step. However, the LSTM will zero its hidden state
+before the start of each sequence, and it will take several time steps for the
+hidden state to initialise. Hence, the outputs for the first time steps might
+be erroneous since their previous hidden state was not fully initialised. 
+To solve this, we discard the first time steps outputs when computing the loss,
+as explained in \citep{Lample2016}.
 
 \subsection{Action phase}
 As opposed to the paper \citep{Lample2016} which uses a navigation phase as
