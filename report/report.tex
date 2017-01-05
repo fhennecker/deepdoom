@@ -24,7 +24,7 @@ tichrist@vub.be, fhenneck@ulb.ac.be, \{nimarcha,brochape\}@vub.ac.be}
 
 \begin{abstract}
 In this article, we study a Deep Recurrent Q-Learning Network implementation
-playing in the DOOM video game. Our findings are based on a publication from
+playing the DOOM video game. Our findings are based on a publication from
 \cite{Lample2016}. We first present deep Q-learning under two variants (DQN and
 DRQN) which were applied to video games. We then present how we built our own
 implementation of a testbed for such algorithms. Finally, we present our results
@@ -154,7 +154,7 @@ setup to tell the agent if enemies were in his field of vision.  The
 \texttt{Label buffer} provided by the Vizdoom API  was used to fetch all the
 entities present in the vision frustum. However, entities hidden by other scene
 elements, typically walls, were also parts of that buffer. We then used the map
-characteristics in order to to check if an entity was visible or not. Even
+characteristics in order to check if an entity was visible or not. Even
 though this information can't be used during testing phase, it was used during
 the training of the agents to accelerate training. We also created a game
 feature estimating the lateral position of an enemy against a wall in a much
@@ -201,7 +201,7 @@ fifth of the memory capacity. In this phase, the neural network does not do
 anything.
 
 \paragraph{Learning}
-In this phase, we make the agent play with an $\epsilon$-Greedy policy. The
+During the learning phase, we make the agent play with an $\epsilon$-Greedy policy. The
 $\epsilon$ parameter starts at 1 and is linearly decreased over time 
 until it reaches its minimal value of 0.1.
 Once a game episode is finished, it is inserted in the replay memory. Then, we replay
