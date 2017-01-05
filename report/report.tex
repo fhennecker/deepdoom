@@ -40,6 +40,7 @@ in a level that requires to have the maximum amount of kills and the minimum
 amount of deaths, which is called best k/d ratio.
 In this paper, we are implementing the techniques described in
 \citep{Lample2016}.
+\todo{say that we're only playing basic}
 
 \section{Methods}
 In order to implement the techniques described in the paper,
@@ -92,7 +93,14 @@ hidden state given an input and the previous hidden state.
 \todo{Adapter à notre archi}
 
 \subsection{Model architecture}
-Our neural network is the same as presented in \citep{Lample2016}.
+Our neural network is the same as the one presented in \citep{Lample2016},
+with one addition.
+It is composed of two convolutional layers followed by three separate
+sub-networks. One of these sub-networks is used in a supervised manner to
+predict various game features (see below), the second is a standard
+DRQN network while the last is a standard DQN output. The network is trained
+with or without the game features and with either the DRQN or the DQN output.
+The hidden size of the LSTM was set to 300 units.
 
 \subsubsection{Game Features}
 As described in the paper \citep{Lample2016}, agents not using the game
@@ -110,6 +118,10 @@ though this information can't be used during testing phase, it was used
 during the training of the agents to improve their accuracy.
 We also created a game feature estimating the lateral position of an enemy
 against a wall in a much simpler DOOM map.
+
+\subsubsection{Frame Skip}
+
+\subsubsection{Sequential Updates}
 
 
 \subsection{Action phase}
