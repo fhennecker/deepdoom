@@ -160,7 +160,7 @@ simpler DOOM map.
 \subsubsection{Dropout}
 Dropout \citep{Srivastava2014} was added to the fully connected layers, with
 a probability of keeping each unit of 75\% at training time. This neural network
-engineering technique prevents overfitting.
+engineering technique prevents from overfitting.
 
 \subsubsection{Frame Skip}
 To reduce the computational complexity, it is common to use the skip-frame
@@ -235,7 +235,7 @@ It is available publicly on Github
 
 
 
-\section{Results}
+\section{Our experiments}
 \subsection{Limitations} As the training time reported in \cite{Lample2016} is
 quite large (70 hours per run), and given the short time frame we had,
 we decided to focus on a simpler scenario that would allow us to have feedback
@@ -243,7 +243,7 @@ more quickly. In order to train and test our implementation, we only
 used one simple single-player scenario. It consists of a square room with one
 enemy in front of and visible by the agent. The scenario ends when the agent
 manages to kill the enemy or when the timer reaches 0. We then explored two
-variations.
+variations:
 
 \subsubsection{Fully Observable Markovian Process}
 We first allow the agent to play the following actions:
@@ -278,6 +278,10 @@ more visible. The state is therefore only partially observable.
 %
 % Quantifiable results (graphs)
 % Qualitative results (videos)
+
+\subsection{Test environment}
+
+We run our simulations on 
 
 \begin{table}[h]
 \centering
@@ -341,6 +345,12 @@ indefinitely without moving.\\
 \section{Discussion}
 \todo{recall about the hypothesis that DRQN might lose the convergence property of DQN?}
 
+
+\section{Acknowledgements}
+We would like to thank the SOFT department from the Vrije Universiteit Brussel,
+and more particularly Christophe De Troyer, for setting up and lending us a
+powerful machine to run our simulations. It helped us a lot by reducing the
+required computing time by an order of magnitude.
 
 \footnotesize
 \bibliographystyle{apalike}
