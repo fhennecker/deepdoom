@@ -164,8 +164,9 @@ def bootstrap_phase(sess):
                 mem.add(episode)
         print("{},{}".format(len(mem), len(mem.episodes)))
 
-
-@csv_output("qlearning_step", "epsilon", "reward", "steps", "loss_Q", "loss_gf")
+cols = ("qlearning_step", "epsilon", "reward", "steps", "loss_Q", "loss_gf")
+cols += tuple("Q%d" % i for i in range(N_ACTIONS))
+@csv_output(*cols)
 def learning_phase(sess):
     """Reinforcement learning for Qvalues"""
     game, walls = create_game()
@@ -196,6 +197,7 @@ def learning_phase(sess):
                 # Choose action with e-greedy network
                 action_no, hidden_state = main.choose(sess, epsilon, screenbuf[s],
                                         dropout_p=0.75, state_in=hidden_state)
+
                 action = ACTION_SET[action_no]
                 reward = game.make_action(action, 4)
                 game_features = [basic_ennemy_x(state)]
@@ -230,7 +232,7 @@ def learning_phase(sess):
                 target.dropout_p: 1,
             })
 
-            _, loss_q, loss_gf = sess.run([main.train_step, main.q_loss, main.features_loss], feed_dict={
+            _, loss_q, loss_gf, qs = sess.run([main.train_step, main.q_loss, main.features_loss,main.Q], feed_dict={
                 main.batch_size: BATCH_SIZE,
                 main.sequence_length: SEQUENCE_LENGTH,
                 main.ignore_up_to: IGNORE_UP_TO,
@@ -242,8 +244,8 @@ def learning_phase(sess):
                 main.dropout_p: 0.75,
                 main.game_features_in: F[:, :-1]
             })
-
-        print("{},{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), loss_q, loss_gf))
+        qs = np.mean(np.mean(qs,axis =1),axis=0)
+        print("{},{},{},{},{},{},{}".format(i, epsilon, tot_reward, len(episode), loss_q, loss_gf, ",".join(map(str,qs))))
 
         # Save the model periodically
         if i > 0 and i % 500 == 0:
