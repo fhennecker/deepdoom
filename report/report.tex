@@ -45,16 +45,25 @@ In this paper, we are implementing the techniques described in
 In order to implement the techniques described in the paper,
 \todo{Dropout\cite{Srivastava2014}}
 
-\subsection{Deep Recurrent Q-Networks}
-Most papers solving human-computer interaction problems are based on Deep
-Q-Networks. In those, agents try to learn $Q(s_t,a_t)$ which represents an
+\subsection{Background}
+\subsubsection{Deep Q-Networks}
+Many reinforcement learning problems have a very high-dimensional space-state
+in which each dimension on its own bears very little information. Approximating
+a state-action $Q$ function over all possible states and actions becomes quickly
+intractable. However, deep neural networks have an outstanding capability to
+encode high-dimensional states into a lower-dimensional hidden state; moreover,
+they are also known for their function approximation capabilities
+\citep{Hornik1991}. Deep Q-Learning \citep{Mnih2015} is a major breakthrough
+showing that neural networks can learn to play Atari games.
+
+In the context of a Deep Q-Network (DQN), an agent tries to learn 
+$Q(s_t,a_t)$ which represents an
 estimation of how valuable an action $a_t$ is in a state $s_t$. In order to
-find $Q^*$, the optimal $Q$-function, DQN networks use a neural network
+find $Q^*$, the optimal $Q$-function, DQNs use a neural network
 parametrized by $\theta$, which represents the weights of the neural network
 and gives an approximation called $Q_\theta$ further in this paper. Their goal
 is to find the optimal and real $Q$-function $Q^*$ which is verifies the Bellman
 optimality equation:
-
 $$ Q^*(s,a) = E\{r + \gamma \max_{a'}Q^*(s',a')|s,a\} $$
 With $r$ being the reward of playing $a$ in a state $s$, $\gamma\in [0,1]$ the
 discount factor and $(s',a')$ being the next state and its associated action
@@ -62,30 +71,46 @@ discount factor and $(s',a')$ being the next state and its associated action
 This gives, since $Q_{\theta} \approx Q^*(s,a)$ the loss function below:
 $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' , a' )-Q_{\theta_t}(s,a))^2\}$$
 
+This loss is computed on uniformly sampled game transitions stored in a 
+replay memory instead of the previously played transition to reduce correlation
+between samples.
 
-The problem with the model described above is that it assumes a full knowledge
-of the state $s_t$. However in the case of DOOM, we only get a partial
+
+\subsubsection{Deep Recurrent Q-Networks}
+One of the issues posed by the model described above is that it assumes that the 
+environment is fully observable. However in the case of DOOM, we only get a 
+partial
 observation of the environment, limited by the field of vision of the main
-character. In order to solve that problem, we are using a Deep Recurrent
-Q-Network, as described in \citep{Hausknecht2015}. The main idea is to
-estimate $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
-parameter $h_{t-1}$ represents the hidden state of the agent and is returned
-by the the network in $t-1$. In order to use a DRQN, we will simply use an
-LSTM to calculate $h_{t-1}$ and feed it to a regular DQN.
+character. Previous ways of solving that issue have been to feed a sequence of 
+frames to the DQN as a history.
+A potentially better way to solve the history issue is to use a Deep Recurrent
+Q-Network, as described in \citep{Hausknecht2015}. A DRQN
+estimates $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
+parameter $h_{t-1}$ represents the hidden state of the agent at the previous 
+transition. In our case, we will use an LSTM to generate a new output and a new
+hidden state given an input and the previous hidden state.
 \todo{Adapter à notre archi}
 
-\subsection{Game Features}
+\subsection{Model architecture}
+Our neural network is the same as presented in \citep{Lample2016}.
+
+\subsubsection{Game Features}
 As described in the paper \citep{Lample2016}, agents not using the game
 features were unable to accurately detect enemies and were thus randomly
 shooting around hoping that those shots would reach their targets. In order
-to make up for a lack of efficiency, we used the game features to train the
-agent in a supervised setup to tell the agent if enemies were in his field of
-vision. The \texttt{Label buffer} was used to fetch all the entities present
+to make up for a lack of efficiency, we used custom made game features to train the
+agent in a supervised setup jointly with the Q-learning setup to tell the 
+agent if enemies were in his field of
+vision. The \texttt{Label buffer} \todo{explain a bit more?} 
+was used to fetch all the entities present
 in the vision frustum. However, entities hidden by other scene elements,
 typically walls, were also parts of that buffer. We then used the map
 characteristics in order to to check if an entity was visible or not. Even
 though this information can't be used during testing phase, it was used
 during the training of the agents to improve their accuracy.
+We also created a game feature estimating the lateral position of an enemy
+against a wall in a much simpler DOOM map.
+
 
 \subsection{Action phase}
 As opposed to the paper \citep{Lample2016} which uses a navigation phase as
