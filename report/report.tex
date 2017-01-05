@@ -160,6 +160,11 @@ the training of the agents to improve their accuracy. We also created a game
 feature estimating the lateral position of an enemy against a wall in a much
 simpler DOOM map.
 
+\subsubsection{Dropout}
+Dropout \citep{Srivastava2014} was added to the fully connected layers, with
+a probability of keeping each unit of 75\% at training time. This neural network
+engineering technique prevents overfitting.
+
 \subsubsection{Frame Skip}
 To reduce the computational complexity, it is common to use the skip-frame
 technique. With this technique, the agent receives a input frame every $k + 1$
@@ -180,27 +185,41 @@ as explained in \citep{Lample2016}.
 
 \subsubsection{Hyperparameters}
 Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
-size of $1000000$ frames. The sequence length of
+size of $1000000$ frames, and mini batches of 32 samples. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
-in the loss.
+in the loss. The optimizers used to train the network use a learning rate of
+0.001 (we use RMSProp \citep{rmsprop}), and the discount factor ($\gamma$) is set to 0.99.
 Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
 $108 * 60$\footnote{As VizDoom does not support natively this resolution, we
 used the $200 * 125$ resolution and downsampled it before feeding it to the
-agent.}.
-In the bootstrapping phase, our agent only plays random actions drawn from the
-set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do
-not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because
-a uniformly random sample of all these actions would lead the agent to stay
-at the same place and face approximately the same direction all the time. This
-bootstrapping phase is used to populate the replay memory. Once the
-bootstrapping phase is over, we run algorithm \ref{dqn} with $\epsilon$ starting at
-1 and decreasing linearly to 0.1 over 4000 episodes.
+agent.}. Our test program consists of 3 phases:
 
-We used the RMSProp \citep{rmsprop} algorithm with a learning rate of 0.001.
+\paragraph{Bootstrap}
+We first need to populate the replay memory, though we don't entirely fill it.
+In order to do so, we make the agent play random actions until we fill roughly a
+fifth of the memory capacity. In this phase, the neural network does not do
+anything.
 
-\subsubsection{Dropout}
-Dropout \citep{Srivastava2014} was added to the fully connected layers, with
-a probability of keeping each unit of 75\% at training time.
+\paragraph{Learning}
+In this phase, we make the agent play with an $\epsilon$-Greedy policy. The
+$\epsilon$ parameter is linearly decreased over time, until it reaches its
+minimal value of 0.1. 
+Once a game episode is finished, it is inserted in the replay memory. Then, we replay
+15 times a different batch of randomly selected episodes from the replay memory.
+For each of these replays, we run the backpropagation through the main network to
+learn Q. On some variations of our experiments, we also run the backpropagation 
+on the game features part of our network.
+
+Every 10 played episodes, we update the target network weights with those learned
+in the main network. Therefore, the target network is updated every 150 back
+propagations.
+
+Finally, we export a video every 200 played games, where the agent plays on itw
+own without random actions ($\epsilon = 0$), to let human observe how the
+agent strategy is actually evolving over time.
+
+\paragraph{Testing}
+In this phase we let the agent play on its own, without random actions nor dropout.
 
 \subsection{Action phase}
 As opposed to the paper \citep{Lample2016} which uses a navigation phase as
@@ -212,12 +231,6 @@ enemies when they are detected. This so-called action phase will of course
 take place after a training phase during which the agent learns how to interact
 properly with the game.
 
-\subsection{Limitations} In order to train and test our implementation, we only
-used one simple single-player scenario. It consists of a square room with one
-enemy in front of and visible by the agent. The scenario ends when the agent
-manages to kill the enemy or when the timer reaches 0. This means that we have
-in that case a fully-observable environment.\todo{}
-
 \subsection{Implementation}
 We implemented the model using Python 3 and Tensorflow \citep{tensorflow}.
 It is available publicly on Github
@@ -226,6 +239,12 @@ It is available publicly on Github
 
 
 \section{Results}
+\subsection{Limitations} In order to train and test our implementation, we only
+used one simple single-player scenario. It consists of a square room with one
+enemy in front of and visible by the agent. The scenario ends when the agent
+manages to kill the enemy or when the timer reaches 0. This means that we have
+in that case a fully-observable environment.
+
 % Notes:
 % Fully Observable Markovian Process (FOMP): basic with MOVE_LEFT, MOVE_RIGHT, ATTACK
 % * Experiment: e-Greedy decreasing from 1 to 0.1 over 4k epochs, then up to 8k epochs with e=0.1
