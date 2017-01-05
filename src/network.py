@@ -67,8 +67,7 @@ class DRQN():
             # Output layer
             gf = tf.reshape(self.flat_game_features,
                             shape=[2, self.batch_size, self.sequence_length, self.k])
-            gfsm = tf.nn.softmax(gf)
-            self.game_features = gfsm[0]
+            self.game_features = tf.nn.softmax(gf, dim=0)[0]
         else:
             self.flat_game_features = slim.fully_connected(self.layer4, self.k,
                                                            scope=self.scope+'_l4.5',
