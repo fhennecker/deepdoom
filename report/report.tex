@@ -45,8 +45,9 @@ state from one frame to the next.
 In order to plug our work to the DOOM game, we are using the ViZDoom environment
 \citep{Kempka2016} that provides a programming interface to interact with a
 DOOM game in various languages (we use Python). ViZDoom provides access to the
-screen buffer and actions buttons, as well as game meta-data (such as player
-position and the labeled objects in the field of view), used only at training time.
+screen buffer and actions buttons, as well as game metadata (such as player
+position and the labeled objects in the field of view)\footnote{The metadata
+were used only during training time}.
 
 Our agent plays the basic scenario, where he is in a rectangular room.
 At the beginning, the enemy spawns at a random position on the opposite side of
@@ -186,7 +187,7 @@ Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
 size of $1000000$ frames, and mini batches of 32 samples. The sequence length of
 the training samples was set to 8, but only the last 4 outputs were accounted
 in the loss. The optimizers used to train the network use a learning rate of
-0.001 (we use RMSProp \citep{rmsprop}), and the discount factor ($\gamma$) is set to 0.99.
+$0.001$ (we use RMSProp \citep{rmsprop}), and the discount factor ($\gamma$) is set to $0.99$.
 Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
 $108 * 60$\footnote{As VizDoom does not support natively this resolution, we
 used the $200 * 125$ resolution and downsampled it before feeding it to the
@@ -282,7 +283,8 @@ more visible. The state is therefore only partially observable.
 
 \subsection{Test environment}
 
-We run our simulations on 
+We ran our simulations on a  high-end machine which specifications are displayed in Table \ref{tab:specs}.
+A typical run of 5000 steps on this machine lasts approximately 40 minutes.
 
 \begin{table}[h]
 \centering
@@ -295,9 +297,6 @@ We run our simulations on
 \caption{Test setup hardware specification}
 \label{tab:specs}
 \end{table}
-
-The training phase as well as the action phase were run on a high-end machine
-of which specifications are displayed in Table \ref{tab:specs}.\\
 
 Both DQN and DRQN were run with and without the game feature specifying the
 lateral position of the enemy against the back wall of the basic map. Figure
@@ -338,7 +337,7 @@ sufficient for the agent to make the optimal decision.\\
 
 Looking at test episodes of the DRQN agent, the behavior of the agent is excellent
 (it almost
-immediately moves in the right direction then shoots the enemy) until the
+immediately turns to the correct direction and then shoots the enemy) until the
 $Q$-values diverge at which point the agent will just pick the same action
 over and over again; either hugging the left or right wall or shooting
 indefinitely without moving.\\
