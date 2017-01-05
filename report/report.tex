@@ -100,10 +100,12 @@ DRQN network while the last is a standard DQN output. The network is trained
 with or without the game features and with either the DRQN or the DQN output.
 The hidden size of the LSTM was set to 300 units.
 
-\begin{figure}[h]
+\begin{figure*}[h]
   \includegraphics[width=\textwidth]{DRQNSchema.pdf}
   \caption{\label{fig:drqn-schema} Our network and its variations}
-\end{figure}
+\end{figure*}
+
+
 
 \subsubsection{Game Features} As described in the paper \citep{Lample2016},
 agents not using the game features were unable to accurately detect enemies and
@@ -134,7 +136,7 @@ When training an LSTM, one feeds sequences of data for which the LSTM will
 predict one output per time step. However, the LSTM will zero its hidden state
 before the start of each sequence, and it will take several time steps for the
 hidden state to initialise. Hence, the outputs for the first time steps might
-be erroneous since their previous hidden state was not fully initialised. 
+be erroneous since their previous hidden state was not fully initialised.
 To solve this, we discard the first time steps outputs when computing the loss,
 as explained in \citep{Lample2016}.
 
