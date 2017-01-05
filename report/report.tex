@@ -4,6 +4,7 @@
 \usepackage{hyperref}
 \usepackage{algpseudocode}
 \usepackage{algorithm}
+\usepackage{subfig}
 
 \title{Implementation\\Playing FPS Games with Deep Reinforcement Learning}
 \author{Titouan Christophe$^{1}$, Florentin Hennecker$^{2}$, Nikita Marchant$^{1}$ \and Bruno Rocha Pereira$^{1}$ \\
@@ -119,9 +120,13 @@ A potentially better way to solve the history issue is to use a Deep Recurrent
 Q-Network, as described in \citep{Hausknecht2015}. A DRQN
 estimates $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
 parameter $h_{t-1}$ represents the hidden state of the agent at the previous
-transition. In our case, we will use an LSTM to generate a new output, a new
-hidden state given an input and the previous hidden state.
-\todo{Adapter à notre archi}
+transition. In our case, we will use a Long Short-Term Memory layer (LSTM)
+\cite{Hochreiter1997}. In addition to the input and output state of usual neural
+networks, a LSTM unit also carries a hidden state, which has to be fed along
+with the input, and retrieved with the output. This hidden state is able to
+convey information about patterns that evolve along time. In our case, it is
+expected to carry information on portions of the game that have been observed
+but which are no more visible.
 
 \subsection{Model details}
 Our neural network is the same as the one presented in \citep{Lample2016},
@@ -251,16 +256,31 @@ of which specifications are displayed in Table \ref{tab:specs}.\\
 
 Both DQN and DRQN were run with and without the game feature specifying the 
 lateral position of the enemy against the back wall of the basic map. Figure
-?? \todo{ref fig} compares the rolling proportion of successful episodes
+\ref{successrate} compares the rolling proportion of successful episodes
 in these 4 settings. The rolling proportion is the number of episodes in which
 the agent killed the enemy before the episode ended in the last 64 episodes.
 
-$Q$-learning is known to diverge very easily \todo{ref?}. We can indeed see 
-on figure \todo{ref fig} that
+\begin{figure}
+	\subfloat[DRQN]{\includegraphics[width=.5\textwidth]{Graphs/success_DRQN.pdf}}\\
+	\subfloat[DQN]{\includegraphics[width=.5\textwidth]{Graphs/success_DRQN.pdf}}
+	\caption{Proportion of successful episodes}
+	\label{successrate}
+\end{figure}
+
+The good performance of DRQN then followed by a sudden drop in performance could
+be explained by the fact that $Q$-learning is known to diverge very easily 
+\todo{ref?}. We can indeed see on figure \ref{averageq} that
 even if our agent learns an excellent $Q$-function, its $Q$ values will at some
 point start diverging, causing the rolling proportion of successful episodes
 to drop significantly. This drop doesn't seem to occur when we remove the
 recurrent feedback and use DQN instead.\\
+
+\begin{figure}
+	\subfloat[DRQN]{\includegraphics[width=.5\textwidth]{Graphs/qval_DRQN.pdf}}\\
+	\subfloat[DQN]{\includegraphics[width=.5\textwidth]{Graphs/qval_DRQN.pdf}}
+	\caption{Average $Q$-values}
+	\label{averageq}
+\end{figure}
 
 Looking at test episodes, the behaviour of the agent is excellent (it almost
 immediately moves in the right direction then shoots the enemy) until the 
