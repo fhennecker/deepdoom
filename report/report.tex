@@ -2,6 +2,8 @@
 \usepackage{natbib,alifexi}
 \usepackage[bordercolor=gray!20,backgroundcolor=blue!10,linecolor=blue,textsize=footnotesize,textwidth=0.8in]{todonotes}
 \usepackage{hyperref}
+\usepackage{algpseudocode} 
+\usepackage{algorithm}
 
 \title{Implementation\\Playing FPS Games with Deep Reinforcement Learning}
 \author{Titouan Christophe$^{1}$, Florentin Hennecker$^{2}$, Nikita Marchant$^{1}$ \and Bruno Rocha Pereira$^{1}$ \\
@@ -75,7 +77,26 @@ $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' 
 
 This loss is computed on uniformly sampled game transitions stored in a
 replay memory instead of the previously played transition to reduce correlation
-between samples.
+between samples. Our version of the DQN algorithm is shown 
+\begin{algorithm}
+\caption{The DQN training algorithm}\label{dqn}
+\begin{algorithmic}[1]
+	\For{number of episodes}
+		\State{create new episode}
+		\While{episode not finished}
+			\If{random() $\leq$ epsilon}
+				\State choose random action
+			\Else
+				\State choose action with highest Q
+			\EndIf
+			\State store old state, action, new state and reward in memory
+		\EndWhile
+		\For{number of backpropagation steps}
+			\State update Q-network with a batch of random sequences
+		\EndFor
+	\EndFor
+\end{algorithmic}
+\end{algorithm}
 
 
 \subsubsection{Deep Recurrent Q-Networks}
@@ -157,7 +178,9 @@ set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do
 not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because
 a uniformly random sample of all these actions would lead the agent to stay
 at the same place and face approximately the same direction all the time. This
-bootstrapping phase is used to populate the replay memory.
+bootstrapping phase is used to populate the replay memory. Once the 
+bootstrapping phase is over, we run algorithm \ref{dqn} with $\epsilon$ starting at
+1 and decreasing linearly to 0.1 over 4000 episodes.
 
 We used the RMSProp \citep{rmsprop} algorithm with a learning rate of 0.001.
 
