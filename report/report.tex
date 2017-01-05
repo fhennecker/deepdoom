@@ -270,6 +270,17 @@ A typical run of 5000 steps on this machine lasts approximately 40 minutes.
 \end{table}
 
 
+\subsubsection{Fully Observable Markovian Process (FOMP)}
+We first allow the agent to play the following actions:
+\begin{itemize}
+  \item \texttt{MOVE\_LEFT} (slide to the left)
+  \item \texttt{MOVE\_RIGHT}
+  \item \texttt{ATTACK} (fire with the gun)
+\end{itemize}
+therefore, the enemy never goes out of sight for the agent and the state is
+fully observable.
+
+
 Both DQN and DRQN were run with and without the game feature specifying the
 lateral position of the enemy against the back wall of the basic map. Figure
 \ref{successrate} compares the rolling proportion of successful episodes
@@ -314,7 +325,7 @@ $Q$-values diverge at which point the agent will just pick the same action
 over and over again; either hugging the left or right wall or shooting
 indefinitely without moving.\\
 
-\subsubsection{Partially Observable Markovian Process}
+\subsubsection{Partially Observable Markovian Process (POMP)}
 We then change the agent's action set to the following:
 \begin{itemize}
   \item \texttt{TURN\_LEFT} (rotate to the left)
@@ -327,6 +338,11 @@ more visible. The state is therefore only partially observable. In this setting,
 we use another game feature: a binary label indicating whether the enemy is visible
 or not.
 
+\begin{figure}
+    \includegraphics[width=.5\textwidth]{Graphs/success_more.pdf}
+    \caption{Rolling success rate of the agent in a POMP setup}
+    \label{successmore}
+\end{figure}
 
 \section{Discussion}
 \todo{recall about the hypothesis that DRQN might lose the convergence property of DQN?}
