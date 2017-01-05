@@ -43,8 +43,6 @@ In this paper, we are implementing the techniques described in
 \todo{say that we're only playing basic}
 
 \section{Methods}
-In order to implement the techniques described in the paper,
-\todo{Dropout\cite{Srivastava2014}}
 
 \subsection{Background}
 \subsubsection{Deep Q-Networks}
@@ -152,6 +150,10 @@ at the same place and face approximately the same direction all the time. This
 bootstrapping phase is used to populate the replay memory.
 
 We used the RMSProp\todo{ref slides} algorithm with a learning rate of 0.001.
+
+\subsubsection{Dropout}
+Dropout \citep{Srivastava2014} was added to the fully connected layers, with
+a probability of keeping each unit of 75\% at training time.
 
 \subsection{Action phase}
 As opposed to the paper \citep{Lample2016} which uses a navigation phase as
