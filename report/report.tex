@@ -23,44 +23,100 @@ Brussels, Belgium \\
 \end{abstract}
 
 \section{Introduction}
-Deep Reinforcement learning has brought in the past solutions to automating and learning typical human-computer interactions. \todo{refs!}
-However, most of the previous applications of Deep Q-Networks assume a full knowledge of their environment. The application of those traditional DQN is thus limited in the case of playing FPS\footnote{First Person Shooter} games, where the field of vision of the player is limited. Deep recurrent networks were proposed to solve this problem \citep{Hausknecht2015} applied to Atari game. This paper applies techniques used for 2D games and extends them for use on a 3D game named DOOM.
-In order to plug our work to the DOOM game, we are using the Vizdoom API \citep{Kempka2016} that provides an easy use of the game controls as well as knowledge about the current state of the game.
-The agents will be playing in a setup of deathmatch. This means that they play in a level that requires to have the maximum amount of kills and the minimum amount of deaths, which is called best k/d ratio.
-In this paper, we are implementing the techniques described in \citep{Lample2016}.
+Deep Reinforcement learning has brought in the past solutions to automating and
+learning typical human-computer interactions. \todo{refs!}
+However, most of the previous applications of Deep Q-Networks assume a full
+knowledge of their environment. The application of those traditional DQN is 
+thus limited in the case of playing FPS\footnote{First Person Shooter} games,
+where the field of vision of the player is limited. Deep recurrent networks 
+were proposed to solve this problem \citep{Hausknecht2015} applied to Atari 
+game. This paper applies techniques used for 2D games and extends them for use
+on a 3D game named DOOM.
+In order to plug our work to the DOOM game, we are using the Vizdoom API 
+\citep{Kempka2016} that provides an easy use of the game controls as well as
+knowledge about the current state of the game.
+The agents will be playing in a setup of deathmatch. This means that they play
+in a level that requires to have the maximum amount of kills and the minimum
+amount of deaths, which is called best k/d ratio.
+In this paper, we are implementing the techniques described in
+\citep{Lample2016}.
+
 \section{Methods}
-In order to implement the techniques described in the paper,\todo{Dropout \cite{Srivastava2014}}
+In order to implement the techniques described in the paper,
+\todo{Dropout\cite{Srivastava2014}}
 
 \subsection{Deep Recurrent Q-Networks}
-Most papers solving human-computer interaction problems are based on Deep Q-Networks. In those, agents try to learn $Q(s_t,a_t)$ which represents an estimation of how valuable an action $a_t$ is in a state $s_t$. In order to find $Q^*$, the optimal $Q$-function, DQN networks use a neural network parametrized by $\theta$, which represents the weights of the neural network and gives an approximation called $Q_\theta$ further in this paper. Their goal is to find the optimal and real Q-function Q* which is verifies the Bellman optimality equation:
+Most papers solving human-computer interaction problems are based on Deep
+Q-Networks. In those, agents try to learn $Q(s_t,a_t)$ which represents an
+estimation of how valuable an action $a_t$ is in a state $s_t$. In order to
+find $Q^*$, the optimal $Q$-function, DQN networks use a neural network
+parametrized by $\theta$, which represents the weights of the neural network
+and gives an approximation called $Q_\theta$ further in this paper. Their goal
+is to find the optimal and real $Q$-function $Q^*$ which is verifies the Bellman
+optimality equation:
 
 $$ Q^*(s,a) = E\{r + \gamma \max_{a'}Q^*(s',a')|s,a\} $$
-With $r$ being the reward of playing $a$ in a state $s$, $\gamma\in [0,1]$ the discount factor and $(s',a')$ being the next state and its associated action
+With $r$ being the reward of playing $a$ in a state $s$, $\gamma\in [0,1]$ the
+discount factor and $(s',a')$ being the next state and its associated action
 
 This gives, since $Q_{\theta} \approx Q^*(s,a)$ the loss function below:
 $$ L_\theta(\theta_t) = E_{s,a,r,s'}\{(r +\gamma \max_{a'}Q_\theta(\theta_t)(s' , a' )-Q_{\theta_t}(s,a))^2\}$$
 
 
-The problem with the model described above is that it assumes a full knowledge of the state $s_t$. However in the case of DOOM, we only get a partial observation of the environment, limited by the field of vision of the main character. In order to solve that problem, we are using a Deep Recurrent Q-Network, as described in \citep{Hausknecht2015}. The main idea is to estimate $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The parameter $h_{t-1}$ represents the hidden state of the agent and is returned by the the network in $t-1$. In order to use a DRQN, we will simply use an LSTM to calculate $h_{t-1}$ and feed it to a regular DQN.
+The problem with the model described above is that it assumes a full knowledge
+of the state $s_t$. However in the case of DOOM, we only get a partial
+observation of the environment, limited by the field of vision of the main
+character. In order to solve that problem, we are using a Deep Recurrent
+Q-Network, as described in \citep{Hausknecht2015}. The main idea is to
+estimate $Q(s_t,h_{t-1},a_t)$ instead of the regular $Q(s_t,a_t)$. The
+parameter $h_{t-1}$ represents the hidden state of the agent and is returned
+by the the network in $t-1$. In order to use a DRQN, we will simply use an
+LSTM to calculate $h_{t-1}$ and feed it to a regular DQN.
 \todo{Adapter à notre archi}
 
 \subsection{Game Features}
-As described in the paper \citep{Lample2016}, agents not using the game features were unable to accurately detect enemies and were thus randomly shooting around hoping that those shots would reach their targets. In order to make up for a lack of efficiency, we used the game features to train the agent in a supervised setup to tell the agent if enemies were in his field of vision. The \texttt{Label buffer} was used to fetch all the entities present in the vision frustum. However, entities hidden by other scene elements, typically walls, were also parts of that buffer. We then used the map characteristics in order to to check if an entity was visible or not. Even though this information can't be used during testing phase, it was used during the training of the agents to improve their accuracy.
+As described in the paper \citep{Lample2016}, agents not using the game
+features were unable to accurately detect enemies and were thus randomly
+shooting around hoping that those shots would reach their targets. In order
+to make up for a lack of efficiency, we used the game features to train the
+agent in a supervised setup to tell the agent if enemies were in his field of
+vision. The \texttt{Label buffer} was used to fetch all the entities present
+in the vision frustum. However, entities hidden by other scene elements,
+typically walls, were also parts of that buffer. We then used the map
+characteristics in order to to check if an entity was visible or not. Even
+though this information can't be used during testing phase, it was used
+during the training of the agents to improve their accuracy.
 
 \subsection{Action phase}
-As opposed to the paper \citep{Lample2016} which uses a navigation phase as well as an action phase, we decided to only focus on the action phase. The navigation phase is the phase where the agent focuses on exploring the map to collect items and find enemies. We indeed dropped that step to immediately concentrate our efforts on the action phase, which consists in shooting at enemies when they are detected. This so-called action phase will of course take place after a training phase during which the agent learns how to interact properly with the game.
+As opposed to the paper \citep{Lample2016} which uses a navigation phase as
+well as an action phase, we decided to only focus on the action phase. The
+navigation phase is the phase where the agent focuses on exploring the map to
+collect items and find enemies. We indeed dropped that step to immediately
+concentrate our efforts on the action phase, which consists in shooting at
+enemies when they are detected. This so-called action phase will of course
+take place after a training phase during which the agent learns how to interact
+properly with the game.
 
 
 \subsection{Hyperparameters}
-Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory size of 1000000 frames. In the bootstrapping phase, our agent only plays random actions drawn from the set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because a uniformely random sample of all these actions would lead the agent to stay at the same place and face approximately the same direction all the time. This bootstrapping phase is used to populate the replay memory.
-
-\todo{screen resolution}
+Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory
+size of $1000000$ frames and a frame skip rate of 4.
+Each frame consists of a 8 bit per color \texttt{RGB} buffer of dimension
+$60 * 108$\footnote{As VizDoom does not support natively this resoluton, we
+used the $200 * 125$ resolution and downsampled it before feeding it to the
+agent.}.
+In the bootstrapping phase, our agent only plays random actions drawn from the
+set \texttt{TURN\_LEFT, MOVE\_LEFT, MOVE\_FORWARD, JUMP, MOVE\_RIGHT}. We do
+not add the \texttt{TURN\_RIGHT} and \texttt{MOVE\_BACKWARD} actions, because
+a uniformely random sample of all these actions would lead the agent to stay
+at the same place and face approximately the same direction all the time. This
+bootstrapping phase is used to populate the replay memory.
 
 \section{Results}
 \begin{table}[h]
 \centering
 \begin{tabular}{cc}
-\multicolumn{2}{c}{Test Setup}                         \Tstrut\\ \hline 
+\multicolumn{2}{c}{Test Setup}                         \Tstrut\\ \hline
 \multicolumn{1}{c|}{CPU} & Intel i7-6800K 3.4 GHz      \Tstrut\\
 \multicolumn{1}{c|}{GPU} & Nvidia GeForce GTX 1080 8Go \Tstrut\\
 \multicolumn{1}{c|}{RAM} & 32 Go DDR4                      \Tstrut
@@ -69,7 +125,8 @@ Analogously to \cite{Mnih2015} and \cite{Lample2016}, we use a replay memory siz
 \label{tab:specs}
 \end{table}
 
-The training phase as well as the action phase were run on a high-end machine of which specifications are displayed in Table \ref{tab:specs}.
+The training phase as well as the action phase were run on a high-end machine
+of which specifications are displayed in Table \ref{tab:specs}.
 
 \section{Discussion}
 
