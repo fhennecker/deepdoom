@@ -90,7 +90,7 @@ replay memory instead of the previously played transition to reduce correlation
 between samples. Algorithm \ref{dqn} shows how a Deep Q-Network is trained.
 \begin{algorithm}
 \caption{The DQN training algorithm}\label{dqn}
-\begin{algorithmic}[1]
+\begin{algorithmic}
 	\For{number of episodes}
 		\State{create new episode}
 		\While{episode not finished}
@@ -102,7 +102,8 @@ between samples. Algorithm \ref{dqn} shows how a Deep Q-Network is trained.
 			\State store old state, action, new state and reward in memory
 		\EndWhile
 		\For{number of back-propagation steps}
-			\State update Q-network with a batch of random sequences
+			\State update Q-network with a batch of randomly 
+			sampled sequences
 		\EndFor
 	\EndFor
 \end{algorithmic}
