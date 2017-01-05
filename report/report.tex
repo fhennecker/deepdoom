@@ -100,6 +100,11 @@ DRQN network while the last is a standard DQN output. The network is trained
 with or without the game features and with either the DRQN or the DQN output.
 The hidden size of the LSTM was set to 300 units.
 
+\begin{figure}[h]
+  \includegraphics[width=\textwidth]{DRQNSchema.pdf}
+  \caption{\label{fig:drqn-schema} Our network and its variations}
+\end{figure}
+
 \subsubsection{Game Features} As described in the paper \citep{Lample2016},
 agents not using the game features were unable to accurately detect enemies and
 were thus randomly shooting around hoping that those shots would reach their
