@@ -129,8 +129,8 @@ expected to carry information on portions of the game that have been observed
 but which are no more visible.
 
 \subsection{Model details}
-Our neural network is the same as the one presented in \citep{Lample2016},
-with one addition.
+Our neural network, as presented in Figure \ref{fig:drqn-schema} is the same as
+the one presented in \citep{Lample2016}, with one addition.
 It is composed of two convolutional layers followed by three separate
 sub-networks. One of these sub-networks is used in a supervised manner to
 predict various game features (see below), the second is a standard
@@ -139,11 +139,9 @@ with or without the game features and with either the DRQN or the DQN output.
 The hidden size of the LSTM was set to 300 units.
 
 \begin{figure*}[h]
-  \includegraphics[width=\textwidth]{DRQNSchema.pdf}
+  \includegraphics[width=.9\textwidth]{DRQNSchema.pdf}
   \caption{\label{fig:drqn-schema} Our network and its variations}
 \end{figure*}
-
-
 
 \subsubsection{Game Features} As described in the paper \citep{Lample2016},
 agents not using the game features were unable to accurately detect enemies and
